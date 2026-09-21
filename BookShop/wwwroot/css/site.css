@@ -1,5 +1,42 @@
+/* ==========================================================================
+   BookShop Design System — Editorial Bookstore & Monochromatic Earth Tones
+   ========================================================================== */
+
+/* 1. Google Fonts Import (Classical Literary Serif Lora/Amiri & Modern Sans Plus Jakarta Sans/Cairo) */
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Cairo:wght@400;500;600;700&family=Lora:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:ital,wght@0,300..700;1,300..700&display=swap');
+
+/* 2. Color Tokens & Variables */
+:root {
+  /* Earth Palette */
+  --c-espresso: #241C18;       /* Deepest roast for headings and primary text */
+  --c-roast: #4A3A31;          /* Secondary dark coffee tone */
+  --c-cafe: #7D573F;           /* Warm café primary brand accent */
+  --c-cafe-hover: #674631;     /* Darker café for button hover states */
+  --c-cafe-light: #9B7053;     /* Muted café tint */
+  --c-caramel: #B88559;        /* Warm accent */
+  --c-terracotta: #A4553B;     /* Muted organic accent for discounts and alerts */
+  --c-sand: #E7DFD5;           /* Delicate warm borders */
+  --c-sand-light: #F2ECE4;     /* Light warm background for pills & badges */
+  --c-parchment: #FAF7F2;      /* Gentle warm canvas background */
+  --c-cream: #FFFFFF;          /* Pure card and elevated surface background */
+
+  /* Font Families */
+  --font-serif: 'Lora', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Bootstrap Variable Overrides */
+  --bs-primary: var(--c-cafe);
+  --bs-primary-rgb: 125, 87, 63;
+  --bs-body-bg: var(--c-parchment);
+  --bs-body-color: var(--c-espresso);
+  --bs-body-font-family: var(--font-sans);
+  --bs-border-color: var(--c-sand);
+}
+
+/* 3. Global Typography & Canvas */
 html {
-  font-size: 14px;
+  font-size: 15px;
+  scroll-behavior: smooth;
 }
 
 @media (min-width: 768px) {
@@ -8,24 +45,427 @@ html {
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
 body {
-  margin-bottom: 60px;
+  background-color: var(--c-parchment);
+  color: var(--c-espresso);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.65;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+main {
+  flex: 1 0 auto;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+/* Classic Literary Serif Typography */
+h1, h2, h3, h4, h5, h6,
+.font-serif,
+.navbar-brand,
+.book-title {
+  font-family: var(--font-serif);
+  color: var(--c-espresso);
+  letter-spacing: -0.015em;
+  font-weight: 600;
+}
+
+/* 4. Buttons — Tactile, Organic & Minimal */
+.btn-primary {
+  background-color: var(--c-cafe) !important;
+  border-color: var(--c-cafe) !important;
+  color: #ffffff !important;
+  font-weight: 500;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--c-cafe-hover) !important;
+  border-color: var(--c-cafe-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(125, 87, 63, 0.22);
+}
+
+.btn-outline-primary {
+  color: var(--c-cafe) !important;
+  border-color: var(--c-cafe) !important;
+  background-color: transparent !important;
+  font-weight: 500;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+  background-color: var(--c-cafe) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(125, 87, 63, 0.18);
+}
+
+.btn-secondary {
+  background-color: var(--c-sand-light) !important;
+  border-color: var(--c-sand) !important;
+  color: var(--c-roast) !important;
+}
+
+.btn-secondary:hover {
+  background-color: var(--c-sand) !important;
+  color: var(--c-espresso) !important;
+}
+
+.btn-outline-secondary {
+  border-color: var(--c-sand) !important;
+  color: var(--c-roast) !important;
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--c-sand-light) !important;
+  border-color: var(--c-sand) !important;
+  color: var(--c-espresso) !important;
+}
+
+/* 5. Cards & Surfaces */
+.card {
+  background-color: var(--c-cream);
+  border: 1px solid var(--c-sand) !important;
+  border-radius: 0.85rem;
+}
+
+.bg-light {
+  background-color: var(--c-sand-light) !important;
+}
+
+/* 6. Form Inputs & Floating Labels */
+.form-control,
+.form-select {
+  background-color: var(--c-cream);
+  border: 1px solid var(--c-sand);
+  color: var(--c-espresso);
+  border-radius: 0.5rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: var(--c-cream);
+  border-color: var(--c-cafe);
+  box-shadow: 0 0 0 0.2rem rgba(125, 87, 63, 0.16);
+  color: var(--c-espresso);
+}
+
+/* Password Toggle */
+.password-toggle {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: var(--c-cafe-light);
+  cursor: pointer;
+  padding: 4px 6px;
+  z-index: 10;
+  transition: color 0.2s ease;
+}
+
+.password-toggle:hover {
+  color: var(--c-espresso);
+}
+
+/* 7. Badges & Accents */
+.badge-earth {
+  background-color: var(--c-sand-light);
+  color: var(--c-roast);
+  border: 1px solid var(--c-sand);
+  font-weight: 500;
+}
+
+.badge-terracotta {
+  background-color: #F8ECE8;
+  color: var(--c-terracotta);
+  border: 1px solid #EED4CC;
+  font-weight: 500;
+}
+
+.badge-cafe {
+  background-color: #F4ECE6;
+  color: var(--c-cafe);
+  border: 1px solid var(--c-sand);
+  font-weight: 500;
+}
+
+/* 8. Bookstore Aesthetic Enhancements */
+.book-spine-shadow {
+  box-shadow: 
+    -4px 0 8px -2px rgba(36, 28, 24, 0.15),
+    4px 6px 14px -3px rgba(36, 28, 24, 0.18);
+  border-radius: 2px 6px 6px 2px;
+}
+
+.book-card {
+  background-color: var(--c-cream);
+  border: 1px solid var(--c-sand) !important;
+  border-radius: 0.75rem;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease;
+}
+
+.book-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--c-caramel) !important;
+  box-shadow: 0 12px 28px -6px rgba(36, 28, 24, 0.12) !important;
+}
+
+.book-cover-container {
+  background: linear-gradient(180deg, #F9F6F0 0%, #EFEBE4 100%);
+  border-bottom: 1px solid var(--c-sand);
+  padding: 1.5rem 1rem;
+}
+
+.book-cover-img {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.book-card:hover .book-cover-img {
+  transform: scale(1.03) translateY(-2px);
+}
+
+.text-truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 9. Header, Navbar & Footer */
+.top-announcement-bar {
+  background-color: var(--c-espresso);
+  color: var(--c-sand-light);
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  padding: 0.4rem 1rem;
+  text-align: center;
+}
+
+.navbar-bookshop {
+  background-color: rgba(250, 247, 242, 0.94) !important;
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--c-sand) !important;
+  transition: all 0.3s ease;
+}
+
+.nav-link-literary {
+  color: var(--c-roast) !important;
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 0.5rem 0.9rem !important;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.nav-link-literary:hover,
+.nav-link-literary.active {
+  color: var(--c-cafe) !important;
+}
+
+.nav-link-literary::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background-color: var(--c-cafe);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateX(-50%);
+  border-radius: 2px;
+}
+
+.nav-link-literary:hover::after,
+.nav-link-literary.active::after {
+  width: 60%;
+}
+
+.footer-bookshop {
+  background-color: #241C18;
+  color: #D6CBC1;
+  border-top: 1px solid #382C26;
+  margin-top: auto;
+}
+
+.footer-bookshop a {
+  color: #BDB0A4;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-bookshop a:hover {
+  color: #FFFFFF;
+}
+
+/* 10. Animations & Transitions for Home Page */
+
+/* Staged entrance on load */
+@keyframes stagedFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-1 {
+  animation: stagedFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in-2 {
+  animation: stagedFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-3 {
+  animation: stagedFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-4 {
+  animation: stagedFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.45s forwards;
+  opacity: 0;
+}
+
+/* Subtle gentle floating animation for hero featured book */
+@keyframes gentleBookFloat {
+  0% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(-1deg);
+  }
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+}
+
+.hero-floating-book {
+  animation: gentleBookFloat 6s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+/* Scroll-triggered reveal animations */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-delay-1 {
+  transition-delay: 0.1s;
+}
+
+.reveal-delay-2 {
+  transition-delay: 0.2s;
+}
+
+.reveal-delay-3 {
+  transition-delay: 0.3s;
+}
+
+.reveal-delay-4 {
+  transition-delay: 0.4s;
+}
+
+/* Tactile Genre Card Hover */
+.genre-card {
+  background-color: var(--c-cream);
+  border: 1px solid var(--c-sand) !important;
+  border-radius: 0.75rem;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.genre-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background-color: var(--c-cafe);
+  opacity: 0;
+  transition: opacity 0.25s ease, width 0.25s ease;
+}
+
+.genre-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--c-cafe-light) !important;
+  box-shadow: 0 8px 20px rgba(36, 28, 24, 0.08) !important;
+}
+
+.genre-card:hover::before {
+  opacity: 1;
+  width: 6px;
+}
+
+/* ==========================================================================
+   Arabic & RTL (Right-to-Left) Literary Bookstore Styling
+   ========================================================================== */
+[dir="rtl"] {
+  --font-serif: 'Amiri', 'Lora', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Cairo', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  letter-spacing: 0 !important;
+}
+
+[dir="rtl"] body {
+  font-family: var(--font-sans);
+}
+
+[dir="rtl"] .font-serif,
+[dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, 
+[dir="rtl"] h4, [dir="rtl"] h5, [dir="rtl"] h6,
+[dir="rtl"] .navbar-brand,
+[dir="rtl"] .book-title {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+/* RTL Floating Hero Book 3D Rotation */
+[dir="rtl"] .hero-floating-book {
+  transform: perspective(1000px) rotateY(-8deg) rotateX(2deg);
+}
+
+[dir="rtl"] .hero-floating-book:hover {
+  transform: perspective(1000px) rotateY(-2deg) rotateX(0deg) translateY(-8px);
+}
+
+/* RTL Book Spine Shadow */
+[dir="rtl"] .book-spine-shadow {
+  box-shadow: -8px 10px 24px rgba(36, 28, 24, 0.22), -2px 3px 8px rgba(36, 28, 24, 0.12);
+}
+
+/* RTL Genre card spine indicator */
+[dir="rtl"] .genre-card::before {
+  right: 0;
+  left: auto;
+}
+
+/* Flip directional icons in RTL */
+[dir="rtl"] .bi-arrow-right::before {
+  content: "\f12f"; /* bi-arrow-left */
+}
+
+[dir="rtl"] .bi-arrow-left::before {
+  content: "\f138"; /* bi-arrow-right */
 }

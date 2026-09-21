@@ -1,27 +1,53 @@
-﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Identity
 @using BookShop.Data
+@using BookShop.Utility
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+@inject BookShop.Services.ILanguageService Lang
 
-<ul class="navbar-nav">
+<ul class="navbar-nav align-items-center gap-2">
 @if (SignInManager.IsSignedIn(User))
 {
+    var currentUser = await UserManager.GetUserAsync(User);
+    var displayName = !string.IsNullOrWhiteSpace(currentUser?.Name) ? currentUser.Name : User.Identity?.Name;
+
     <li class="nav-item">
-        <a  class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity?.Name!</a>
+        <a class="nav-link nav-link-literary d-flex align-items-center" asp-area="Identity" asp-page="/Account/Manage/Index" title="@(Lang.IsRtl ? "إدارة الحساب" : "Manage Account")">
+            <i class="bi bi-person @(Lang.IsRtl ? "ms-1" : "me-1")"></i>
+            <span>@displayName</span>
+            @if (User.IsInRole(SD.Role_Admin))
+            {
+                <span class="badge badge-cafe @(Lang.IsRtl ? "me-2" : "ms-2")">@(Lang.IsRtl ? "مسؤول" : "Admin")</span>
+            }
+            else if (User.IsInRole(SD.Role_Employee))
+            {
+                <span class="badge badge-earth @(Lang.IsRtl ? "me-2" : "ms-2")">@(Lang.IsRtl ? "فريق العمل" : "Staff")</span>
+            }
+            else
+            {
+                <span class="badge badge-earth @(Lang.IsRtl ? "me-2" : "ms-2")">@(Lang.IsRtl ? "عضو" : "Member")</span>
+            }
+        </a>
     </li>
     <li class="nav-item">
-        <form  class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button  type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+            <button type="submit" class="btn btn-outline-secondary btn-sm px-3 rounded-pill">
+                <i class="bi bi-box-arrow-right @(Lang.IsRtl ? "ms-1" : "me-1")"></i>@Lang["Nav_SignOut"]
+            </button>
         </form>
     </li>
 }
 else
 {
     <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
+        <a class="nav-link nav-link-literary" asp-area="Identity" asp-page="/Account/Register">
+            <i class="bi bi-feather @(Lang.IsRtl ? "ms-1" : "me-1")"></i>@Lang["Nav_Register"]
+        </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
+        <a class="btn btn-outline-primary btn-sm px-3 rounded-pill" asp-area="Identity" asp-page="/Account/Login">
+            <i class="bi bi-person @(Lang.IsRtl ? "ms-1" : "me-1")"></i>@Lang["Nav_SignIn"]
+        </a>
     </li>
 }
 </ul>

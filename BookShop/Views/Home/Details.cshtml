@@ -1,0 +1,279 @@
+@model BookShop.Models.ViewModels.CustomerBookDetailsVM
+@inject BookShop.Services.ILanguageService Lang
+
+@{
+    ViewData["Title"] = Model.Book.Title;
+}
+
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb small text-muted">
+            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">@Lang["Nav_Home"]</a></li>
+            <li class="breadcrumb-item"><a asp-action="Shop" class="text-decoration-none text-muted">@Lang["Nav_Catalog"]</a></li>
+            @if (Model.Book.Category != null)
+            {
+                <li class="breadcrumb-item">
+                    <a asp-action="Shop" asp-route-categoryId="@Model.Book.CategoryId" class="text-decoration-none text-muted">
+                        @Model.Book.Category.Name
+                    </a>
+                </li>
+            }
+            <li class="breadcrumb-item active text-dark text-truncate" style="max-width: 280px;" aria-current="page">@Model.Book.Title</li>
+        </ol>
+    </nav>
+
+    <!-- Main Product Card -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+        <div class="card-body p-4 p-lg-5">
+            <div class="row g-4 g-lg-5">
+                <!-- Left: Book Cover Stage with 3D Depth Shadow -->
+                <div class="col-md-5 col-lg-4 text-center">
+                    <div class="book-cover-container rounded-3 p-4 d-flex align-items-center justify-content-center position-relative">
+                        @if (Model.Book.DiscountPercentage.HasValue && Model.Book.DiscountPercentage > 0)
+                        {
+                            <span class="position-absolute top-0 @(Lang.IsRtl ? "end-0" : "start-0") m-3 badge badge-terracotta rounded-pill px-3 py-1 shadow-sm">
+                                -@Model.Book.DiscountPercentage%
+                            </span>
+                        }
+
+                        @if (!string.IsNullOrEmpty(Model.Book.CoverImageUrl))
+                        {
+                            <img src="@Model.Book.CoverImageUrl" alt="@Model.Book.Title" class="img-fluid book-spine-shadow" style="max-height: 420px; object-fit: contain;" />
+                        }
+                        else
+                        {
+                            <div class="d-flex flex-column align-items-center justify-content-center py-5 text-muted bg-white border rounded" style="width: 180px; height: 260px;">
+                                <i class="bi bi-book fs-1 mb-2" style="color: var(--c-cafe-light);"></i>
+                                <span class="small font-serif">@(Lang.IsRtl ? "طبعة بوك شوب الأصلية" : "Original Edition")</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Right: Details & Buying Flow -->
+                <div class="col-md-7 col-lg-8">
+                    <!-- Category & Stock Status -->
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                        <span class="badge badge-earth rounded-pill px-3 py-1">
+                            @(Model.Book.Category?.Name ?? (Lang.IsRtl ? "أدب عام" : "General Literature"))
+                        </span>
+                        @if (Model.Book.StockQuantity > 5)
+                        {
+                            <span class="small text-muted">
+                                <i class="bi bi-check2 @(Lang.IsRtl ? "ms-1" : "me-1")"></i>@Lang["Book_InStock"] (@Model.Book.StockQuantity)
+                            </span>
+                        }
+                        else if (Model.Book.StockQuantity > 0)
+                        {
+                            <span class="small text-danger">
+                                <i class="bi bi-exclamation-circle @(Lang.IsRtl ? "ms-1" : "me-1")"></i>@string.Format(Lang["Book_OnlyCopies"], Model.Book.StockQuantity)
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="small text-secondary">
+                                <i class="bi bi-x-circle @(Lang.IsRtl ? "ms-1" : "me-1")"></i>@Lang["Book_OutOfStock"]
+                            </span>
+                        }
+                    </div>
+
+                    <!-- Title -->
+                    <h1 class="h2 font-serif fw-bold text-dark mb-2">@Model.Book.Title</h1>
+
+                    <!-- Author & Publisher -->
+                    <p class="text-muted mb-4 fs-6">
+                        @Lang["Book_By"] <a asp-action="Shop" asp-route-authorId="@Model.Book.AuthorId" class="fw-semibold text-decoration-none" style="color: var(--c-cafe);">
+                            @(Model.Book.Author?.Name ?? (Lang.IsRtl ? "مؤلف مجهول" : "Unknown Author"))
+                        </a>
+                        @if (Model.Book.Publisher != null)
+                        {
+                            <span> &middot; @Lang["Book_PublishedBy"] <span class="text-dark fw-medium">@Model.Book.Publisher.Name</span></span>
+                        }
+                    </p>
+
+                    <!-- Price Box -->
+                    <div class="p-3 rounded-3 mb-4" style="background-color: var(--c-sand-light); border: 1px solid var(--c-sand);">
+                        <div class="d-flex align-items-baseline gap-3">
+                            @if (Model.Book.DiscountPercentage.HasValue && Model.Book.DiscountPercentage > 0)
+                            {
+                                <span class="display-6 font-serif fw-bold" style="color: var(--c-espresso);">@Model.Book.EffectivePrice.ToString("C")</span>
+                                <span class="fs-5 text-muted text-decoration-line-through">@Model.Book.Price.ToString("C")</span>
+                                <span class="badge badge-terracotta">@string.Format(Lang["Book_SaveDiscount"], (Model.Book.Price - Model.Book.EffectivePrice).ToString("C"))</span>
+                            }
+                            else
+                            {
+                                <span class="display-6 font-serif fw-bold" style="color: var(--c-espresso);">@Model.Book.Price.ToString("C")</span>
+                            }
+                        </div>
+                        <small class="text-muted d-block mt-1">@Lang["Book_ComplimentaryPackaging"]</small>
+                    </div>
+
+                    <!-- Quantity & Action Buttons -->
+                    @if (Model.Book.StockQuantity > 0)
+                    {
+                        <form asp-controller="Cart" asp-action="AddToCart" method="post" class="mb-4">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="bookId" value="@Model.Book.Id" />
+                            <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+
+                            <div class="row g-3 align-items-center">
+                                <div class="col-sm-3 col-4">
+                                    <label class="form-label small fw-semibold text-muted mb-1" for="quantityInput">@Lang["Book_Quantity"]</label>
+                                    <input type="number" id="quantityInput" name="quantity" class="form-control form-control-lg text-center" 
+                                           value="1" min="1" max="@Model.Book.StockQuantity" />
+                                </div>
+                                <div class="col-sm-9 col-8">
+                                    <label class="form-label small fw-semibold text-muted mb-1 d-none d-sm-block">&nbsp;</label>
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary btn-lg flex-grow-1 rounded-pill shadow-sm">
+                                            <i class="bi bi-bag @(Lang.IsRtl ? "ms-2" : "me-2")"></i>@Lang["Book_AddToBag"]
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary btn-lg px-3 rounded-pill" title="@Lang["Book_SaveWishlist"]"
+                                                onclick="alert('@(Lang.IsRtl ? "ستتوفر ميزة قائمة القراءة في المرحلة القادمة!" : "Wishlist feature will be active in Phase 5!")');">
+                                            <i class="bi bi-bookmark"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="alert alert-secondary mb-4 rounded-3" role="alert">
+                            <i class="bi bi-info-circle @(Lang.IsRtl ? "ms-2" : "me-2")"></i>@Lang["Book_OutOfStockAlert"]
+                        </div>
+                    }
+
+                    <!-- Atmospheric Guarantees -->
+                    <div class="row g-3 border-top pt-4 text-muted small">
+                        <div class="col-sm-4 d-flex align-items-center">
+                            <i class="bi bi-box-seam fs-5 @(Lang.IsRtl ? "ms-2" : "me-2")" style="color: var(--c-cafe);"></i>
+                            <span>@Lang["Book_Guarantee_Wrap"]</span>
+                        </div>
+                        <div class="col-sm-4 d-flex align-items-center">
+                            <i class="bi bi-arrow-counterclockwise fs-5 @(Lang.IsRtl ? "ms-2" : "me-2")" style="color: var(--c-cafe);"></i>
+                            <span>@Lang["Book_Guarantee_Returns"]</span>
+                        </div>
+                        <div class="col-sm-4 d-flex align-items-center">
+                            <i class="bi bi-shield-check fs-5 @(Lang.IsRtl ? "ms-2" : "me-2")" style="color: var(--c-cafe);"></i>
+                            <span>@Lang["Book_Guarantee_Secure"]</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Editorial Tabs for Synopsis & Specifications -->
+    <div class="card border-0 shadow-sm rounded-4 mb-5">
+        <div class="card-header bg-white border-bottom py-3">
+            <ul class="nav nav-tabs card-header-tabs" id="bookDetailTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active font-serif fw-semibold" id="desc-tab" data-bs-toggle="tab" data-bs-target="#desc" type="button" role="tab">
+                        @(Lang.IsRtl ? "نبذة عن الكتاب" : "Synopsis & Notes")
+                    </button>
+                </li>
+                @if (Model.Book.Author != null && !string.IsNullOrEmpty(Model.Book.Author.Biography))
+                {
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link font-serif fw-semibold" id="author-tab" data-bs-toggle="tab" data-bs-target="#author" type="button" role="tab">
+                            @(Lang.IsRtl ? "عن المؤلف" : "About the Author")
+                        </button>
+                    </li>
+                }
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link font-serif fw-semibold" id="specs-tab" data-bs-toggle="tab" data-bs-target="#specs" type="button" role="tab">
+                        @(Lang.IsRtl ? "بيانات الإصدار" : "Edition Details")
+                    </button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body p-4 p-md-5">
+            <div class="tab-content" id="bookDetailTabsContent">
+                <!-- Description Tab -->
+                <div class="tab-pane fade show active" id="desc" role="tabpanel">
+                    <h5 class="font-serif fw-bold mb-3">@(Lang.IsRtl ? "نظرة عامة" : "Overview")</h5>
+                    <p class="text-secondary lh-lg" style="white-space: pre-line; font-size: 1.05rem;">@Model.Book.Description</p>
+                </div>
+
+                <!-- Author Tab -->
+                @if (Model.Book.Author != null && !string.IsNullOrEmpty(Model.Book.Author.Biography))
+                {
+                    <div class="tab-pane fade" id="author" role="tabpanel">
+                        <h5 class="font-serif fw-bold mb-3">@Model.Book.Author.Name</h5>
+                        <p class="text-secondary lh-lg" style="font-size: 1.02rem;">@Model.Book.Author.Biography</p>
+                    </div>
+                }
+
+                <!-- Specifications Tab -->
+                <div class="tab-pane fade" id="specs" role="tabpanel">
+                    <h5 class="font-serif fw-bold mb-3">@(Lang.IsRtl ? "البيانات الببليوغرافية" : "Bibliographical Metadata")</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-sm table-borderless">
+                                <tbody>
+                                    <tr>
+                                        <th class="text-muted w-50">@(Lang.IsRtl ? "الرقم المعياري (ISBN):" : "Standard ISBN:")</th>
+                                        <td class="text-dark fw-medium"><code>@Model.Book.ISBN</code></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted">@(Lang.IsRtl ? "التصنيف:" : "Genre:")</th>
+                                        <td class="text-dark fw-medium">@(Model.Book.Category?.Name ?? (Lang.IsRtl ? "أدب عام" : "General Literature"))</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted">@(Lang.IsRtl ? "المؤلف:" : "Primary Creator:")</th>
+                                        <td class="text-dark fw-medium">@(Model.Book.Author?.Name ?? (Lang.IsRtl ? "مجهول" : "Unknown"))</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-sm table-borderless">
+                                <tbody>
+                                    <tr>
+                                        <th class="text-muted w-50">@(Lang.IsRtl ? "دار النشر:" : "Publishing House:")</th>
+                                        <td class="text-dark fw-medium">@(Model.Book.Publisher?.Name ?? (Lang.IsRtl ? "إصدار مستقل" : "Independent Release"))</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted">@(Lang.IsRtl ? "نمط التجليد:" : "Binding Style:")</th>
+                                        <td class="text-dark fw-medium">@(Lang.IsRtl ? "طبعة مكتبية فاخرة" : "Standard Library Edition")</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted">@(Lang.IsRtl ? "تاريخ الأرشفة:" : "Archive Ingestion:")</th>
+                                        <td class="text-dark fw-medium">@Model.Book.CreatedAt.ToString("MMMM yyyy")</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Books Recommendations -->
+    @if (Model.RelatedBooks.Any())
+    {
+        <div class="mb-5">
+            <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-3">
+                <div>
+                    <span class="text-uppercase small fw-semibold text-muted" style="letter-spacing: 0.08em;">@(Lang.IsRtl ? "قراءات متممة" : "Complementary Reading")</span>
+                    <h3 class="font-serif fw-bold text-dark mb-0">@(Lang.IsRtl ? "عناوين قد تنال إعجابك" : "You Might Also Appreciate")</h3>
+                </div>
+                <a asp-action="Shop" asp-route-categoryId="@Model.Book.CategoryId" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                    @(Lang.IsRtl ? "المزيد في " + Model.Book.Category?.Name : "More in " + Model.Book.Category?.Name) &rarr;
+                </a>
+            </div>
+
+            <div class="row g-4">
+                @foreach (var related in Model.RelatedBooks)
+                {
+                    <div class="col-sm-6 col-md-4 col-xl-3">
+                        <partial name="_BookCard" model="related" />
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

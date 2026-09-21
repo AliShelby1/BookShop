@@ -1,8 +1,217 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model BookShop.Models.ViewModels.HomeVM
+@inject BookShop.Services.ILanguageService Lang
+
+@{
+    ViewData["Title"] = Lang.IsRtl ? "مكتبة ومطبوعات أدبية مستقلة" : "Independent Booksellers & Publishers";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!-- Hero Section — Editorial & Animated -->
+<section class="py-5 my-3 rounded-4 position-relative overflow-hidden" 
+         style="background: linear-gradient(135deg, #F3ECE2 0%, #E8DFC8 50%, #DFD3C3 100%); border: 1px solid var(--c-sand);">
+    <div class="container py-4 py-lg-5">
+        <div class="row align-items-center g-5">
+            <!-- Left / Start: Staged Animated Typography -->
+            <div class="col-lg-7 text-center @(Lang.IsRtl ? "text-lg-end" : "text-lg-start")">
+                <div class="animate-fade-in-1 mb-3">
+                    <span class="badge badge-earth rounded-pill px-3 py-2 text-uppercase fw-semibold" style="letter-spacing: 0.08em; font-size: 0.78rem;">
+                        <i class="bi bi-feather @(Lang.IsRtl ? "ms-1" : "me-1")"></i>@Lang["Hero_Badge"]
+                    </span>
+                </div>
+
+                <h1 class="display-3 font-serif fw-bold mb-3 lh-sm animate-fade-in-2" style="color: var(--c-espresso);">
+                    @Lang["Hero_Title_1"] <br />
+                    <em class="fw-normal" style="color: var(--c-cafe);">@Lang["Hero_Title_2"]</em>
+                </h1>
+
+                <p class="lead text-muted mb-4 @(Lang.IsRtl ? "ps-lg-5" : "pe-lg-5") animate-fade-in-3" style="font-size: 1.15rem; line-height: 1.8;">
+                    @Lang["Hero_Subtitle"]
+                </p>
+
+                <div class="d-flex flex-wrap gap-3 justify-content-center @(Lang.IsRtl ? "justify-content-lg-start flex-row-reverse" : "justify-content-lg-start") animate-fade-in-4">
+                    <a asp-action="Shop" class="btn btn-primary btn-lg px-4 py-3 rounded-pill shadow-sm d-flex align-items-center">
+                        <span>@Lang["Hero_ExploreBtn"]</span>
+                        <i class="bi bi-arrow-right @(Lang.IsRtl ? "me-2" : "ms-2")"></i>
+                    </a>
+                    <a href="#featured" class="btn btn-outline-secondary btn-lg px-4 py-3 rounded-pill">
+                        <i class="bi bi-bookmark @(Lang.IsRtl ? "ms-1" : "me-1")"></i>@(Lang.IsRtl ? "مختارات أدبية" : "Curated Selections")
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right / End: Clickable Floating Book Spotlight -->
+            <div class="col-lg-5 text-center d-none d-lg-block">
+                @if (Model.VolumeOfTheMonth != null)
+                {
+                    <div class="position-relative d-inline-block p-4">
+                        <a asp-action="Details" asp-route-id="@Model.VolumeOfTheMonth.Id" class="text-decoration-none d-inline-block">
+                            <div class="hero-floating-book">
+                                <img src="@Model.VolumeOfTheMonth.CoverImageUrl" 
+                                     alt="@Model.VolumeOfTheMonth.Title" 
+                                     class="img-fluid book-spine-shadow rounded-2" 
+                                     style="max-height: 380px; width: auto; object-fit: cover;" />
+                            </div>
+                            <div class="mt-3 text-center">
+                                <span class="badge badge-earth rounded-pill px-3 py-1 mb-1">
+                                    <i class="bi bi-star @(Lang.IsRtl ? "ms-1" : "me-1")"></i>@Lang["Hero_SpotlightBadge"]
+                                </span>
+                                <h6 class="font-serif fw-bold text-dark mb-0 mt-1">@Model.VolumeOfTheMonth.Title</h6>
+                                <small class="text-muted fst-italic font-serif" style="font-size: 0.85rem;">
+                                    @Lang["Book_By"] @(Model.VolumeOfTheMonth.Author?.Name ?? (Lang.IsRtl ? "مؤلف مختار" : "Selected Author")) &middot; @Model.VolumeOfTheMonth.EffectivePrice.ToString("C") &rarr;
+                                </small>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Relaxing Bookstore Commitments -->
+<section class="my-5 py-3 reveal-on-scroll">
+    <div class="row g-4 text-center">
+        <div class="col-6 col-md-3">
+            <div class="p-3">
+                <div class="fs-2 mb-2" style="color: var(--c-cafe);">
+                    <i class="bi bi-compass"></i>
+                </div>
+                <h6 class="font-serif fw-bold mb-1">@(Lang.IsRtl ? "انتقاء دقيق ومتقن" : "Thoughtful Curation")</h6>
+                <p class="text-muted small mb-0">@(Lang.IsRtl ? "كل عنوان مختار يدوياً لعمق فكرته وجودة صياغته." : "Every title hand-picked for quality, depth, and craft.")</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="p-3">
+                <div class="fs-2 mb-2" style="color: var(--c-cafe);">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+                <h6 class="font-serif fw-bold mb-1">@Lang["Commitments_Wrap"]</h6>
+                <p class="text-muted small mb-0">@Lang["Commitments_Wrap_Desc"]</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="p-3">
+                <div class="fs-2 mb-2" style="color: var(--c-cafe);">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <h6 class="font-serif fw-bold mb-1">@Lang["Commitments_Shipping"]</h6>
+                <p class="text-muted small mb-0">@Lang["Commitments_Shipping_Desc"]</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="p-3">
+                <div class="fs-2 mb-2" style="color: var(--c-cafe);">
+                    <i class="bi bi-feather"></i>
+                </div>
+                <h6 class="font-serif fw-bold mb-1">@Lang["Commitments_Returns"]</h6>
+                <p class="text-muted small mb-0">@Lang["Commitments_Returns_Desc"]</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Browse by Literary Genre -->
+<section class="my-5 py-3 reveal-on-scroll">
+    <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-3">
+        <div>
+            <span class="text-uppercase small fw-semibold text-muted" style="letter-spacing: 0.08em;">@(Lang.IsRtl ? "التصنيف الأدبي" : "Classification")</span>
+            <h2 class="font-serif fw-bold mb-0" style="color: var(--c-espresso);">@Lang["Genre_Section_Title"]</h2>
+        </div>
+        <a asp-action="Shop" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+            @Lang["View_All_Catalog"] <i class="bi bi-arrow-right @(Lang.IsRtl ? "me-1" : "ms-1")"></i>
+        </a>
+    </div>
+
+    <div class="row g-3">
+        @foreach (var cat in Model.Categories)
+        {
+            var icon = string.IsNullOrWhiteSpace(cat.IconClass) ? "bi-book" : cat.IconClass;
+            <div class="col-6 col-sm-4 col-md-3 col-xl-2">
+                <a asp-action="Shop" asp-route-categoryId="@cat.Id" class="genre-card p-3 d-block text-decoration-none text-dark h-100 text-center">
+                    <div class="mb-2" style="color: var(--c-cafe);">
+                        <i class="bi @icon fs-3"></i>
+                    </div>
+                    <h6 class="font-serif fw-semibold mb-1 text-truncate" style="font-size: 0.95rem;">@cat.Name</h6>
+                    <small class="text-muted" style="font-size: 0.75rem;">@(Lang.IsRtl ? "استكشف &larr;" : "Explore &rarr;")</small>
+                </a>
+            </div>
+        }
+    </div>
+</section>
+
+<!-- Featured Offers & Special Editions -->
+@if (Model.FeaturedBooks.Any())
+{
+    <section class="my-5 py-3 reveal-on-scroll" id="featured">
+        <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-3">
+            <div>
+                <span class="text-uppercase small fw-semibold text-muted" style="letter-spacing: 0.08em;">@(Lang.IsRtl ? "اختيارات أمين المكتبة" : "Curator's Choice")</span>
+                <h2 class="font-serif fw-bold mb-0" style="color: var(--c-espresso);">@Lang["Featured_Title"]</h2>
+            </div>
+            <a asp-action="Shop" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                @(Lang.IsRtl ? "جميع المختارات" : "All Offers") <i class="bi bi-arrow-right @(Lang.IsRtl ? "me-1" : "ms-1")"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            @foreach (var book in Model.FeaturedBooks)
+            {
+                <div class="col-sm-6 col-md-4 col-xl-3">
+                    <partial name="_BookCard" model="book" />
+                </div>
+            }
+        </div>
+    </section>
+}
+
+<!-- Literary Quote Banner -->
+<section class="my-5 py-5 text-center reveal-on-scroll rounded-4" style="background-color: var(--c-sand-light); border: 1px solid var(--c-sand);">
+    <div class="container py-3" style="max-width: 720px;">
+        <i class="bi bi-quote fs-1 d-block mb-2" style="color: var(--c-cafe-light);"></i>
+        <blockquote class="blockquote">
+            @if (Lang.IsRtl)
+            {
+                <p class="font-serif fs-4 fst-italic lh-base mb-3" style="color: var(--c-espresso);">
+                    "أعَزُّ مَكانٍ في الدُّنَى سَرْجُ سابِحٍ ... وَخَيرُ جَليسٍ في الزّمانِ كِتابُ"
+                </p>
+            }
+            else
+            {
+                <p class="font-serif fs-4 fst-italic lh-base mb-3" style="color: var(--c-espresso);">
+                    "A reader lives a thousand lives before he dies. The man who never reads lives only one."
+                </p>
+            }
+        </blockquote>
+        <figcaption class="blockquote-footer text-muted font-sans mb-0">
+            @if (Lang.IsRtl)
+            {
+                <span>أبو الطيب المتنبي</span>
+            }
+            else
+            {
+                <span>George R.R. Martin in <cite title="Source Title">A Dance with Dragons</cite></span>
+            }
+        </figcaption>
+    </div>
+</section>
+
+<!-- New Arrivals Section -->
+<section class="my-5 py-3 reveal-on-scroll">
+    <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-3">
+        <div>
+            <span class="text-uppercase small fw-semibold text-muted" style="letter-spacing: 0.08em;">@(Lang.IsRtl ? "وصل حديثاً" : "Just Unpacked")</span>
+            <h2 class="font-serif fw-bold mb-0" style="color: var(--c-espresso);">@Lang["Recent_Title"]</h2>
+        </div>
+        <a asp-action="Shop" asp-route-sortBy="newest" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+            @Lang["View_All_Catalog"] <i class="bi bi-arrow-right @(Lang.IsRtl ? "me-1" : "ms-1")"></i>
+        </a>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var book in Model.NewArrivals)
+        {
+            <div class="col-sm-6 col-md-4 col-xl-3">
+                <partial name="_BookCard" model="book" />
+            </div>
+        }
+    </div>
+</section>

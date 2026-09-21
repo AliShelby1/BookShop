@@ -1,48 +1,221 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+@using BookShop.Utility
+@inject BookShop.Services.ICartService CartService
+@inject BookShop.Services.ILanguageService Lang
+<!DOCTYPE html>
+<html lang="@Lang.CurrentCulture" dir="@(Lang.IsRtl ? "rtl" : "ltr")">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - BookShop</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <title>@ViewData["Title"] - @(Lang.IsRtl ? "مكتبة بوك شوب" : "BookShop")</title>
+    
+    <!-- Google Fonts Preconnect & Styles (Classical Serif Lora/Amiri & Modern Sans Plus Jakarta Sans/Cairo) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Cairo:wght@400;500;600;700&family=Lora:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap & Icons (Dynamic RTL / LTR) -->
+    @if (Lang.IsRtl)
+    {
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" />
+    }
+    else
+    {
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    }
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    
+    <!-- Custom Theme -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/BookShop.styles.css" asp-append-version="true" />
 </head>
 <body>
+    <!-- Top Quiet Announcement Bar -->
+    <div class="top-announcement-bar d-flex justify-content-center align-items-center text-center px-3">
+        <span>@Lang["Top_Announcement"]</span>
+    </div>
+
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">BookShop</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+        <nav class="navbar navbar-expand-lg navbar-bookshop sticky-top py-2">
+            <div class="container-fluid px-md-4">
+                <!-- Brand -->
+                <a class="navbar-brand d-flex align-items-center text-dark text-decoration-none py-1" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-book fs-3 @(Lang.IsRtl ? "ms-2" : "me-2")" style="color: var(--c-cafe);"></i>
+                    <span class="fs-4 fw-bold">@(Lang.IsRtl ? "مكتبة بوك شوب" : "BookShop")</span>
+                </a>
+
+                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+                    <i class="bi bi-list fs-2" style="color: var(--c-espresso);"></i>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+
+                <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
+                    <ul class="navbar-nav me-auto ps-lg-3 gap-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link nav-link-literary" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house me-1"></i>@Lang["Nav_Home"]
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link nav-link-literary" asp-area="" asp-controller="Home" asp-action="Shop">
+                                <i class="bi bi-compass me-1"></i>@Lang["Nav_Catalog"]
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-literary" asp-area="" asp-controller="Home" asp-action="Privacy">
+                                <i class="bi bi-shield me-1"></i>@Lang["Nav_Privacy"]
+                            </a>
+                        </li>
+
+                        @if (User.IsInRole(SD.Role_Admin))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link nav-link-literary dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-sliders me-1"></i>@Lang["Nav_AdminPortal"]
+                                </a>
+                                <ul class="dropdown-menu shadow-sm border" aria-labelledby="adminDropdown">
+                                    <li class="dropdown-header text-uppercase small text-muted">@Lang["Nav_Curator"]</li>
+                                    <li>
+                                        <a class="dropdown-item py-2" asp-controller="Storefront" asp-action="Index">
+                                            <i class="bi bi-sliders me-2" style="color: var(--c-cafe);"></i>@Lang["Nav_Curator"]
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2" asp-controller="Storefront" asp-action="Index" asp-fragment="storePoliciesCard">
+                                            <i class="bi bi-truck me-2" style="color: var(--c-cafe);"></i>@Lang["Nav_Policies"]
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li class="dropdown-header text-uppercase small text-muted">@Lang["Nav_BooksInventory"]</li>
+                                    <li>
+                                        <a class="dropdown-item py-2" asp-controller="Book" asp-action="Index">
+                                            <i class="bi bi-book me-2" style="color: var(--c-cafe);"></i>@Lang["Nav_BooksInventory"]
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2" asp-controller="Category" asp-action="Index">
+                                            <i class="bi bi-tag me-2" style="color: var(--c-cafe);"></i>@Lang["Nav_Categories"]
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2" asp-controller="Author" asp-action="Index">
+                                            <i class="bi bi-pen me-2" style="color: var(--c-cafe);"></i>@Lang["Nav_Authors"]
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2" asp-controller="Publisher" asp-action="Index">
+                                            <i class="bi bi-building me-2" style="color: var(--c-cafe);"></i>@Lang["Nav_Publishers"]
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li class="dropdown-header text-uppercase small text-muted">@Lang["Nav_ManageUsers"]</li>
+                                    <li>
+                                        <a class="dropdown-item py-2" asp-controller="User" asp-action="Index">
+                                            <i class="bi bi-people me-2" style="color: var(--c-cafe);"></i>@Lang["Nav_ManageUsers"]
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2" asp-area="Identity" asp-page="/Account/Register">
+                                            <i class="bi bi-person-plus me-2" style="color: var(--c-cafe);"></i>@Lang["Nav_CreateStaff"]
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+                    
+                    <ul class="navbar-nav align-items-center @(Lang.IsRtl ? "ms-3" : "me-3") gap-2">
+                        <!-- Language Switcher Toggle Button -->
+                        <li class="nav-item">
+                            @if (Lang.CurrentCulture == "ar")
+                            {
+                                <a asp-controller="Home" asp-action="SetLanguage" asp-route-culture="en" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" 
+                                   class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1 d-inline-flex align-items-center shadow-none" 
+                                   title="Switch to English" style="font-size: 0.8rem;">
+                                    <i class="bi bi-globe2 me-1"></i>English
+                                </a>
+                            }
+                            else
+                            {
+                                <a asp-controller="Home" asp-action="SetLanguage" asp-route-culture="ar" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" 
+                                   class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1 d-inline-flex align-items-center shadow-none font-serif" 
+                                   title="التحويل إلى اللغة العربية" style="font-size: 0.85rem;">
+                                    <i class="bi bi-globe2 me-1"></i>العربية
+                                </a>
+                            }
+                        </li>
+
+                        <!-- Reading Bag -->
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-literary position-relative d-inline-flex align-items-center px-2 py-1" asp-controller="Cart" asp-action="Index" title="@Lang["Nav_ReadingBag"]">
+                                <i class="bi bi-bag fs-5"></i>
+                                @{
+                                    var cartItemCount = await CartService.GetCartItemCountAsync();
+                                }
+                                @if (cartItemCount > 0)
+                                {
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill badge-terracotta shadow-sm" style="font-size: 0.68rem; padding: 0.28em 0.55em;">
+                                        @cartItemCount
+                                        <span class="visually-hidden">@Lang["Nav_ReadingBag"]</span>
+                                    </span>
+                                }
+                            </a>
                         </li>
                     </ul>
+
                     <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+
+    <div class="container-fluid px-md-4">
+        <main role="main" class="pb-5">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - BookShop - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <!-- Editorial Literary Footer -->
+    <footer class="footer-bookshop py-5 mt-auto">
+        <div class="container py-3">
+            <div class="row g-4">
+                <div class="col-lg-5 col-md-6">
+                    <h5 class="font-serif text-white mb-3 d-flex align-items-center">
+                        <i class="bi bi-book @(Lang.IsRtl ? "ms-2" : "me-2")" style="color: var(--c-caramel);"></i>@(Lang.IsRtl ? "مكتبة بوك شوب" : "BookShop")
+                    </h5>
+                    <p class="small text-muted pe-lg-4 lh-base">
+                        @Lang["Footer_Mission"]
+                    </p>
+                    <div class="small text-secondary">
+                        <i class="bi bi-geo-alt me-1"></i>@Lang["Footer_Dispatched"]
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-6">
+                    <h6 class="text-uppercase small fw-bold text-white mb-3">@Lang["Footer_ExploreCatalog"]</h6>
+                    <ul class="list-unstyled small mb-0 d-flex flex-column gap-2">
+                        <li><a asp-controller="Home" asp-action="Shop">@Lang["Footer_AllVolumes"]</a></li>
+                        <li><a asp-controller="Home" asp-action="Shop" asp-route-sortBy="newest">@Lang["Footer_RecentArrivals"]</a></li>
+                        <li><a asp-controller="Home" asp-action="Shop" asp-route-inStockOnly="true">@Lang["Footer_InStock"]</a></li>
+                        <li><a asp-controller="Home" asp-action="Privacy">@Lang["Footer_Policies"]</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <h6 class="text-uppercase small fw-bold text-white mb-3">@Lang["Footer_Dispatch"]</h6>
+                    <p class="small text-muted mb-3">@Lang["Footer_DispatchDesc"]</p>
+                    <div class="input-group">
+                        <input type="email" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="@Lang["Footer_EnterEmail"]" aria-label="Subscriber email" />
+                        <button class="btn btn-outline-light btn-sm" type="button">@Lang["Footer_Subscribe"]</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-top border-secondary border-opacity-25 mt-5 pt-4 text-center small text-secondary">
+                &copy; @DateTime.Now.Year @(Lang.IsRtl ? "مكتبة بوك شوب" : "BookShop"). @Lang["Footer_Copyright"]
+            </div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
