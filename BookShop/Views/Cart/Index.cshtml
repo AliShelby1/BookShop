@@ -1,0 +1,300 @@
+@model BookShop.Models.ViewModels.CartVM
+@inject BookShop.Services.ILanguageService Lang
+
+@{
+    ViewData["Title"] = Lang["Cart_Title"];
+}
+
+<div class="container py-4">
+    <!-- Breadcrumb & Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb small text-muted mb-1">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">@Lang["Nav_Home"]</a></li>
+                    <li class="breadcrumb-item active text-dark" aria-current="page">@Lang["Cart_Title"]</li>
+                </ol>
+            </nav>
+            <h1 class="h3 font-serif fw-bold text-dark mb-0 d-flex align-items-center">
+                <i class="bi bi-bag @(Lang.IsRtl ? "ms-2" : "me-2")" style="color: var(--c-cafe);"></i>@Lang["Cart_Title"]
+                @if (Model.TotalItemsCount > 0)
+                {
+                    <span class="fs-6 fw-normal text-muted @(Lang.IsRtl ? "me-2" : "ms-2")">
+                        (@Model.TotalItemsCount @(Model.TotalItemsCount == 1 ? Lang["Cart_VolumeCount"] : Lang["Cart_VolumesCount"]))
+                    </span>
+                }
+            </h1>
+        </div>
+
+        @if (Model.Items.Any())
+        {
+            <div class="mt-3 mt-md-0">
+                <a asp-controller="Home" asp-action="Shop" class="btn btn-outline-secondary btn-sm rounded-pill">
+                    <i class="bi bi-arrow-left @(Lang.IsRtl ? "ms-1" : "me-1")"></i>@Lang["Cart_ContinueBrowsing"]
+                </a>
+            </div>
+        }
+    </div>
+
+    @if (!Model.Items.Any())
+    {
+        <!-- Empty Cart Sanctuary -->
+        <div class="card border-0 shadow-sm rounded-4 text-center py-5 px-3 my-4" style="background-color: var(--c-parchment);">
+            <div class="card-body py-5">
+                <div class="mb-3">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle p-4" style="background-color: var(--c-sand-light); width: 90px; height: 90px;">
+                        <i class="bi bi-book fs-1" style="color: var(--c-cafe);"></i>
+                    </div>
+                </div>
+                <h3 class="font-serif fw-bold text-dark mb-2">@Lang["Cart_EmptyTitle"]</h3>
+                <p class="text-muted mx-auto mb-4" style="max-width: 480px;">
+                    @Lang["Cart_EmptyDesc"]
+                </p>
+                <div class="d-flex justify-content-center gap-2">
+                    <a asp-controller="Home" asp-action="Shop" class="btn btn-primary rounded-pill px-4 py-2 shadow-sm">
+                        <i class="bi bi-compass @(Lang.IsRtl ? "ms-2" : "me-2")"></i>@Lang["Cart_ExploreBtn"]
+                    </a>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4 py-2">
+                        @Lang["Cart_ReturnSanctuary"]
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Free Shipping Progress Tracker -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4" style="background-color: var(--c-sand-light); border: 1px solid var(--c-sand);">
+            <div class="card-body p-3 p-md-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-semibold text-dark">
+                        @if (Model.IsFreeShipping)
+                        {
+                            <span class="text-success"><i class="bi bi-check-circle-fill @(Lang.IsRtl ? "ms-1" : "me-1")"></i>@Lang["Cart_FreeShippingUnlocked"]</span>
+                        }
+                        else
+                        {
+                            <span>
+                                @if (Lang.IsRtl)
+                                {
+                                    <span>أضف بقيمة <strong style="color: var(--c-cafe);">@Model.AmountNeededForFreeShipping.ToString("C")</strong> إضافية للحصول على <strong>توصيل مجاني</strong></span>
+                                }
+                                else
+                                {
+                                    <span>Add <strong style="color: var(--c-cafe);">@Model.AmountNeededForFreeShipping.ToString("C")</strong> more to unlock <strong>Complimentary Shipping</strong></span>
+                                }
+                            </span>
+                        }
+                    </span>
+                    <span class="small text-muted">@Lang["Cart_FreeShippingThreshold"]: @Model.FreeShippingThreshold.ToString("C")</span>
+                </div>
+                <div class="progress" style="height: 7px; background-color: var(--c-sand);">
+                    <div class="progress-bar" role="progressbar" 
+                         style="width: @Model.FreeShippingProgressPercentage%; background-color: var(--c-cafe);" 
+                         aria-valuenow="@Model.FreeShippingProgressPercentage" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.CartAnnouncementBanner))
+                {
+                    <div class="small text-muted mt-2 d-flex align-items-center">
+                        <i class="bi bi-feather @(Lang.IsRtl ? "ms-1" : "me-1")" style="color: var(--c-cafe);"></i>
+                        <span>@Model.CartAnnouncementBanner</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left: Cart Items List -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <thead class="table-light small text-uppercase text-muted" style="letter-spacing: 0.04em;">
+                                    <tr>
+                                        <th scope="col" class="@(Lang.IsRtl ? "pe-4" : "ps-4") py-3">@Lang["Cart_VolumeEdition"]</th>
+                                        <th scope="col" class="py-3 text-center">@Lang["Cart_Price"]</th>
+                                        <th scope="col" class="py-3 text-center" style="width: 150px;">@Lang["Cart_Quantity"]</th>
+                                        <th scope="col" class="py-3 text-end">@Lang["Cart_LineTotal"]</th>
+                                        <th scope="col" class="@(Lang.IsRtl ? "ps-4" : "pe-4") py-3 text-end" style="width: 50px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.Items)
+                                    {
+                                        <tr class="border-bottom">
+                                            <!-- Book Info -->
+                                            <td class="@(Lang.IsRtl ? "pe-4" : "ps-4") py-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="book-cover-container rounded p-1 @(Lang.IsRtl ? "ms-3" : "me-3") flex-shrink-0" style="width: 60px; height: 85px;">
+                                                        <a asp-controller="Home" asp-action="Details" asp-route-id="@item.BookId">
+                                                            @if (!string.IsNullOrEmpty(item.CoverImageUrl))
+                                                            {
+                                                                <img src="@item.CoverImageUrl" alt="@item.Title" class="img-fluid book-spine-shadow rounded-1" style="height: 100%; width: 100%; object-fit: contain;" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="d-flex align-items-center justify-content-center h-100 bg-white border rounded small text-muted">
+                                                                    <i class="bi bi-book"></i>
+                                                                </div>
+                                                            }
+                                                        </a>
+                                                    </div>
+                                                    <div>
+                                                        <span class="badge badge-earth rounded-pill mb-1" style="font-size: 0.7rem;">@(item.CategoryName ?? (Lang.IsRtl ? "عام" : "General"))</span>
+                                                        <h6 class="font-serif mb-0">
+                                                            <a asp-controller="Home" asp-action="Details" asp-route-id="@item.BookId" class="text-decoration-none text-dark hover-primary">
+                                                                @item.Title
+                                                            </a>
+                                                        </h6>
+                                                        <small class="text-muted">@Lang["Book_By"] @(item.AuthorName ?? (Lang.IsRtl ? "مؤلف مجهول" : "Unknown Author"))</small>
+                                                        @if (item.StockQuantity <= 5 && item.StockQuantity > 0)
+                                                        {
+                                                            <div class="small text-danger mt-1">@string.Format(Lang["Book_OnlyCopies"], item.StockQuantity)</div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <!-- Unit Price -->
+                                            <td class="py-3 text-center">
+                                                <div class="fw-semibold font-serif">@item.UnitPrice.ToString("C")</div>
+                                                @if (item.DiscountPercentage.HasValue && item.DiscountPercentage > 0)
+                                                {
+                                                    <small class="text-muted text-decoration-line-through">@item.OriginalPrice.ToString("C")</small>
+                                                }
+                                            </td>
+
+                                            <!-- Quantity Controls -->
+                                            <td class="py-3 text-center">
+                                                <div class="input-group input-group-sm mx-auto" style="max-width: 120px;">
+                                                    <form asp-controller="Cart" asp-action="UpdateQuantity" method="post" class="d-inline">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="cartItemId" value="@item.CartItemId" />
+                                                        <input type="hidden" name="quantity" value="@(item.Quantity - 1)" />
+                                                        <button type="submit" class="btn btn-outline-secondary btn-sm rounded-start-pill px-2" title="Decrease">
+                                                            <i class="bi bi-dash"></i>
+                                                        </button>
+                                                    </form>
+
+                                                    <input type="text" class="form-control text-center bg-white border-secondary-subtle small fw-bold" 
+                                                           value="@item.Quantity" readonly style="max-width: 45px;" />
+
+                                                    <form asp-controller="Cart" asp-action="UpdateQuantity" method="post" class="d-inline">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="cartItemId" value="@item.CartItemId" />
+                                                        <input type="hidden" name="quantity" value="@(item.Quantity + 1)" />
+                                                        <button type="submit" class="btn btn-outline-secondary btn-sm rounded-end-pill px-2" title="Increase"
+                                                                @(item.Quantity >= item.StockQuantity ? "disabled" : "")>
+                                                            <i class="bi bi-plus"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+
+                                            <!-- Line Total -->
+                                            <td class="py-3 text-end">
+                                                <span class="font-serif fw-bold text-dark fs-6">@item.LineTotal.ToString("C")</span>
+                                            </td>
+
+                                            <!-- Remove Action -->
+                                            <td class="@(Lang.IsRtl ? "ps-4" : "pe-4") py-3 text-end">
+                                                <form asp-controller="Cart" asp-action="Remove" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="cartItemId" value="@item.CartItemId" />
+                                                    <button type="submit" class="btn btn-link text-muted p-0 hover-danger" title="Remove">
+                                                        <i class="bi bi-x-lg"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Bottom Cart Table Actions -->
+                        <div class="d-flex justify-content-between align-items-center p-3 p-md-4 bg-light bg-opacity-25 border-top">
+                            <a asp-controller="Home" asp-action="Shop" class="btn btn-outline-secondary btn-sm rounded-pill">
+                                <i class="bi bi-arrow-left @(Lang.IsRtl ? "ms-1" : "me-1")"></i>@Lang["Cart_ContinueShopping"]
+                            </a>
+
+                            <form asp-controller="Cart" asp-action="Clear" method="post" onsubmit="return confirm('@Lang["Cart_ClearBagConfirm"]');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill">
+                                    <i class="bi bi-trash3 @(Lang.IsRtl ? "ms-1" : "me-1")"></i>@Lang["Cart_ClearBag"]
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Order Summary Sidebar -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 sticky-top" style="top: 20px;">
+                    <div class="card-body p-4">
+                        <h5 class="font-serif fw-bold text-dark mb-3 pb-2 border-bottom">@Lang["Cart_OrderSummary"]</h5>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">@Lang["Cart_Subtotal"]</span>
+                            <span class="font-serif fw-medium text-dark">@Model.Subtotal.ToString("C")</span>
+                        </div>
+
+                        @if (Model.TotalDiscountSaved > 0)
+                        {
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">@Lang["Cart_Savings"]</span>
+                                <span class="badge badge-terracotta">-@Model.TotalDiscountSaved.ToString("C")</span>
+                            </div>
+                        }
+
+                        <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
+                            <span class="text-muted">@Lang["Cart_EstimatedShipping"]</span>
+                            <span>
+                                @if (Model.IsFreeShipping)
+                                {
+                                    <span class="text-success fw-medium"><i class="bi bi-check2 @(Lang.IsRtl ? "ms-1" : "me-1")"></i>@Lang["Cart_Complimentary"]</span>
+                                }
+                                else
+                                {
+                                    <span class="font-serif fw-medium text-dark">@Model.ShippingFee.ToString("C")</span>
+                                }
+                            </span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-baseline mb-4">
+                            <span class="h6 font-serif fw-bold text-dark mb-0">@Lang["Cart_TotalDue"]</span>
+                            <span class="h4 font-serif fw-bold mb-0" style="color: var(--c-espresso);">@Model.Total.ToString("C")</span>
+                        </div>
+
+                        <button type="button" class="btn btn-primary btn-lg w-100 rounded-pill shadow-sm mb-3 py-2"
+                                onclick="alert('@(Lang.IsRtl ? "سيتم تفعيل الدفع وإتمام الطلب في المرحلة القادمة!" : "Checkout & Order Placement will be fully enabled in Phase 6: Checkout!")');">
+                            <i class="bi bi-lock-fill @(Lang.IsRtl ? "ms-2" : "me-2")"></i>@Lang["Cart_ProceedCheckout"]
+                        </button>
+
+                        <div class="text-center">
+                            <small class="text-muted">@Lang["Cart_TaxesNote"]</small>
+                        </div>
+
+                        <!-- Bookstore Reassurance Badges -->
+                        <div class="mt-4 pt-3 border-top small text-muted">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-shield-check fs-5 @(Lang.IsRtl ? "ms-2" : "me-2")" style="color: var(--c-cafe);"></i>
+                                <span>@Lang["Book_Guarantee_Secure"]</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-box-seam fs-5 @(Lang.IsRtl ? "ms-2" : "me-2")" style="color: var(--c-cafe);"></i>
+                                <span>@Lang["Book_Guarantee_Wrap"]</span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-arrow-counterclockwise fs-5 @(Lang.IsRtl ? "ms-2" : "me-2")" style="color: var(--c-cafe);"></i>
+                                <span>@Lang["Book_Guarantee_Returns"]</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
