@@ -1,0 +1,83 @@
+@model BookShop.Models.ViewModels.RoleManagementVM
+@using BookShop.Utility
+
+@{
+    ViewData["Title"] = "Manage User Role";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+            <div class="card shadow border-0 rounded-3">
+                <div class="card-header bg-primary bg-gradient text-white py-3 text-center rounded-top">
+                    <h4 class="mb-0 fw-bold"><i class="bi bi-shield-check me-2"></i>Manage User Role</h4>
+                    <small class="text-white-50">Assign system permissions and access level</small>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    @if (TempData["error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <!-- User Summary Card -->
+                    <div class="bg-light p-3 rounded-3 mb-4 border">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-person-circle fs-3 text-primary me-2"></i>
+                            <div>
+                                <h6 class="mb-0 fw-bold">@Model.UserName</h6>
+                                <span class="text-muted small">@Model.Email</span>
+                            </div>
+                        </div>
+                        <div class="mt-2 pt-2 border-top d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">Current Role:</span>
+                            @if (Model.CurrentRole == SD.Role_Admin)
+                            {
+                                <span class="badge bg-danger px-2 py-1"><i class="bi bi-shield-lock-fill me-1"></i>Admin</span>
+                            }
+                            else if (Model.CurrentRole == SD.Role_Employee)
+                            {
+                                <span class="badge bg-warning text-dark px-2 py-1"><i class="bi bi-person-badge-fill me-1"></i>Employee</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary px-2 py-1"><i class="bi bi-person me-1"></i>Customer</span>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Role Update Form -->
+                    <form method="post" asp-action="RoleManagement">
+                        <input type="hidden" asp-for="UserId" />
+                        <input type="hidden" asp-for="UserName" />
+                        <input type="hidden" asp-for="Email" />
+                        <input type="hidden" asp-for="CurrentRole" />
+
+                        <div class="mb-4">
+                            <label asp-for="SelectedRole" class="form-label fw-semibold">Select New Role</label>
+                            <select asp-for="SelectedRole" asp-items="@Model.RoleList" class="form-select form-select-lg">
+                            </select>
+                            <div class="form-text mt-2">
+                                <i class="bi bi-info-circle me-1"></i>
+                                <strong>Admin:</strong> full system control &middot;
+                                <strong>Employee:</strong> management access &middot;
+                                <strong>Customer:</strong> standard store shopper
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg flex-grow-1 shadow-sm">
+                                <i class="bi bi-check-lg me-1"></i>Update Role
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

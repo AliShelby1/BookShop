@@ -1,0 +1,109 @@
+@model BookShop.Models.Book
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="card shadow border-0 rounded-3">
+                <div class="card-header bg-primary bg-gradient text-white py-3 d-flex justify-content-between align-items-center rounded-top">
+                    <h4 class="mb-0 fw-bold"><i class="bi bi-info-circle me-2"></i>Book Details</h4>
+                    <div>
+                        @if (Model.IsActive)
+                        {
+                            <span class="badge bg-success">Active in Store</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Inactive</span>
+                        }
+                    </div>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <div class="row g-4">
+                        <!-- Cover Image Column -->
+                        <div class="col-md-4 text-center">
+                            @if (!string.IsNullOrEmpty(Model.CoverImageUrl))
+                            {
+                                <img src="@Model.CoverImageUrl" alt="@Model.Title" class="img-fluid rounded shadow" style="max-height: 380px; object-fit: contain;" />
+                            }
+                            else
+                            {
+                                <div class="bg-light rounded p-5 text-muted border d-flex flex-column align-items-center justify-content-center" style="min-height: 300px;">
+                                    <i class="bi bi-book fs-1"></i>
+                                    <span class="mt-2 small">No cover image available</span>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Details Column -->
+                        <div class="col-md-8">
+                            <h3 class="fw-bold text-dark mb-1">@Model.Title</h3>
+                            <p class="text-muted mb-3">by <span class="fw-semibold text-primary">@(Model.Author?.Name ?? "Unknown Author")</span></p>
+
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <span class="badge bg-light text-dark border px-3 py-2">
+                                    <i class="bi bi-tag me-1"></i>Category: @(Model.Category?.Name ?? "—")
+                                </span>
+                                @if (Model.Publisher != null)
+                                {
+                                    <span class="badge bg-light text-dark border px-3 py-2">
+                                        <i class="bi bi-building me-1"></i>Publisher: @Model.Publisher.Name
+                                    </span>
+                                }
+                                <span class="badge bg-light text-dark border px-3 py-2">
+                                    <i class="bi bi-upc me-1"></i>ISBN: @Model.ISBN
+                                </span>
+                            </div>
+
+                            <div class="p-3 bg-light rounded-3 mb-3 border">
+                                <div class="row text-center g-2">
+                                    <div class="col-4 border-end">
+                                        <div class="text-muted small">Standard Price</div>
+                                        <div class="fs-5 fw-bold text-dark">@Model.Price.ToString("C")</div>
+                                    </div>
+                                    <div class="col-4 border-end">
+                                        <div class="text-muted small">Discount</div>
+                                        <div class="fs-5 fw-bold text-danger">
+                                            @(Model.DiscountPercentage.HasValue && Model.DiscountPercentage > 0 ? $"-{Model.DiscountPercentage}%" : "None")
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="text-muted small">Stock On Hand</div>
+                                        <div class="fs-5 fw-bold @(Model.StockQuantity > 10 ? "text-success" : (Model.StockQuantity > 0 ? "text-warning" : "text-danger"))">
+                                            @Model.StockQuantity
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <h6 class="fw-bold text-secondary text-uppercase small border-bottom pb-1">Description</h6>
+                                <p class="text-dark lh-base" style="white-space: pre-line;">@Model.Description</p>
+                            </div>
+
+                            <div class="text-muted small border-top pt-2">
+                                <div>Created on: @Model.CreatedAt.ToString("f")</div>
+                                @if (Model.UpdatedAt.HasValue)
+                                {
+                                    <div>Last modified: @Model.UpdatedAt.Value.ToString("f")</div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top d-flex gap-2">
+                        <a asp-action="Upsert" asp-route-id="@Model.Id" class="btn btn-primary btn-lg px-4 shadow-sm">
+                            <i class="bi bi-pencil-square me-1"></i>Edit Book
+                        </a>
+                        <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
+                            Back to Inventory
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
