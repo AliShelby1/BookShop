@@ -77,16 +77,16 @@
                             <span>
                                 @if (Lang.IsRtl)
                                 {
-                                    <span>أضف بقيمة <strong style="color: var(--c-cafe);">@Model.AmountNeededForFreeShipping.ToString("C")</strong> إضافية للحصول على <strong>توصيل مجاني</strong></span>
+                                    <span>أضف بقيمة <strong style="color: var(--c-cafe);">${@Model.AmountNeededForFreeShipping:0.00}</strong> إضافية للحصول على <strong>توصيل مجاني</strong></span>
                                 }
                                 else
                                 {
-                                    <span>Add <strong style="color: var(--c-cafe);">@Model.AmountNeededForFreeShipping.ToString("C")</strong> more to unlock <strong>Complimentary Shipping</strong></span>
+                                    <span>Add <strong style="color: var(--c-cafe);">${@Model.AmountNeededForFreeShipping:0.00}</strong> more to unlock <strong>Complimentary Shipping</strong></span>
                                 }
                             </span>
                         }
                     </span>
-                    <span class="small text-muted">@Lang["Cart_FreeShippingThreshold"]: @Model.FreeShippingThreshold.ToString("C")</span>
+                    <span class="small text-muted">@Lang["Cart_FreeShippingThreshold"]: ${@Model.FreeShippingThreshold:0.00}</span>
                 </div>
                 <div class="progress" style="height: 7px; background-color: var(--c-sand);">
                     <div class="progress-bar" role="progressbar" 
@@ -141,10 +141,10 @@
                                                         </a>
                                                     </div>
                                                     <div>
-                                                        <span class="badge badge-earth rounded-pill mb-1" style="font-size: 0.7rem;">@(item.CategoryName ?? (Lang.IsRtl ? "عام" : "General"))</span>
+                                                        <span class="badge badge-earth rounded-pill mb-1" style="font-size: 0.7rem;">@item.GetDisplayCategory(Lang.IsRtl)</span>
                                                         <h6 class="font-serif mb-0">
-                                                            <a asp-controller="Home" asp-action="Details" asp-route-id="@item.BookId" class="text-decoration-none text-dark hover-primary">
-                                                                @item.Title
+                                                            <a asp-controller="Home" asp-action="Details" asp-route-id="@item.BookId" class="text-decoration-none text-dark hover-primary @(Lang.IsRtl && !string.IsNullOrWhiteSpace(item.TitleAr) ? "book-title-ar" : "book-title")">
+                                                                @item.GetDisplayTitle(Lang.IsRtl)
                                                             </a>
                                                         </h6>
                                                         <small class="text-muted">@Lang["Book_By"] @(item.AuthorName ?? (Lang.IsRtl ? "مؤلف مجهول" : "Unknown Author"))</small>
@@ -158,10 +158,10 @@
 
                                             <!-- Unit Price -->
                                             <td class="py-3 text-center">
-                                                <div class="fw-semibold font-serif">@item.UnitPrice.ToString("C")</div>
+                                                <div class="fw-semibold font-serif">${@item.UnitPrice:0.00}</div>
                                                 @if (item.DiscountPercentage.HasValue && item.DiscountPercentage > 0)
                                                 {
-                                                    <small class="text-muted text-decoration-line-through">@item.OriginalPrice.ToString("C")</small>
+                                                    <small class="text-muted text-decoration-line-through">${@item.OriginalPrice:0.00}</small>
                                                 }
                                             </td>
 
@@ -194,7 +194,7 @@
 
                                             <!-- Line Total -->
                                             <td class="py-3 text-end">
-                                                <span class="font-serif fw-bold text-dark fs-6">@item.LineTotal.ToString("C")</span>
+                                                <span class="font-serif fw-bold text-dark fs-6">${@item.LineTotal:0.00}</span>
                                             </td>
 
                                             <!-- Remove Action -->
@@ -238,14 +238,14 @@
 
                         <div class="d-flex justify-content-between mb-2">
                             <span class="text-muted">@Lang["Cart_Subtotal"]</span>
-                            <span class="font-serif fw-medium text-dark">@Model.Subtotal.ToString("C")</span>
+                            <span class="font-serif fw-medium text-dark">${@Model.Subtotal:0.00}</span>
                         </div>
 
                         @if (Model.TotalDiscountSaved > 0)
                         {
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">@Lang["Cart_Savings"]</span>
-                                <span class="badge badge-terracotta">-@Model.TotalDiscountSaved.ToString("C")</span>
+                                <span class="badge badge-terracotta">-${@Model.TotalDiscountSaved:0.00}</span>
                             </div>
                         }
 
@@ -258,14 +258,14 @@
                                 }
                                 else
                                 {
-                                    <span class="font-serif fw-medium text-dark">@Model.ShippingFee.ToString("C")</span>
+                                    <span class="font-serif fw-medium text-dark">${@Model.ShippingFee:0.00}</span>
                                 }
                             </span>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-baseline mb-4">
                             <span class="h6 font-serif fw-bold text-dark mb-0">@Lang["Cart_TotalDue"]</span>
-                            <span class="h4 font-serif fw-bold mb-0" style="color: var(--c-espresso);">@Model.Total.ToString("C")</span>
+                            <span class="h4 font-serif fw-bold mb-0" style="color: var(--c-espresso);">${@Model.Total:0.00}</span>
                         </div>
 
                         <button type="button" class="btn btn-primary btn-lg w-100 rounded-pill shadow-sm mb-3 py-2"

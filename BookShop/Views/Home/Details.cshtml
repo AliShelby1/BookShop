@@ -15,11 +15,11 @@
             {
                 <li class="breadcrumb-item">
                     <a asp-action="Shop" asp-route-categoryId="@Model.Book.CategoryId" class="text-decoration-none text-muted">
-                        @Model.Book.Category.Name
+                        @Model.Book.Category.GetDisplayName(Lang.IsRtl)
                     </a>
                 </li>
             }
-            <li class="breadcrumb-item active text-dark text-truncate" style="max-width: 280px;" aria-current="page">@Model.Book.Title</li>
+            <li class="breadcrumb-item active text-dark text-truncate" style="max-width: 280px;" aria-current="page">@Model.Book.GetDisplayTitle(Lang.IsRtl)</li>
         </ol>
     </nav>
 
@@ -53,10 +53,13 @@
 
                 <!-- Right: Details & Buying Flow -->
                 <div class="col-md-7 col-lg-8">
-                    <!-- Category & Stock Status -->
+                    <!-- Category & Stock Status & Language -->
                     <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
                         <span class="badge badge-earth rounded-pill px-3 py-1">
-                            @(Model.Book.Category?.Name ?? (Lang.IsRtl ? "أدب عام" : "General Literature"))
+                            @(Model.Book.Category?.GetDisplayName(Lang.IsRtl) ?? (Lang.IsRtl ? "أدب عام" : "General Literature"))
+                        </span>
+                        <span class="badge bg-light text-dark border rounded-pill px-3 py-1">
+                            <i class="bi bi-translate me-1"></i>@Model.Book.GetDisplayLanguage(Lang.IsRtl)
                         </span>
                         @if (Model.Book.StockQuantity > 5)
                         {
@@ -79,7 +82,12 @@
                     </div>
 
                     <!-- Title -->
-                    <h1 class="h2 font-serif fw-bold text-dark mb-2">@Model.Book.Title</h1>
+                    @{
+                        var isArTitle = Lang.IsRtl && !string.IsNullOrWhiteSpace(Model.Book.TitleAr);
+                    }
+                    <h1 class="h2 book-detail-title fw-bold text-dark mb-2 @(isArTitle ? "book-title-ar" : "")">
+                        @Model.Book.GetDisplayTitle(Lang.IsRtl)
+                    </h1>
 
                     <!-- Author & Publisher -->
                     <p class="text-muted mb-4 fs-6">
@@ -97,13 +105,13 @@
                         <div class="d-flex align-items-baseline gap-3">
                             @if (Model.Book.DiscountPercentage.HasValue && Model.Book.DiscountPercentage > 0)
                             {
-                                <span class="display-6 font-serif fw-bold" style="color: var(--c-espresso);">@Model.Book.EffectivePrice.ToString("C")</span>
-                                <span class="fs-5 text-muted text-decoration-line-through">@Model.Book.Price.ToString("C")</span>
-                                <span class="badge badge-terracotta">@string.Format(Lang["Book_SaveDiscount"], (Model.Book.Price - Model.Book.EffectivePrice).ToString("C"))</span>
+                                <span class="display-6 font-serif fw-bold" style="color: var(--c-espresso);">${@Model.Book.EffectivePrice.ToString("0.00")}</span>
+                                <span class="fs-5 text-muted text-decoration-line-through">${@Model.Book.Price.ToString("0.00")}</span>
+                                <span class="badge badge-terracotta">@string.Format(Lang["Book_SaveDiscount"], $"${(Model.Book.Price - Model.Book.EffectivePrice):0.00}")</span>
                             }
                             else
                             {
-                                <span class="display-6 font-serif fw-bold" style="color: var(--c-espresso);">@Model.Book.Price.ToString("C")</span>
+                                <span class="display-6 font-serif fw-bold" style="color: var(--c-espresso);">${@Model.Book.Price.ToString("0.00")}</span>
                             }
                         </div>
                         <small class="text-muted d-block mt-1">@Lang["Book_ComplimentaryPackaging"]</small>
@@ -194,7 +202,7 @@
                 <!-- Description Tab -->
                 <div class="tab-pane fade show active" id="desc" role="tabpanel">
                     <h5 class="font-serif fw-bold mb-3">@(Lang.IsRtl ? "نظرة عامة" : "Overview")</h5>
-                    <p class="text-secondary lh-lg" style="white-space: pre-line; font-size: 1.05rem;">@Model.Book.Description</p>
+                    <p class="text-secondary lh-lg" style="white-space: pre-line; font-size: 1.05rem;">@Model.Book.GetDisplayDescription(Lang.IsRtl)</p>
                 </div>
 
                 <!-- Author Tab -->
@@ -219,11 +227,15 @@
                                     </tr>
                                     <tr>
                                         <th class="text-muted">@(Lang.IsRtl ? "التصنيف:" : "Genre:")</th>
-                                        <td class="text-dark fw-medium">@(Model.Book.Category?.Name ?? (Lang.IsRtl ? "أدب عام" : "General Literature"))</td>
+                                        <td class="text-dark fw-medium">@(Model.Book.Category?.GetDisplayName(Lang.IsRtl) ?? (Lang.IsRtl ? "أدب عام" : "General Literature"))</td>
                                     </tr>
                                     <tr>
                                         <th class="text-muted">@(Lang.IsRtl ? "المؤلف:" : "Primary Creator:")</th>
                                         <td class="text-dark fw-medium">@(Model.Book.Author?.Name ?? (Lang.IsRtl ? "مجهول" : "Unknown"))</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted">@(Lang.IsRtl ? "لغة الإصدار:" : "Edition Language:")</th>
+                                        <td class="text-dark fw-medium">@Model.Book.GetDisplayLanguage(Lang.IsRtl)</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -262,7 +274,7 @@
                     <h3 class="font-serif fw-bold text-dark mb-0">@(Lang.IsRtl ? "عناوين قد تنال إعجابك" : "You Might Also Appreciate")</h3>
                 </div>
                 <a asp-action="Shop" asp-route-categoryId="@Model.Book.CategoryId" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
-                    @(Lang.IsRtl ? "المزيد في " + Model.Book.Category?.Name : "More in " + Model.Book.Category?.Name) &rarr;
+                    @(Lang.IsRtl ? "المزيد في " + (Model.Book.Category?.GetDisplayName(true) ?? "التصنيف") : "More in " + (Model.Book.Category?.Name ?? "Category")) &rarr;
                 </a>
             </div>
 

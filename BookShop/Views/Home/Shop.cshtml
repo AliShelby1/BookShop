@@ -1,7 +1,8 @@
 @model BookShop.Models.ViewModels.ShopVM
+@inject BookShop.Services.ILanguageService Lang
 
 @{
-    ViewData["Title"] = "The Catalog";
+    ViewData["Title"] = Lang["Catalog_Title"];
 }
 
 <div class="container-fluid py-4 px-md-4">
@@ -10,15 +11,15 @@
         <div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-1 small text-muted">
-                    <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Home</a></li>
-                    <li class="breadcrumb-item active text-dark" aria-current="page">Catalog</li>
+                    <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">@Lang["Nav_Home"]</a></li>
+                    <li class="breadcrumb-item active text-dark" aria-current="page">@Lang["Catalog_Title"]</li>
                 </ol>
             </nav>
-            <h1 class="h2 font-serif fw-bold text-dark mb-0">The Bookstore Collection</h1>
-            <p class="text-muted small mb-0">Browse through our complete repository of printed works</p>
+            <h1 class="h2 font-serif fw-bold text-dark mb-0">@Lang["Catalog_Header"]</h1>
+            <p class="text-muted small mb-0">@Lang["Catalog_Subtitle"]</p>
         </div>
         <div class="text-muted small mt-2 mt-md-0">
-            <span>Showing @Model.Books.Count() of @Model.TotalItems titles</span>
+            <span>@string.Format(Lang["Catalog_Showing"], Model.Books.Count(), Model.TotalItems)</span>
         </div>
     </div>
 
@@ -28,24 +29,24 @@
             <div class="card border-0 shadow-sm sticky-top" style="top: 80px; z-index: 10;">
                 <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
                     <h6 class="mb-0 font-serif fw-bold text-dark">
-                        <i class="bi bi-sliders me-2" style="color: var(--c-cafe);"></i>Refine Selection
+                        <i class="bi bi-sliders @(Lang.IsRtl ? "ms-2" : "me-2")" style="color: var(--c-cafe);"></i>@Lang["Catalog_Refine"]
                     </h6>
-                    <a asp-action="Shop" class="small text-muted text-decoration-none hover-primary">Reset</a>
+                    <a asp-action="Shop" class="small text-muted text-decoration-none hover-primary">@Lang["Catalog_Reset"]</a>
                 </div>
                 <div class="card-body p-3">
                     <form method="get" asp-action="Shop" id="filterForm">
                         <!-- Search Box -->
                         <div class="mb-4">
-                            <label class="form-label fw-semibold small text-uppercase text-muted" style="letter-spacing: 0.05em; font-size: 0.72rem;">Search Keywords</label>
+                            <label class="form-label fw-semibold small text-uppercase text-muted" style="letter-spacing: 0.05em; font-size: 0.72rem;">@Lang["Catalog_SearchKeywords"]</label>
                             <div class="input-group">
-                                <input type="text" name="searchString" value="@Model.SearchString" class="form-control form-control-sm" placeholder="Title, author, ISBN..." />
+                                <input type="text" name="searchString" value="@Model.SearchString" class="form-control form-control-sm" placeholder="@Lang["Catalog_SearchPlaceholder"]" />
                                 <button type="submit" class="btn btn-outline-secondary btn-sm"><i class="bi bi-search"></i></button>
                             </div>
                         </div>
 
                         <!-- Category Filter -->
                         <div class="mb-4">
-                            <label class="form-label fw-semibold small text-uppercase text-muted" style="letter-spacing: 0.05em; font-size: 0.72rem;">Literary Genre</label>
+                            <label class="form-label fw-semibold small text-uppercase text-muted" style="letter-spacing: 0.05em; font-size: 0.72rem;">@Lang["Catalog_Genre"]</label>
                             <div class="list-group list-group-flush border rounded-2 small" style="max-height: 220px; overflow-y: auto;">
                                 <a asp-action="Shop" 
                                    asp-route-searchString="@Model.SearchString"
@@ -55,7 +56,7 @@
                                    asp-route-inStockOnly="@Model.InStockOnly"
                                    asp-route-sortBy="@Model.SortBy"
                                    class="list-group-item list-group-item-action @(Model.CategoryId == null ? "active" : "")">
-                                    All Genres
+                                    @Lang["Catalog_AllGenres"]
                                 </a>
                                 @foreach (var cat in Model.Categories)
                                 {
@@ -68,7 +69,7 @@
                                        asp-route-inStockOnly="@Model.InStockOnly"
                                        asp-route-sortBy="@Model.SortBy"
                                        class="list-group-item list-group-item-action @(Model.CategoryId == cat.Id ? "active" : "")">
-                                        @cat.Name
+                                        @cat.GetDisplayName(Lang.IsRtl)
                                     </a>
                                 }
                             </div>
@@ -77,9 +78,9 @@
 
                         <!-- Author Filter -->
                         <div class="mb-4">
-                            <label class="form-label fw-semibold small text-uppercase text-muted" style="letter-spacing: 0.05em; font-size: 0.72rem;">Author / Creator</label>
+                            <label class="form-label fw-semibold small text-uppercase text-muted" style="letter-spacing: 0.05em; font-size: 0.72rem;">@Lang["Catalog_Author"]</label>
                             <select name="authorId" class="form-select form-select-sm" onchange="document.getElementById('filterForm').submit();">
-                                <option value="">-- All Authors --</option>
+                                <option value="">@Lang["Catalog_AllAuthors"]</option>
                                 @foreach (var author in Model.Authors)
                                 {
                                     <option value="@author.Id" selected="@(Model.AuthorId == author.Id ? "selected" : null)">
@@ -91,13 +92,13 @@
 
                         <!-- Price Range -->
                         <div class="mb-4">
-                            <label class="form-label fw-semibold small text-uppercase text-muted" style="letter-spacing: 0.05em; font-size: 0.72rem;">Price Limit ($)</label>
+                            <label class="form-label fw-semibold small text-uppercase text-muted" style="letter-spacing: 0.05em; font-size: 0.72rem;">@Lang["Catalog_PriceLimit"]</label>
                             <div class="row g-2">
                                 <div class="col-6">
-                                    <input type="number" step="0.01" min="0" name="minPrice" value="@Model.MinPrice" class="form-control form-control-sm" placeholder="Min" />
+                                    <input type="number" step="0.01" min="0" name="minPrice" value="@Model.MinPrice" class="form-control form-control-sm" placeholder="@Lang["Catalog_Min"]" />
                                 </div>
                                 <div class="col-6">
-                                    <input type="number" step="0.01" min="0" name="maxPrice" value="@Model.MaxPrice" class="form-control form-control-sm" placeholder="Max" />
+                                    <input type="number" step="0.01" min="0" name="maxPrice" value="@Model.MaxPrice" class="form-control form-control-sm" placeholder="@Lang["Catalog_Max"]" />
                                 </div>
                             </div>
                         </div>
@@ -105,14 +106,14 @@
                         <!-- In Stock Only Switch -->
                         <div class="form-check form-switch mb-4">
                             <input class="form-check-input" type="checkbox" name="inStockOnly" value="true" id="stockSwitch" @(Model.InStockOnly ? "checked" : "") onchange="document.getElementById('filterForm').submit();" />
-                            <label class="form-check-label small fw-semibold" for="stockSwitch">In Stock Only</label>
+                            <label class="form-check-label small fw-semibold" for="stockSwitch">@Lang["Catalog_InStockOnly"]</label>
                         </div>
 
                         <input type="hidden" name="sortBy" value="@Model.SortBy" />
 
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary btn-sm rounded-pill">
-                                Filter Collection
+                                @Lang["Catalog_FilterBtn"]
                             </button>
                         </div>
                     </form>
@@ -128,22 +129,22 @@
                     <div class="text-muted small">
                         @if (!string.IsNullOrWhiteSpace(Model.SearchString))
                         {
-                            <span>Results for "<em>@Model.SearchString</em>"</span>
+                            <span>@Lang["Catalog_ResultsFor"] "<em>@Model.SearchString</em>"</span>
                         }
                         else
                         {
-                            <span>Displaying collection</span>
+                            <span>@Lang["Catalog_DisplayingCollection"]</span>
                         }
                     </div>
 
                     <!-- Minimalist Sort Selector -->
                     <div class="d-flex align-items-center gap-2">
-                        <label class="small text-muted text-nowrap fw-semibold">Order By:</label>
+                        <label class="small text-muted text-nowrap fw-semibold">@Lang["Catalog_OrderBy"]</label>
                         <select class="form-select form-select-sm w-auto rounded-pill" onchange="location = this.value;">
-                            <option value="@Url.Action("Shop", new { searchString = Model.SearchString, categoryId = Model.CategoryId, authorId = Model.AuthorId, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, inStockOnly = Model.InStockOnly, sortBy = "newest" })" selected="@(Model.SortBy == "newest" ? "selected" : null)">Newest Additions</option>
-                            <option value="@Url.Action("Shop", new { searchString = Model.SearchString, categoryId = Model.CategoryId, authorId = Model.AuthorId, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, inStockOnly = Model.InStockOnly, sortBy = "price_asc" })" selected="@(Model.SortBy == "price_asc" ? "selected" : null)">Price: Low to High</option>
-                            <option value="@Url.Action("Shop", new { searchString = Model.SearchString, categoryId = Model.CategoryId, authorId = Model.AuthorId, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, inStockOnly = Model.InStockOnly, sortBy = "price_desc" })" selected="@(Model.SortBy == "price_desc" ? "selected" : null)">Price: High to Low</option>
-                            <option value="@Url.Action("Shop", new { searchString = Model.SearchString, categoryId = Model.CategoryId, authorId = Model.AuthorId, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, inStockOnly = Model.InStockOnly, sortBy = "title_asc" })" selected="@(Model.SortBy == "title_asc" ? "selected" : null)">Title: A to Z</option>
+                            <option value="@Url.Action("Shop", new { searchString = Model.SearchString, categoryId = Model.CategoryId, authorId = Model.AuthorId, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, inStockOnly = Model.InStockOnly, sortBy = "newest" })" selected="@(Model.SortBy == "newest" ? "selected" : null)">@Lang["Catalog_SortNewest"]</option>
+                            <option value="@Url.Action("Shop", new { searchString = Model.SearchString, categoryId = Model.CategoryId, authorId = Model.AuthorId, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, inStockOnly = Model.InStockOnly, sortBy = "price_asc" })" selected="@(Model.SortBy == "price_asc" ? "selected" : null)">@Lang["Catalog_SortPriceAsc"]</option>
+                            <option value="@Url.Action("Shop", new { searchString = Model.SearchString, categoryId = Model.CategoryId, authorId = Model.AuthorId, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, inStockOnly = Model.InStockOnly, sortBy = "price_desc" })" selected="@(Model.SortBy == "price_desc" ? "selected" : null)">@Lang["Catalog_SortPriceDesc"]</option>
+                            <option value="@Url.Action("Shop", new { searchString = Model.SearchString, categoryId = Model.CategoryId, authorId = Model.AuthorId, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, inStockOnly = Model.InStockOnly, sortBy = "title_asc" })" selected="@(Model.SortBy == "title_asc" ? "selected" : null)">@Lang["Catalog_SortTitleAsc"]</option>
                         </select>
                     </div>
                 </div>
@@ -155,10 +156,10 @@
                 <div class="card border-0 shadow-sm py-5 text-center">
                     <div class="card-body">
                         <i class="bi bi-book fs-1 text-muted d-block mb-3" style="color: var(--c-cafe-light) !important;"></i>
-                        <h4 class="font-serif fw-bold text-dark">No Volumes Found</h4>
-                        <p class="text-muted small">We could not find any books matching your specific criteria.</p>
+                        <h4 class="font-serif fw-bold text-dark">@Lang["Catalog_NoVolumes"]</h4>
+                        <p class="text-muted small">@Lang["Catalog_NoVolumesDesc"]</p>
                         <a asp-action="Shop" class="btn btn-outline-secondary btn-sm rounded-pill px-4">
-                            Clear Active Filters
+                            @Lang["Catalog_ClearFilters"]
                         </a>
                     </div>
                 </div>
@@ -190,7 +191,7 @@
                                        asp-route-maxPrice="@Model.MaxPrice"
                                        asp-route-inStockOnly="@Model.InStockOnly"
                                        asp-route-sortBy="@Model.SortBy">
-                                        &larr; Previous
+                                        &larr; @Lang["Catalog_Previous"]
                                     </a>
                                 </li>
 
@@ -221,7 +222,7 @@
                                        asp-route-maxPrice="@Model.MaxPrice"
                                        asp-route-inStockOnly="@Model.InStockOnly"
                                        asp-route-sortBy="@Model.SortBy">
-                                        Next &rarr;
+                                        @Lang["Catalog_Next"] &rarr;
                                     </a>
                                 </li>
                             </ul>

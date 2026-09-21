@@ -16,6 +16,17 @@ namespace BookShop.Services
         {
             get
             {
+                var httpContext = _httpContextAccessor?.HttpContext;
+                if (httpContext != null)
+                {
+                    var feature = httpContext.Features.Get<Microsoft.AspNetCore.Localization.IRequestCultureFeature>();
+                    if (feature != null)
+                    {
+                        var lang = feature.RequestCulture.UICulture.TwoLetterISOLanguageName.ToLowerInvariant();
+                        if (lang == "ar") return "ar";
+                        if (lang == "en") return "en";
+                    }
+                }
                 var culture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLowerInvariant();
                 return culture == "ar" ? "ar" : "en";
             }
@@ -164,7 +175,39 @@ namespace BookShop.Services
                 ["Footer_DispatchDesc"] = "Subscribe to receive monthly curated book lists and author spotlight essays.",
                 ["Footer_EnterEmail"] = "Enter your email...",
                 ["Footer_Subscribe"] = "Subscribe",
-                ["Footer_Copyright"] = "All rights reserved. Built for readers and thinkers."
+                ["Footer_Copyright"] = "All rights reserved. Built for readers and thinkers.",
+
+                // Catalog & Shop
+                ["Catalog_Title"] = "The Catalog",
+                ["Catalog_Header"] = "The Bookstore Collection",
+                ["Catalog_Subtitle"] = "Browse through our complete repository of printed works",
+                ["Catalog_Showing"] = "Showing {0} of {1} titles",
+                ["Catalog_Refine"] = "Refine Selection",
+                ["Catalog_Reset"] = "Reset",
+                ["Catalog_SearchKeywords"] = "Search Keywords",
+                ["Catalog_SearchPlaceholder"] = "Title, author, ISBN...",
+                ["Catalog_Genre"] = "Literary Genre",
+                ["Catalog_AllGenres"] = "All Genres",
+                ["Catalog_Author"] = "Author / Creator",
+                ["Catalog_AllAuthors"] = "-- All Authors --",
+                ["Catalog_PriceLimit"] = "Price Limit ($)",
+                ["Catalog_Min"] = "Min",
+                ["Catalog_Max"] = "Max",
+                ["Catalog_InStockOnly"] = "In Stock Only",
+                ["Catalog_FilterBtn"] = "Filter Collection",
+                ["Catalog_ResultsFor"] = "Results for",
+                ["Catalog_DisplayingCollection"] = "Displaying collection",
+                ["Catalog_OrderBy"] = "Order By:",
+                ["Catalog_SortNewest"] = "Newest Additions",
+                ["Catalog_SortPriceAsc"] = "Price: Low to High",
+                ["Catalog_SortPriceDesc"] = "Price: High to Low",
+                ["Catalog_SortTitleAsc"] = "Title: A to Z",
+                ["Catalog_NoVolumes"] = "No Volumes Found",
+                ["Catalog_NoVolumesDesc"] = "We could not find any books matching your specific criteria.",
+                ["Catalog_ClearFilters"] = "Clear Active Filters",
+                ["Catalog_Previous"] = "Previous",
+                ["Catalog_Next"] = "Next",
+                ["Book_Language"] = "Language"
             },
 
             ["ar"] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -276,7 +319,39 @@ namespace BookShop.Services
                 ["Footer_DispatchDesc"] = "اشترك لتصلك ترشيحات شهرية حصرية وقراءات أدبية معمقة.",
                 ["Footer_EnterEmail"] = "أدخل بريدك الإلكتروني...",
                 ["Footer_Subscribe"] = "اشتراك",
-                ["Footer_Copyright"] = "جميع الحقوق محفوظة. صُمم للقراء والمفكرين."
+                ["Footer_Copyright"] = "جميع الحقوق محفوظة. صُمم للقراء والمفكرين.",
+
+                // Catalog & Shop
+                ["Catalog_Title"] = "الكتالوج الأدبي",
+                ["Catalog_Header"] = "مجموعة بوك شوب الأدبية",
+                ["Catalog_Subtitle"] = "تصفح مجموعتنا الكاملة من الأعمال والمطبوعات الأدبية المتميزة",
+                ["Catalog_Showing"] = "عرض {0} من أصل {1} عنواناً",
+                ["Catalog_Refine"] = "تصفية النتائج",
+                ["Catalog_Reset"] = "إعادة تعيين",
+                ["Catalog_SearchKeywords"] = "كلمات البحث",
+                ["Catalog_SearchPlaceholder"] = "العنوان، المؤلف، الرقم المعياري...",
+                ["Catalog_Genre"] = "التصنيف الأدبي",
+                ["Catalog_AllGenres"] = "جميع التصنيفات",
+                ["Catalog_Author"] = "المؤلف / الكاتب",
+                ["Catalog_AllAuthors"] = "-- جميع المؤلفين --",
+                ["Catalog_PriceLimit"] = "الحد الأقصى للسعر ($)",
+                ["Catalog_Min"] = "الأدنى",
+                ["Catalog_Max"] = "الأقصى",
+                ["Catalog_InStockOnly"] = "المتوفر في المخزن فقط",
+                ["Catalog_FilterBtn"] = "تطبيق التصفية",
+                ["Catalog_ResultsFor"] = "نتائج البحث عن",
+                ["Catalog_DisplayingCollection"] = "عرض المجموعة الأدبية",
+                ["Catalog_OrderBy"] = "الترتيب حسب:",
+                ["Catalog_SortNewest"] = "أحدث الإصدارات",
+                ["Catalog_SortPriceAsc"] = "السعر: من الأقل للأعلى",
+                ["Catalog_SortPriceDesc"] = "السعر: من الأعلى للأقل",
+                ["Catalog_SortTitleAsc"] = "العنوان: أبجدياً (A إلى Z)",
+                ["Catalog_NoVolumes"] = "لم يتم العثور على أية كتب",
+                ["Catalog_NoVolumesDesc"] = "لم نتمكن من العثور على أية كتب تطابق معايير البحث المحددة.",
+                ["Catalog_ClearFilters"] = "مسح عوامل التصفية",
+                ["Catalog_Previous"] = "السابق",
+                ["Catalog_Next"] = "التالي",
+                ["Book_Language"] = "لغة الإصدار"
             }
         };
     }

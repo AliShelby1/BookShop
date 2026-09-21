@@ -12,8 +12,20 @@ namespace BookShop.Models
         [MaxLength(200)]
         public string Title { get; set; } = string.Empty;
 
+        [MaxLength(200)]
+        [Display(Name = "Arabic Title")]
+        public string? TitleAr { get; set; }
+
         [Required]
         public string Description { get; set; } = string.Empty;
+
+        [Display(Name = "Arabic Description")]
+        public string? DescriptionAr { get; set; }
+
+        [Required]
+        [MaxLength(50)]
+        [Display(Name = "Book Language")]
+        public string Language { get; set; } = "English";
 
         [Required]
         [MaxLength(20)]
@@ -69,5 +81,19 @@ namespace BookShop.Models
         public decimal EffectivePrice => DiscountPercentage.HasValue && DiscountPercentage.Value > 0
             ? Math.Round(Price * (1 - (DiscountPercentage.Value / 100m)), 2)
             : Price;
+
+        // Multilingual display helpers
+        public string GetDisplayTitle(bool isRtl) => (isRtl && !string.IsNullOrWhiteSpace(TitleAr)) ? TitleAr : Title;
+        public string GetDisplayDescription(bool isRtl) => (isRtl && !string.IsNullOrWhiteSpace(DescriptionAr)) ? DescriptionAr : Description;
+        public string GetDisplayLanguage(bool isRtl) => isRtl ? (Language switch
+        {
+            "English" => "الإنجليزية",
+            "Arabic" => "العربية",
+            "Bilingual" or "Both" or "Arabic / English" => "ثنائي اللغة (عربي / إنجليزي)",
+            "French" => "الفرنسية",
+            "German" => "الألمانية",
+            "Spanish" => "الإسبانية",
+            _ => Language
+        }) : Language;
     }
 }

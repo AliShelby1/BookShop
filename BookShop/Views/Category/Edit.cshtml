@@ -21,8 +21,15 @@
 
                         <div class="form-floating mb-3">
                             <input asp-for="Name" class="form-control" placeholder="e.g. Science Fiction" />
-                            <label asp-for="Name">Category Name</label>
+                            <label asp-for="Name">Category Name (English)</label>
                             <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="NameAr" class="form-control" placeholder="مثال: روايات وقصص" dir="rtl" />
+                            <label asp-for="NameAr">Category Name (Arabic / اسم التصنيف بالعربية)</label>
+                            <span asp-validation-for="NameAr" class="text-danger small"></span>
+                            <div class="form-text">Displayed on the storefront when viewing the site in Arabic.</div>
                         </div>
 
                         <div class="form-floating mb-3">

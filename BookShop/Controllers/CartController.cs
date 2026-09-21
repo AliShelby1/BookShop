@@ -70,13 +70,13 @@ namespace BookShop.Controllers
                     count = result.TotalItemsCount,
                     cart = new
                     {
-                        subtotal = cart.Subtotal.ToString("C"),
-                        totalDiscountSaved = cart.TotalDiscountSaved.ToString("C"),
-                        shippingFee = cart.ShippingFee == 0 ? "Complimentary" : cart.ShippingFee.ToString("C"),
+                        subtotal = $"${cart.Subtotal:0.00}",
+                        totalDiscountSaved = $"${cart.TotalDiscountSaved:0.00}",
+                        shippingFee = cart.ShippingFee == 0 ? "Complimentary" : $"${cart.ShippingFee:0.00}",
                         isFreeShipping = cart.IsFreeShipping,
-                        amountNeededForFreeShipping = cart.AmountNeededForFreeShipping.ToString("C"),
+                        amountNeededForFreeShipping = $"${cart.AmountNeededForFreeShipping:0.00}",
                         freeShippingProgressPercentage = cart.FreeShippingProgressPercentage,
-                        total = cart.Total.ToString("C")
+                        total = $"${cart.Total:0.00}"
                     }
                 });
             }

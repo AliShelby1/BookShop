@@ -11,7 +11,7 @@
     <div class="container py-4 py-lg-5">
         <div class="row align-items-center g-5">
             <!-- Left / Start: Staged Animated Typography -->
-            <div class="col-lg-7 text-center @(Lang.IsRtl ? "text-lg-end" : "text-lg-start")">
+            <div class="col-lg-7 text-center text-lg-start">
                 <div class="animate-fade-in-1 mb-3">
                     <span class="badge badge-earth rounded-pill px-3 py-2 text-uppercase fw-semibold" style="letter-spacing: 0.08em; font-size: 0.78rem;">
                         <i class="bi bi-feather @(Lang.IsRtl ? "ms-1" : "me-1")"></i>@Lang["Hero_Badge"]
@@ -23,11 +23,11 @@
                     <em class="fw-normal" style="color: var(--c-cafe);">@Lang["Hero_Title_2"]</em>
                 </h1>
 
-                <p class="lead text-muted mb-4 @(Lang.IsRtl ? "ps-lg-5" : "pe-lg-5") animate-fade-in-3" style="font-size: 1.15rem; line-height: 1.8;">
+                <p class="lead text-muted mb-4 pe-lg-5 animate-fade-in-3" style="font-size: 1.15rem; line-height: 1.8;">
                     @Lang["Hero_Subtitle"]
                 </p>
 
-                <div class="d-flex flex-wrap gap-3 justify-content-center @(Lang.IsRtl ? "justify-content-lg-start flex-row-reverse" : "justify-content-lg-start") animate-fade-in-4">
+                <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start animate-fade-in-4">
                     <a asp-action="Shop" class="btn btn-primary btn-lg px-4 py-3 rounded-pill shadow-sm d-flex align-items-center">
                         <span>@Lang["Hero_ExploreBtn"]</span>
                         <i class="bi bi-arrow-right @(Lang.IsRtl ? "me-2" : "ms-2")"></i>
@@ -54,9 +54,11 @@
                                 <span class="badge badge-earth rounded-pill px-3 py-1 mb-1">
                                     <i class="bi bi-star @(Lang.IsRtl ? "ms-1" : "me-1")"></i>@Lang["Hero_SpotlightBadge"]
                                 </span>
-                                <h6 class="font-serif fw-bold text-dark mb-0 mt-1">@Model.VolumeOfTheMonth.Title</h6>
+                                <h6 class="hero-spotlight-title fw-bold text-dark mb-0 mt-1 @(Lang.IsRtl && !string.IsNullOrWhiteSpace(Model.VolumeOfTheMonth.TitleAr) ? "book-title-ar" : "")">
+                                    @Model.VolumeOfTheMonth.GetDisplayTitle(Lang.IsRtl)
+                                </h6>
                                 <small class="text-muted fst-italic font-serif" style="font-size: 0.85rem;">
-                                    @Lang["Book_By"] @(Model.VolumeOfTheMonth.Author?.Name ?? (Lang.IsRtl ? "مؤلف مختار" : "Selected Author")) &middot; @Model.VolumeOfTheMonth.EffectivePrice.ToString("C") &rarr;
+                                    @Lang["Book_By"] @(Model.VolumeOfTheMonth.Author?.Name ?? (Lang.IsRtl ? "مؤلف مختار" : "Selected Author")) &middot; ${@Model.VolumeOfTheMonth.EffectivePrice.ToString("0.00")} &rarr;
                                 </small>
                             </div>
                         </a>
@@ -130,7 +132,7 @@
                     <div class="mb-2" style="color: var(--c-cafe);">
                         <i class="bi @icon fs-3"></i>
                     </div>
-                    <h6 class="font-serif fw-semibold mb-1 text-truncate" style="font-size: 0.95rem;">@cat.Name</h6>
+                    <h6 class="font-serif fw-semibold mb-1 text-truncate" style="font-size: 0.95rem;">@cat.GetDisplayName(Lang.IsRtl)</h6>
                     <small class="text-muted" style="font-size: 0.75rem;">@(Lang.IsRtl ? "استكشف &larr;" : "Explore &rarr;")</small>
                 </a>
             </div>
@@ -170,8 +172,8 @@
         <blockquote class="blockquote">
             @if (Lang.IsRtl)
             {
-                <p class="font-serif fs-4 fst-italic lh-base mb-3" style="color: var(--c-espresso);">
-                    "أعَزُّ مَكانٍ في الدُّنَى سَرْجُ سابِحٍ ... وَخَيرُ جَليسٍ في الزّمانِ كِتابُ"
+                <p class="font-serif fs-4 fst-italic lh-base mb-3" style="color: var(--c-espresso); direction: rtl;" dir="rtl">
+                    «أعَزُّ مَكانٍ في الدُّنَى سَرْجُ سابِحٍ ... وَخَيرُ جَليسٍ في الزّمانِ كِتابُ»
                 </p>
             }
             else

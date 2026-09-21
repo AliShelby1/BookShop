@@ -82,7 +82,7 @@
                                 @foreach (var book in Model.AllActiveBooks)
                                 {
                                     <option value="@book.Id" selected="@(book.IsVolumeOfTheMonth ? "selected" : null)">
-                                        @book.Title (by @(book.Author?.Name ?? "Unknown")) - @book.Price.ToString("C")
+                                        @book.Title (by @(book.Author?.Name ?? "Unknown")) - ${@book.Price:0.00}
                                     </option>
                                 }
                             </select>
@@ -136,7 +136,7 @@
                                 </td>
                                 <td class="text-muted small">@(book.Author?.Name ?? "—")</td>
                                 <td><span class="badge badge-earth">@(book.Category?.Name ?? "—")</span></td>
-                                <td class="fw-semibold">@book.EffectivePrice.ToString("C")</td>
+                                <td class="fw-semibold">${@book.EffectivePrice:0.00}</td>
                                 <td>
                                     @if (book.IsFeatured)
                                     {

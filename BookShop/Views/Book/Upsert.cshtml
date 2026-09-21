@@ -31,14 +31,40 @@
 
                                 <div class="form-floating mb-3">
                                     <input asp-for="Book.Title" class="form-control" placeholder="Book Title" />
-                                    <label asp-for="Book.Title">Title</label>
+                                    <label asp-for="Book.Title">Title (English / Original)</label>
                                     <span asp-validation-for="Book.Title" class="text-danger small"></span>
                                 </div>
 
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Book.TitleAr" class="form-control" placeholder="عنوان الكتاب بالعربية (اختياري)" dir="rtl" />
+                                    <label asp-for="Book.TitleAr">Arabic Title (العنوان بالعربية - اختياري)</label>
+                                    <span asp-validation-for="Book.TitleAr" class="text-danger small"></span>
+                                    <div class="form-text">Displayed when viewing the website in Arabic mode. Falls back to original title if left blank.</div>
+                                </div>
+
                                 <div class="mb-3">
-                                    <label asp-for="Book.Description" class="form-label fw-semibold">Description</label>
-                                    <textarea asp-for="Book.Description" class="form-control" rows="5" placeholder="Full synopsis, overview, table of contents..."></textarea>
+                                    <label asp-for="Book.Language" class="form-label fw-semibold">Edition Language (لغة الإصدار)</label>
+                                    <select asp-for="Book.Language" class="form-select">
+                                        <option value="English">English (الإنجليزية)</option>
+                                        <option value="Arabic">Arabic (العربية)</option>
+                                        <option value="Bilingual">Bilingual (ثنائي اللغة: عربي / إنجليزي)</option>
+                                        <option value="French">French (الفرنسية)</option>
+                                        <option value="German">German (الألمانية)</option>
+                                        <option value="Spanish">Spanish (الإسبانية)</option>
+                                    </select>
+                                    <span asp-validation-for="Book.Language" class="text-danger small"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="Book.Description" class="form-label fw-semibold">Description (English / Original)</label>
+                                    <textarea asp-for="Book.Description" class="form-control" rows="4" placeholder="Full synopsis, overview, table of contents..."></textarea>
                                     <span asp-validation-for="Book.Description" class="text-danger small"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="Book.DescriptionAr" class="form-label fw-semibold">Arabic Description (الوصف بالعربية - اختياري)</label>
+                                    <textarea asp-for="Book.DescriptionAr" class="form-control" rows="4" placeholder="نبذة عن الكتاب، المحتوى، الفهرس..." dir="rtl"></textarea>
+                                    <span asp-validation-for="Book.DescriptionAr" class="text-danger small"></span>
                                 </div>
 
                                 <div class="row g-3 mb-3">

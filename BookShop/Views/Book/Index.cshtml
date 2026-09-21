@@ -120,8 +120,17 @@
                                                 @book.Title
                                             </a>
                                         </div>
+                                        @if (!string.IsNullOrWhiteSpace(book.TitleAr))
+                                        {
+                                            <div class="small font-serif text-muted" dir="rtl">
+                                                @book.TitleAr
+                                            </div>
+                                        }
                                         <div class="text-muted small">
-                                            <code>@book.ISBN</code>
+                                            <code>@book.ISBN</code> &middot; 
+                                            <span class="badge bg-light text-dark border px-1">
+                                                <i class="bi bi-translate me-1"></i>@book.Language
+                                            </span>
                                         </div>
                                     </td>
                                     <td>
@@ -136,14 +145,14 @@
                                         @if (book.DiscountPercentage.HasValue && book.DiscountPercentage > 0)
                                         {
                                             <div>
-                                                <span class="fw-bold text-success">@book.EffectivePrice.ToString("C")</span>
+                                                <span class="fw-bold text-success">${@book.EffectivePrice.ToString("0.00")}</span>
                                                 <small class="badge bg-danger ms-1">-@book.DiscountPercentage%</small>
                                             </div>
-                                            <small class="text-muted text-decoration-line-through">@book.Price.ToString("C")</small>
+                                            <small class="text-muted text-decoration-line-through">${@book.Price.ToString("0.00")}</small>
                                         }
                                         else
                                         {
-                                            <span class="fw-bold text-dark">@book.Price.ToString("C")</span>
+                                            <span class="fw-bold text-dark">${@book.Price.ToString("0.00")}</span>
                                         }
                                     </td>
                                     <td>

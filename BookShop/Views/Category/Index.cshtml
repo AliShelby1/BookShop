@@ -47,7 +47,8 @@
                     <thead class="table-light text-secondary text-uppercase small">
                         <tr>
                             <th scope="col" class="ps-4">Display Order</th>
-                            <th scope="col">Category Name</th>
+                            <th scope="col">Category Name (EN)</th>
+                            <th scope="col">Arabic Name (العربية)</th>
                             <th scope="col">Books Count</th>
                             <th scope="col">Created Date</th>
                             <th scope="col" class="text-end pe-4">Actions</th>
@@ -57,7 +58,7 @@
                         @if (!Model.Any())
                         {
                             <tr>
-                                <td colspan="5" class="text-center py-4 text-muted">
+                                <td colspan="6" class="text-center py-4 text-muted">
                                     No categories found. Click "Create New Category" to add one.
                                 </td>
                             </tr>
@@ -71,7 +72,15 @@
                                         <span class="badge bg-light text-dark border px-2 py-1">@category.DisplayOrder</span>
                                     </td>
                                     <td>
-                                        <span class="fw-semibold text-dark">@category.Name</span>
+                                        <span class="fw-semibold text-dark">
+                                            <i class="bi @(string.IsNullOrWhiteSpace(category.IconClass) ? "bi-book" : category.IconClass) me-1" style="color: var(--c-cafe);"></i>
+                                            @category.Name
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border font-serif" dir="rtl">
+                                            @(string.IsNullOrWhiteSpace(category.NameAr) ? "—" : category.NameAr)
+                                        </span>
                                     </td>
                                     <td>
                                         <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-2 py-1">

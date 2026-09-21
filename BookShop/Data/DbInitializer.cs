@@ -198,21 +198,40 @@ namespace BookShop.Data
             }
             else
             {
-                // 3. Ensure existing database records have category icons and home curation flags synced
-                var sciFiDb = _db.Categories.FirstOrDefault(c => c.Name == "Science Fiction" && (c.IconClass == null || c.IconClass == "bi-book"));
-                if (sciFiDb != null) sciFiDb.IconClass = "bi-rocket-takeoff";
+                // 3. Ensure existing database records have category icons, Arabic names, and home curation flags synced
+                var categoryArabicMap = new Dictionary<string, (string NameAr, string Icon)>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["Science Fiction"] = ("خيال علمي", "bi-rocket-takeoff"),
+                    ["Technology & Programming"] = ("تكنولوجيا وبرمجة", "bi-code-slash"),
+                    ["Business & Finance"] = ("أعمال واقتصاد", "bi-briefcase"),
+                    ["Fiction"] = ("روايات وقصص", "bi-journal-bookmark"),
+                    ["Self-Help"] = ("تطوير الذات", "bi-lightbulb"),
+                    ["Philosophy"] = ("فلسفة وفكر", "bi-book"),
+                    ["History"] = ("تاريخ وحضارة", "bi-hourglass-split"),
+                    ["Poetry"] = ("شعر وأدب", "bi-feather"),
+                    ["Science"] = ("علوم ومعرفة", "bi-compass"),
+                    ["Biography"] = ("سير وتراجم", "bi-person-badge"),
+                    ["Test Category"] = ("قسم تجريبي", "bi-bookmark")
+                };
 
-                var techDb = _db.Categories.FirstOrDefault(c => c.Name == "Technology & Programming" && (c.IconClass == null || c.IconClass == "bi-book"));
-                if (techDb != null) techDb.IconClass = "bi-code-slash";
+                foreach (var cat in _db.Categories.ToList())
+                {
+                    if (categoryArabicMap.TryGetValue(cat.Name, out var mapping))
+                    {
+                        cat.NameAr = mapping.NameAr;
+                        if (!string.IsNullOrEmpty(mapping.Icon)) cat.IconClass = mapping.Icon;
+                    }
+                    else if (string.IsNullOrWhiteSpace(cat.NameAr))
+                    {
+                        cat.NameAr = cat.Name;
+                    }
+                }
 
-                var busDb = _db.Categories.FirstOrDefault(c => c.Name == "Business & Finance" && (c.IconClass == null || c.IconClass == "bi-book"));
-                if (busDb != null) busDb.IconClass = "bi-briefcase";
-
-                var ficDb = _db.Categories.FirstOrDefault(c => c.Name == "Fiction" && (c.IconClass == null || c.IconClass == "bi-book"));
-                if (ficDb != null) ficDb.IconClass = "bi-journal-bookmark";
-
-                var selfDb = _db.Categories.FirstOrDefault(c => c.Name == "Self-Help" && (c.IconClass == null || c.IconClass == "bi-book"));
-                if (selfDb != null) selfDb.IconClass = "bi-lightbulb";
+                // Ensure books have a default Language
+                foreach (var b in _db.Books.Where(b => string.IsNullOrEmpty(b.Language)))
+                {
+                    b.Language = "English";
+                }
 
                 // Ensure at least one Volume of the Month is chosen
                 if (!_db.Books.Any(b => b.IsVolumeOfTheMonth))
@@ -241,6 +260,9 @@ namespace BookShop.Data
                         FlatShippingRate = 4.99m,
                         MaxQuantityPerBook = 10,
                         CartAnnouncementBanner = "Complimentary literary bookmark & archival packaging on all orders over $50.",
+                        CartAnnouncementBannerAr = "تغليف إهدائي فاخر وفاصل كتب مجاني مع كل طلب يتجاوز 50 دولاراً.",
+                        DefaultLanguage = "en",
+                        EnableLanguageSwitcher = true,
                         UpdatedAt = DateTime.UtcNow
                     });
                 }

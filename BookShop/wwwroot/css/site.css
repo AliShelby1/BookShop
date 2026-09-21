@@ -419,23 +419,79 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* ==========================================================================
+   Editorial Literary Footer (Espresso & Off-White High Contrast)
+   ========================================================================== */
+.footer-bookshop {
+  background-color: var(--c-espresso) !important;
+  color: #E7DFD5 !important;
+}
+
+.footer-bookshop h5,
+.footer-bookshop h6 {
+  color: #FFFFFF !important;
+}
+
+.footer-bookshop a {
+  color: #E7DFD5 !important;
+  text-decoration: none;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+.footer-bookshop a:hover {
+  color: #FFFFFF !important;
+  text-decoration: underline;
+}
+
+.footer-bookshop .text-muted,
+.footer-bookshop .text-secondary {
+  color: #C5B9AC !important;
+}
+
+.footer-bookshop .border-secondary {
+  border-color: rgba(231, 223, 213, 0.2) !important;
+}
+
+/* ==========================================================================
+   Book Title Typography Preservation
+   ========================================================================== */
+.book-title,
+.book-title a,
+.book-detail-title,
+.hero-spotlight-title {
+  font-family: 'Lora', Georgia, serif;
+}
+
+/* When in RTL mode, keep Lora for original English titles */
+[dir="rtl"] .book-title:not(.book-title-ar),
+[dir="rtl"] .book-title:not(.book-title-ar) a,
+[dir="rtl"] .book-detail-title:not(.book-title-ar),
+[dir="rtl"] .hero-spotlight-title:not(.book-title-ar) {
+  font-family: 'Lora', Georgia, serif !important;
+}
+
+[dir="rtl"] .book-title-ar {
+  font-family: 'Amiri', 'Lora', serif !important;
+}
+
+/* ==========================================================================
    Arabic & RTL (Right-to-Left) Literary Bookstore Styling
    ========================================================================== */
 [dir="rtl"] {
   --font-serif: 'Amiri', 'Lora', Georgia, 'Times New Roman', serif;
   --font-sans: 'Cairo', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   letter-spacing: 0 !important;
+  text-align: right;
 }
 
 [dir="rtl"] body {
   font-family: var(--font-sans);
+  text-align: right;
 }
 
 [dir="rtl"] .font-serif,
 [dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, 
 [dir="rtl"] h4, [dir="rtl"] h5, [dir="rtl"] h6,
-[dir="rtl"] .navbar-brand,
-[dir="rtl"] .book-title {
+[dir="rtl"] .navbar-brand {
   font-family: var(--font-serif);
   font-weight: 700;
   line-height: 1.45;

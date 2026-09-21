@@ -41,11 +41,18 @@
                         <!-- Details Column -->
                         <div class="col-md-8">
                             <h3 class="fw-bold text-dark mb-1">@Model.Title</h3>
+                            @if (!string.IsNullOrWhiteSpace(Model.TitleAr))
+                            {
+                                <h5 class="text-secondary font-serif mb-2" dir="rtl">@Model.TitleAr</h5>
+                            }
                             <p class="text-muted mb-3">by <span class="fw-semibold text-primary">@(Model.Author?.Name ?? "Unknown Author")</span></p>
 
                             <div class="d-flex flex-wrap gap-2 mb-3">
                                 <span class="badge bg-light text-dark border px-3 py-2">
-                                    <i class="bi bi-tag me-1"></i>Category: @(Model.Category?.Name ?? "—")
+                                    <i class="bi bi-tag me-1"></i>Category: @(Model.Category?.Name ?? "—") @(string.IsNullOrEmpty(Model.Category?.NameAr) ? "" : $"({Model.Category.NameAr})")
+                                </span>
+                                <span class="badge bg-light text-dark border px-3 py-2">
+                                    <i class="bi bi-translate me-1"></i>Language: @(string.IsNullOrEmpty(Model.Language) ? "English" : Model.Language)
                                 </span>
                                 @if (Model.Publisher != null)
                                 {
@@ -62,7 +69,7 @@
                                 <div class="row text-center g-2">
                                     <div class="col-4 border-end">
                                         <div class="text-muted small">Standard Price</div>
-                                        <div class="fs-5 fw-bold text-dark">@Model.Price.ToString("C")</div>
+                                        <div class="fs-5 fw-bold text-dark">${@Model.Price:0.00}</div>
                                     </div>
                                     <div class="col-4 border-end">
                                         <div class="text-muted small">Discount</div>
