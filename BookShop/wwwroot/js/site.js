@@ -93,4 +93,144 @@ document.addEventListener("DOMContentLoaded", function () {
             el.classList.add('is-visible');
         });
     }
+
+    // 3. Searchable Dropdowns (Tom Select)
+    initSearchableSelects();
+
+    // 4. Fast Navbar Live Search
+    initNavbarFastSearch();
 });
+
+// 3. Searchable Dropdowns (Tom Select)
+function initSearchableSelects() {
+    if (typeof TomSelect === 'undefined') return;
+
+    const isRtl = document.documentElement.getAttribute('dir') === 'rtl';
+    const defaultPlaceholder = isRtl ? 'ابحث أو اختر...' : 'Type to search...';
+
+    document.querySelectorAll('select.searchable-select').forEach(function (el) {
+        if (el.tomselect) return; // already initialized
+
+        const placeholder = el.getAttribute('data-placeholder') || (el.options.length > 0 && el.options[0].value === "" ? el.options[0].text : defaultPlaceholder);
+
+        try {
+            new TomSelect(el, {
+                create: false,
+                placeholder: placeholder,
+                allowEmptyOption: true,
+                maxOptions: 300,
+                sortField: [{ field: '$order' }, { field: '$score' }],
+                plugins: ['clear_button']
+            });
+        } catch (e) {
+            console.warn('TomSelect init error on', el, e);
+        }
+    });
+}
+
+// 4. Fast Navbar Live Search
+function initNavbarFastSearch() {
+    const searchInput = document.getElementById('navbarSearchInput');
+    const resultsContainer = document.getElementById('navbarSearchResults');
+    const itemsContainer = document.getElementById('navbarSearchItems');
+    const searchForm = document.getElementById('navbarSearchForm');
+
+    if (!searchInput || !resultsContainer || !itemsContainer) return;
+
+    let debounceTimer = null;
+    const isRtl = document.documentElement.getAttribute('dir') === 'rtl';
+
+    function closeResults() {
+        resultsContainer.style.display = 'none';
+        itemsContainer.innerHTML = '';
+    }
+
+    // Close on click outside
+    document.addEventListener('click', function (e) {
+        if (!searchForm.contains(e.target)) {
+            closeResults();
+        }
+    });
+
+    // Close on escape key
+    searchInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closeResults();
+        }
+    });
+
+    searchInput.addEventListener('input', function () {
+        const query = this.value.trim();
+        clearTimeout(debounceTimer);
+
+        if (query.length < 1) {
+            closeResults();
+            return;
+        }
+
+        debounceTimer = setTimeout(async function () {
+            try {
+                const response = await fetch(`/Home/QuickSearch?q=${encodeURIComponent(query)}`);
+                if (!response.ok) return;
+
+                const data = await response.json();
+                const books = data.results || [];
+
+                if (books.length === 0) {
+                    itemsContainer.innerHTML = `
+                        <div class="p-3 text-center text-muted small">
+                            <i class="bi bi-search d-block fs-5 mb-1" style="color: var(--c-cafe-light);"></i>
+                            ${isRtl ? 'لا توجد نتائج مطابقة لبحثك' : 'No matching books found'}
+                        </div>
+                        <a href="/Home/Shop?searchString=${encodeURIComponent(query)}" class="dropdown-item text-center text-primary py-2 border-top small fw-semibold">
+                            ${isRtl ? 'البحث في كامل الكتالوج &larr;' : 'Search entire catalog &rarr;'}
+                        </a>
+                    `;
+                    resultsContainer.style.display = 'block';
+                    return;
+                }
+
+                let html = '';
+                books.forEach(function (b) {
+                    const coverHtml = b.coverImageUrl
+                        ? `<img src="${b.coverImageUrl}" alt="${b.title}" class="rounded-1 shadow-sm flex-shrink-0" style="width: 38px; height: 52px; object-fit: contain;" />`
+                        : `<div class="rounded-1 d-flex align-items-center justify-content-center bg-light border flex-shrink-0" style="width: 38px; height: 52px;"><i class="bi bi-book-half text-muted"></i></div>`;
+
+                    html += `
+                        <a href="/Home/Details/${b.id}" class="dropdown-item p-2 d-flex align-items-center gap-2 rounded-2 text-decoration-none">
+                            ${coverHtml}
+                            <div class="flex-grow-1 min-w-0">
+                                <div class="font-serif fw-semibold text-dark text-truncate small">${b.title}</div>
+                                <div class="text-muted text-truncate" style="font-size: 0.76rem;">${b.author}</div>
+                                <div class="d-flex align-items-center gap-1 mt-1">
+                                    ${b.category ? `<span class="badge bg-light text-dark border py-0 px-1" style="font-size: 0.68rem;">${b.category}</span>` : ''}
+                                    <span class="fw-bold ${isRtl ? 'me-auto' : 'ms-auto'} font-serif" style="color: var(--c-espresso); font-size: 0.82rem;">${b.effectivePrice}</span>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                });
+
+                html += `
+                    <div class="border-top mt-1 pt-1">
+                        <a href="/Home/Shop?searchString=${encodeURIComponent(query)}" class="dropdown-item text-center text-primary py-2 small fw-semibold">
+                            ${isRtl ? `عرض كافة النتائج لـ "${query}" &larr;` : `View all results for "${query}" &rarr;`}
+                        </a>
+                    </div>
+                `;
+
+                itemsContainer.innerHTML = html;
+                resultsContainer.style.display = 'block';
+            } catch (err) {
+                console.error('QuickSearch error:', err);
+            }
+        }, 200);
+    });
+
+    // Reopen on focus if text is present
+    searchInput.addEventListener('focus', function () {
+        if (this.value.trim().length >= 1 && itemsContainer.children.length > 0) {
+            resultsContainer.style.display = 'block';
+        }
+    });
+}

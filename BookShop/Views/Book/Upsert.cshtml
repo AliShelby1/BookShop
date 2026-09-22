@@ -124,7 +124,7 @@
 
                                 <div class="mb-3">
                                     <label asp-for="Book.CategoryId" class="form-label fw-semibold">Category</label>
-                                    <select asp-for="Book.CategoryId" asp-items="@Model.CategoryList" class="form-select">
+                                    <select asp-for="Book.CategoryId" asp-items="@Model.CategoryList" class="form-select searchable-select">
                                         <option disabled selected>-- Select Category --</option>
                                     </select>
                                     <span asp-validation-for="Book.CategoryId" class="text-danger small"></span>
@@ -132,7 +132,7 @@
 
                                 <div class="mb-3">
                                     <label asp-for="Book.AuthorId" class="form-label fw-semibold">Author</label>
-                                    <select asp-for="Book.AuthorId" asp-items="@Model.AuthorList" class="form-select">
+                                    <select asp-for="Book.AuthorId" asp-items="@Model.AuthorList" class="form-select searchable-select">
                                         <option disabled selected>-- Select Author --</option>
                                     </select>
                                     <span asp-validation-for="Book.AuthorId" class="text-danger small"></span>
@@ -140,7 +140,7 @@
 
                                 <div class="mb-3">
                                     <label asp-for="Book.PublisherId" class="form-label fw-semibold">Publisher (Optional)</label>
-                                    <select asp-for="Book.PublisherId" asp-items="@Model.PublisherList" class="form-select">
+                                    <select asp-for="Book.PublisherId" asp-items="@Model.PublisherList" class="form-select searchable-select">
                                         <option value="">-- None / Unknown --</option>
                                     </select>
                                     <span asp-validation-for="Book.PublisherId" class="text-danger small"></span>

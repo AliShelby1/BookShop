@@ -53,7 +53,17 @@
                         @if (Model.CurrentVolumeOfTheMonth != null)
                         {
                             <a asp-controller="Home" asp-action="Details" asp-route-id="@Model.CurrentVolumeOfTheMonth.Id" target="_blank" class="d-inline-block text-decoration-none">
-                                <img src="@Model.CurrentVolumeOfTheMonth.CoverImageUrl" alt="@Model.CurrentVolumeOfTheMonth.Title" class="img-fluid book-spine-shadow rounded-2 mb-2" style="max-height: 220px; object-fit: contain;" />
+                                @if (!string.IsNullOrEmpty(Model.CurrentVolumeOfTheMonth.CoverImageUrl))
+                                {
+                                    <img src="@Model.CurrentVolumeOfTheMonth.CoverImageUrl" alt="@Model.CurrentVolumeOfTheMonth.Title" class="img-fluid book-spine-shadow rounded-2 mb-2" style="max-height: 220px; object-fit: contain;" />
+                                }
+                                else
+                                {
+                                    <div class="book-cover-placeholder d-flex align-items-center justify-content-center book-spine-shadow rounded-2 mx-auto mb-2" 
+                                         style="width: 140px; height: 200px; background: linear-gradient(145deg, #FAF7F2 0%, #EFE8DE 100%); border: 1px solid var(--c-sand);">
+                                        <i class="bi bi-book-half" style="font-size: 3.5rem; color: var(--c-cafe); opacity: 0.75;"></i>
+                                    </div>
+                                }
                                 <h6 class="font-serif fw-bold text-dark mb-1">@Model.CurrentVolumeOfTheMonth.Title</h6>
                                 <p class="text-muted small mb-1">by @(Model.CurrentVolumeOfTheMonth.Author?.Name ?? "Unknown")</p>
                                 <span class="badge badge-earth">Clickable on Hero Banner &rarr;</span>
@@ -78,11 +88,11 @@
 
                     <form asp-action="SetVolumeOfTheMonth" method="post" class="row g-2 align-items-center">
                         <div class="col-sm-8">
-                            <select name="bookId" class="form-select form-select-lg">
+                            <select name="bookId" class="form-select form-select-lg searchable-select">
                                 @foreach (var book in Model.AllActiveBooks)
                                 {
                                     <option value="@book.Id" selected="@(book.IsVolumeOfTheMonth ? "selected" : null)">
-                                        @book.Title (by @(book.Author?.Name ?? "Unknown")) - ${@book.Price:0.00}
+                                        @book.Title (by @(book.Author?.Name ?? "Unknown")) - @book.Price.ToPrice()
                                     </option>
                                 }
                             </select>

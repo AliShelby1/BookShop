@@ -8,6 +8,7 @@ using BookShop.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using BookShop.Utility;
 
 namespace BookShop.Controllers
 {
@@ -197,6 +198,49 @@ namespace BookShop.Controllers
             };
 
             return View(vm);
+        }
+
+        // GET: /Home/QuickSearch?q=...
+        [HttpGet]
+        public async Task<IActionResult> QuickSearch(string q)
+        {
+            if (string.IsNullOrWhiteSpace(q) || q.Trim().Length < 1)
+            {
+                return Json(new { results = System.Array.Empty<object>() });
+            }
+
+            var term = q.Trim();
+            var isAr = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+
+            var candidates = await _db.Books
+                .Where(b => b.IsActive)
+                .Include(b => b.Author)
+                .Include(b => b.Category)
+                .ToListAsync();
+
+            var results = candidates
+                .Where(b => b.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                            b.ISBN.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                            (!string.IsNullOrEmpty(b.TitleAr) && b.TitleAr.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                            (b.Author != null && b.Author.Name.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                            (b.Category != null && (b.Category.Name.Contains(term, StringComparison.OrdinalIgnoreCase) || 
+                                                   (!string.IsNullOrEmpty(b.Category.NameAr) && b.Category.NameAr.Contains(term, StringComparison.OrdinalIgnoreCase)))))
+                .OrderByDescending(b => b.IsFeatured)
+                .ThenBy(b => b.Title)
+                .Take(6)
+                .Select(b => new
+                {
+                    id = b.Id,
+                    title = b.GetDisplayTitle(isAr),
+                    author = b.Author?.Name ?? (isAr ? "مؤلف مجهول" : "Unknown Author"),
+                    category = b.Category?.GetDisplayName(isAr),
+                    price = b.Price.ToPrice(),
+                    effectivePrice = b.EffectivePrice.ToPrice(),
+                    hasDiscount = b.DiscountPercentage.HasValue && b.DiscountPercentage.Value > 0,
+                    coverImageUrl = b.CoverImageUrl
+                });
+
+            return Json(new { results });
         }
 
         public IActionResult Privacy()

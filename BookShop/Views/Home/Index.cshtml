@@ -133,7 +133,7 @@
                         <i class="bi @icon fs-3"></i>
                     </div>
                     <h6 class="font-serif fw-semibold mb-1 text-truncate" style="font-size: 0.95rem;">@cat.GetDisplayName(Lang.IsRtl)</h6>
-                    <small class="text-muted" style="font-size: 0.75rem;">@(Lang.IsRtl ? "استكشف &larr;" : "Explore &rarr;")</small>
+                    <small class="text-muted" style="font-size: 0.75rem;">@(Lang.IsRtl ? "استكشف ←" : "Explore →")</small>
                 </a>
             </div>
         }
@@ -167,23 +167,23 @@
 
 <!-- Literary Quote Banner -->
 <section class="my-5 py-5 text-center reveal-on-scroll rounded-4" style="background-color: var(--c-sand-light); border: 1px solid var(--c-sand);">
-    <div class="container py-3" style="max-width: 720px;">
-        <i class="bi bi-quote fs-1 d-block mb-2" style="color: var(--c-cafe-light);"></i>
-        <blockquote class="blockquote">
+    <div class="container py-3 text-center mx-auto" style="max-width: 720px;">
+        <i class="bi bi-quote fs-1 d-block mb-2 text-center" style="color: var(--c-cafe-light);"></i>
+        <blockquote class="blockquote text-center mx-auto mb-3">
             @if (Lang.IsRtl)
             {
-                <p class="font-serif fs-4 fst-italic lh-base mb-3" style="color: var(--c-espresso); direction: rtl;" dir="rtl">
+                <p class="font-serif fs-4 fst-italic lh-base mb-3 text-center mx-auto" style="color: var(--c-espresso); text-align: center !important;" dir="rtl">
                     «أعَزُّ مَكانٍ في الدُّنَى سَرْجُ سابِحٍ ... وَخَيرُ جَليسٍ في الزّمانِ كِتابُ»
                 </p>
             }
             else
             {
-                <p class="font-serif fs-4 fst-italic lh-base mb-3" style="color: var(--c-espresso);">
+                <p class="font-serif fs-4 fst-italic lh-base mb-3 text-center mx-auto" style="color: var(--c-espresso); text-align: center !important;">
                     "A reader lives a thousand lives before he dies. The man who never reads lives only one."
                 </p>
             }
         </blockquote>
-        <figcaption class="blockquote-footer text-muted font-sans mb-0">
+        <figcaption class="blockquote-footer text-muted font-sans mb-0 text-center d-flex justify-content-center align-items-center">
             @if (Lang.IsRtl)
             {
                 <span>أبو الطيب المتنبي</span>
