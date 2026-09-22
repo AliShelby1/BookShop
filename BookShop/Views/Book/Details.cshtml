@@ -25,17 +25,11 @@
                     <div class="row g-4">
                         <!-- Cover Image Column -->
                         <div class="col-md-4 text-center">
-                            @if (!string.IsNullOrEmpty(Model.CoverImageUrl))
-                            {
-                                <img src="@Model.CoverImageUrl" alt="@Model.Title" class="img-fluid rounded shadow" style="max-height: 380px; object-fit: contain;" />
-                            }
-                            else
-                            {
-                                <div class="book-cover-placeholder d-flex align-items-center justify-content-center rounded shadow-sm mx-auto" 
-                                     style="width: 220px; height: 320px; background: linear-gradient(145deg, #FAF7F2 0%, #EFE8DE 100%); border: 1px solid var(--c-sand);">
-                                    <i class="bi bi-book-half" style="font-size: 5rem; color: var(--c-cafe); opacity: 0.75;"></i>
-                                </div>
-                            }
+                            <img src="@Model.DisplayCoverImageUrl" 
+                                 alt="" 
+                                 class="img-fluid rounded shadow" 
+                                 style="max-height: 380px; object-fit: contain;" 
+                                 onerror="if(this.src.indexOf('default-book-cover.svg')===-1){this.src='/images/default-book-cover.svg';}" />
                         </div>
 
                         <!-- Details Column -->

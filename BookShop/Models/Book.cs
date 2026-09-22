@@ -78,6 +78,9 @@ namespace BookShop.Models
         [Display(Name = "Cover Image")]
         public string? CoverImageUrl { get; set; }
 
+        [NotMapped]
+        public string DisplayCoverImageUrl => !string.IsNullOrWhiteSpace(CoverImageUrl) ? CoverImageUrl : "/images/default-book-cover.svg";
+
         [Display(Name = "Is Active")]
         public bool IsActive { get; set; } = true;
 

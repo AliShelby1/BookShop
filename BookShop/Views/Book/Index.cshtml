@@ -103,16 +103,11 @@
                             {
                                 <tr>
                                     <td class="ps-4" style="width: 70px;">
-                                        @if (!string.IsNullOrEmpty(book.CoverImageUrl))
-                                        {
-                                            <img src="@book.CoverImageUrl" alt="@book.Title" class="rounded shadow-sm" style="width: 48px; height: 68px; object-fit: cover;" />
-                                        }
-                                        else
-                                        {
-                                            <div class="bg-light text-muted rounded d-flex align-items-center justify-content-center border" style="width: 48px; height: 68px;">
-                                                <i class="bi bi-book"></i>
-                                            </div>
-                                        }
+                                        <img src="@book.DisplayCoverImageUrl" 
+                                             alt="" 
+                                             class="rounded shadow-sm" 
+                                             style="width: 48px; height: 68px; object-fit: cover;" 
+                                             onerror="if(this.src.indexOf('default-book-cover.svg')===-1){this.src='/images/default-book-cover.svg';}" />
                                     </td>
                                     <td>
                                         <div class="fw-semibold text-dark">

@@ -128,16 +128,11 @@
                                                 <div class="d-flex align-items-center">
                                                     <div class="book-cover-container rounded p-1 @(Lang.IsRtl ? "ms-3" : "me-3") flex-shrink-0" style="width: 60px; height: 85px;">
                                                         <a asp-controller="Home" asp-action="Details" asp-route-id="@item.BookId">
-                                                            @if (!string.IsNullOrEmpty(item.CoverImageUrl))
-                                                            {
-                                                                <img src="@item.CoverImageUrl" alt="@item.Title" class="img-fluid book-spine-shadow rounded-1" style="height: 100%; width: 100%; object-fit: contain;" />
-                                                            }
-                                                            else
-                                                            {
-                                                                <div class="d-flex align-items-center justify-content-center h-100 bg-white border rounded small text-muted">
-                                                                    <i class="bi bi-book"></i>
-                                                                </div>
-                                                            }
+                                                            <img src="@(string.IsNullOrWhiteSpace(item.CoverImageUrl) ? "/images/default-book-cover.svg" : item.CoverImageUrl)" 
+                                                                 alt="" 
+                                                                 class="img-fluid book-spine-shadow rounded-1" 
+                                                                 style="height: 100%; width: 100%; object-fit: contain;" 
+                                                                 onerror="if(this.src.indexOf('default-book-cover.svg')===-1){this.src='/images/default-book-cover.svg';}" />
                                                         </a>
                                                     </div>
                                                     <div>

@@ -152,11 +152,15 @@
                                     <div class="form-text small">Upload .jpg, .png, or .webp image</div>
                                 </div>
 
-                                @if (!string.IsNullOrEmpty(Model.Book.CoverImageUrl))
+                                @if (Model.Book.Id > 0)
                                 {
                                     <div class="mt-3 text-center border p-2 rounded bg-light">
                                         <div class="small fw-semibold text-muted mb-2">Current Cover:</div>
-                                        <img src="@Model.Book.CoverImageUrl" alt="@Model.Book.Title" class="img-fluid rounded shadow-sm" style="max-height: 180px; object-fit: contain;" />
+                                        <img src="@Model.Book.DisplayCoverImageUrl" 
+                                             alt="" 
+                                             class="img-fluid rounded shadow-sm" 
+                                             style="max-height: 180px; object-fit: contain;" 
+                                             onerror="if(this.src.indexOf('default-book-cover.svg')===-1){this.src='/images/default-book-cover.svg';}" />
                                     </div>
                                 }
                             </div>

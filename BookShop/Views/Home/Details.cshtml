@@ -37,17 +37,11 @@
                             </span>
                         }
 
-                        @if (!string.IsNullOrEmpty(Model.Book.CoverImageUrl))
-                        {
-                            <img src="@Model.Book.CoverImageUrl" alt="@Model.Book.Title" class="img-fluid book-spine-shadow" style="max-height: 420px; object-fit: contain;" />
-                        }
-                        else
-                        {
-                            <div class="book-cover-placeholder d-flex align-items-center justify-content-center book-spine-shadow rounded-2" 
-                                 style="width: 260px; height: 380px; background: linear-gradient(145deg, #FAF7F2 0%, #EFE8DE 100%); border: 1px solid var(--c-sand);">
-                                <i class="bi bi-book-half" style="font-size: 6rem; color: var(--c-cafe); opacity: 0.75;"></i>
-                            </div>
-                        }
+                        <img src="@Model.Book.DisplayCoverImageUrl" 
+                             alt="" 
+                             class="img-fluid book-spine-shadow rounded-2" 
+                             style="max-height: 420px; width: auto; object-fit: contain;" 
+                             onerror="if(this.src.indexOf('default-book-cover.svg')===-1){this.src='/images/default-book-cover.svg';}" />
                     </div>
                 </div>
 

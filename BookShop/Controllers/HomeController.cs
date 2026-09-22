@@ -237,7 +237,7 @@ namespace BookShop.Controllers
                     price = b.Price.ToPrice(),
                     effectivePrice = b.EffectivePrice.ToPrice(),
                     hasDiscount = b.DiscountPercentage.HasValue && b.DiscountPercentage.Value > 0,
-                    coverImageUrl = b.CoverImageUrl
+                    coverImageUrl = b.DisplayCoverImageUrl
                 });
 
             return Json(new { results });

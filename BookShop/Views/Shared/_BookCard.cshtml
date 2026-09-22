@@ -13,17 +13,11 @@
     <!-- Book Cover Stage -->
     <div class="book-cover-container position-relative text-center d-flex align-items-center justify-content-center" style="height: 270px;">
         <a asp-controller="Home" asp-action="Details" asp-route-id="@Model.Id" class="d-inline-block">
-            @if (!string.IsNullOrEmpty(Model.CoverImageUrl))
-            {
-                <img src="@Model.CoverImageUrl" alt="@Model.Title" class="img-fluid book-cover-img book-spine-shadow" style="max-height: 220px; width: auto; object-fit: contain;" />
-            }
-            else
-            {
-                <div class="book-cover-placeholder d-flex align-items-center justify-content-center book-spine-shadow rounded-2" 
-                     style="width: 150px; height: 215px; background: linear-gradient(145deg, #FAF7F2 0%, #EFE8DE 100%); border: 1px solid var(--c-sand);">
-                    <i class="bi bi-book-half" style="font-size: 3.8rem; color: var(--c-cafe); opacity: 0.75;"></i>
-                </div>
-            }
+            <img src="@Model.DisplayCoverImageUrl" 
+                 alt="" 
+                 class="img-fluid book-cover-img book-spine-shadow rounded-2" 
+                 style="max-height: 220px; width: auto; object-fit: contain;" 
+                 onerror="if(this.src.indexOf('default-book-cover.svg')===-1){this.src='/images/default-book-cover.svg';}" />
         </a>
     </div>
 

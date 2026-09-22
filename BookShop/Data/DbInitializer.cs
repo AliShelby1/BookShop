@@ -135,7 +135,7 @@ namespace BookShop.Data
                     Price = 42.99m,
                     DiscountPercentage = 10m,
                     StockQuantity = 25,
-                    CoverImageUrl = "https://images.unsplash.com/photo-1532012164546-f432f2e3777a?auto=format&fit=crop&q=80&w=800",
+                    CoverImageUrl = null,
                     IsActive = true,
                     IsFeatured = true,
                     IsVolumeOfTheMonth = false,

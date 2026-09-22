@@ -192,9 +192,8 @@ function initNavbarFastSearch() {
 
                 let html = '';
                 books.forEach(function (b) {
-                    const coverHtml = b.coverImageUrl
-                        ? `<img src="${b.coverImageUrl}" alt="${b.title}" class="rounded-1 shadow-sm flex-shrink-0" style="width: 38px; height: 52px; object-fit: contain;" />`
-                        : `<div class="rounded-1 d-flex align-items-center justify-content-center bg-light border flex-shrink-0" style="width: 38px; height: 52px;"><i class="bi bi-book-half text-muted"></i></div>`;
+                    const coverUrl = b.coverImageUrl || '/images/default-book-cover.svg';
+                    const coverHtml = `<img src="${coverUrl}" alt="" class="rounded-1 shadow-sm flex-shrink-0" style="width: 38px; height: 52px; object-fit: contain;" onerror="if(this.src.indexOf('default-book-cover.svg')===-1){this.src='/images/default-book-cover.svg';}" />`;
 
                     html += `
                         <a href="/Home/Details/${b.id}" class="dropdown-item p-2 d-flex align-items-center gap-2 rounded-2 text-decoration-none">
