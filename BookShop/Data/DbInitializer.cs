@@ -68,11 +68,11 @@ namespace BookShop.Data
             // 2. Seed Initial Catalog Data (Categories, Authors, Publishers, Books)
             if (!_db.Categories.Any())
             {
-                var sciFi = new Category { Name = "Science Fiction", DisplayOrder = 1, IconClass = "bi-rocket-takeoff" };
-                var tech = new Category { Name = "Technology & Programming", DisplayOrder = 2, IconClass = "bi-code-slash" };
-                var business = new Category { Name = "Business & Finance", DisplayOrder = 3, IconClass = "bi-briefcase" };
-                var fiction = new Category { Name = "Fiction", DisplayOrder = 4, IconClass = "bi-journal-bookmark" };
-                var selfHelp = new Category { Name = "Self-Help", DisplayOrder = 5, IconClass = "bi-lightbulb" };
+                var sciFi = new Category { Name = "Science Fiction", NameAr = "خيال علمي", DisplayOrder = 1, IconClass = "bi-rocket-takeoff" };
+                var tech = new Category { Name = "Technology & Programming", NameAr = "تكنولوجيا وبرمجة", DisplayOrder = 2, IconClass = "bi-code-slash" };
+                var business = new Category { Name = "Business & Finance", NameAr = "أعمال واقتصاد", DisplayOrder = 3, IconClass = "bi-briefcase" };
+                var fiction = new Category { Name = "Fiction", NameAr = "روايات وقصص", DisplayOrder = 4, IconClass = "bi-journal-bookmark" };
+                var selfHelp = new Category { Name = "Self-Help", NameAr = "تطوير الذات", DisplayOrder = 5, IconClass = "bi-lightbulb" };
 
                 _db.Categories.AddRange(sciFi, tech, business, fiction, selfHelp);
                 _db.SaveChanges();
@@ -128,6 +128,8 @@ namespace BookShop.Data
                 var cleanCode = new Book
                 {
                     Title = "Clean Code: A Handbook of Agile Software Craftsmanship",
+                    TitleAr = "كود نظيف: دليل الحرفية البرمجية الرشيقة",
+                    Language = "English",
                     Description = "Even bad code can function. But if code isn't clean, it can bring a development organization to its knees. Every year, countless hours and significant resources are lost because of poorly written code. This book is a must for any developer, software engineer, project manager, or systems analyst looking to produce cleaner code.",
                     ISBN = "978-0132350884",
                     Price = 42.99m,
@@ -145,6 +147,8 @@ namespace BookShop.Data
                 var pragmaticProg = new Book
                 {
                     Title = "The Pragmatic Programmer: Your Journey To Mastery",
+                    TitleAr = "المبرمج البراغماتي: رحلتك إلى الاحتراف",
+                    Language = "English",
                     Description = "The Pragmatic Programmer is one of those rare tech books you'll read and re-read over the years. Whether you're new to the field or an experienced practitioner, you'll come away each time with fresh insights into code architecture, refactoring, and career progression.",
                     ISBN = "978-0135957059",
                     Price = 49.95m,
@@ -162,6 +166,8 @@ namespace BookShop.Data
                 var dune = new Book
                 {
                     Title = "Dune",
+                    TitleAr = "كثيب (ديون)",
+                    Language = "English",
                     Description = "Set on the desert planet Arrakis, Dune tells the story of Paul Atreides, heir to a noble family tasked with ruling an inhospitable world where the only thing of value is the 'spice' melange, a drug capable of extending life and enhancing consciousness.",
                     ISBN = "978-0441172719",
                     Price = 18.99m,
@@ -179,6 +185,8 @@ namespace BookShop.Data
                 var atomicHabits = new Book
                 {
                     Title = "Atomic Habits: An Easy & Proven Way to Build Good Habits",
+                    TitleAr = "العادات الذرية",
+                    Language = "English",
                     Description = "No matter your goals, Atomic Habits offers a proven framework for improving every day. James Clear reveals practical strategies that will teach you exactly how to form good habits, break bad ones, and master the tiny behaviors that lead to remarkable results.",
                     ISBN = "978-0735211292",
                     Price = 27.00m,

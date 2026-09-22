@@ -158,10 +158,10 @@
 
                                             <!-- Unit Price -->
                                             <td class="py-3 text-center">
-                                                <div class="fw-semibold font-serif">${@item.UnitPrice:0.00}</div>
+                                                <div class="fw-semibold font-serif">@item.UnitPrice.ToPrice()</div>
                                                 @if (item.DiscountPercentage.HasValue && item.DiscountPercentage > 0)
                                                 {
-                                                    <small class="text-muted text-decoration-line-through">${@item.OriginalPrice:0.00}</small>
+                                                    <small class="text-muted text-decoration-line-through">@item.OriginalPrice.ToPrice()</small>
                                                 }
                                             </td>
 
@@ -194,7 +194,7 @@
 
                                             <!-- Line Total -->
                                             <td class="py-3 text-end">
-                                                <span class="font-serif fw-bold text-dark fs-6">${@item.LineTotal:0.00}</span>
+                                                <span class="font-serif fw-bold text-dark fs-6">@item.LineTotal.ToPrice()</span>
                                             </td>
 
                                             <!-- Remove Action -->
@@ -238,14 +238,14 @@
 
                         <div class="d-flex justify-content-between mb-2">
                             <span class="text-muted">@Lang["Cart_Subtotal"]</span>
-                            <span class="font-serif fw-medium text-dark">${@Model.Subtotal:0.00}</span>
+                            <span class="font-serif fw-medium text-dark">@Model.Subtotal.ToPrice()</span>
                         </div>
 
                         @if (Model.TotalDiscountSaved > 0)
                         {
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">@Lang["Cart_Savings"]</span>
-                                <span class="badge badge-terracotta">-${@Model.TotalDiscountSaved:0.00}</span>
+                                <span class="badge badge-terracotta">-@Model.TotalDiscountSaved.ToPrice()</span>
                             </div>
                         }
 
@@ -258,14 +258,14 @@
                                 }
                                 else
                                 {
-                                    <span class="font-serif fw-medium text-dark">${@Model.ShippingFee:0.00}</span>
+                                    <span class="font-serif fw-medium text-dark">@Model.ShippingFee.ToPrice()</span>
                                 }
                             </span>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-baseline mb-4">
                             <span class="h6 font-serif fw-bold text-dark mb-0">@Lang["Cart_TotalDue"]</span>
-                            <span class="h4 font-serif fw-bold mb-0" style="color: var(--c-espresso);">${@Model.Total:0.00}</span>
+                            <span class="h4 font-serif fw-bold mb-0" style="color: var(--c-espresso);">@Model.Total.ToPrice()</span>
                         </div>
 
                         <button type="button" class="btn btn-primary btn-lg w-100 rounded-pill shadow-sm mb-3 py-2"

@@ -58,7 +58,7 @@
                                     @Model.VolumeOfTheMonth.GetDisplayTitle(Lang.IsRtl)
                                 </h6>
                                 <small class="text-muted fst-italic font-serif" style="font-size: 0.85rem;">
-                                    @Lang["Book_By"] @(Model.VolumeOfTheMonth.Author?.Name ?? (Lang.IsRtl ? "مؤلف مختار" : "Selected Author")) &middot; ${@Model.VolumeOfTheMonth.EffectivePrice.ToString("0.00")} &rarr;
+                                    @Lang["Book_By"] @(Model.VolumeOfTheMonth.Author?.Name ?? (Lang.IsRtl ? "مؤلف مختار" : "Selected Author")) &middot; @Model.VolumeOfTheMonth.EffectivePrice.ToPrice() &rarr;
                                 </small>
                             </div>
                         </a>

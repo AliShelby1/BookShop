@@ -145,14 +145,14 @@
                                         @if (book.DiscountPercentage.HasValue && book.DiscountPercentage > 0)
                                         {
                                             <div>
-                                                <span class="fw-bold text-success">${@book.EffectivePrice.ToString("0.00")}</span>
+                                                <span class="fw-bold text-success">@book.EffectivePrice.ToPrice()</span>
                                                 <small class="badge bg-danger ms-1">-@book.DiscountPercentage%</small>
                                             </div>
-                                            <small class="text-muted text-decoration-line-through">${@book.Price.ToString("0.00")}</small>
+                                            <small class="text-muted text-decoration-line-through">@book.Price.ToPrice()</small>
                                         }
                                         else
                                         {
-                                            <span class="fw-bold text-dark">${@book.Price.ToString("0.00")}</span>
+                                            <span class="fw-bold text-dark">@book.Price.ToPrice()</span>
                                         }
                                     </td>
                                     <td>

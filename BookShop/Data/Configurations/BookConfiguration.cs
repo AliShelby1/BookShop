@@ -39,6 +39,12 @@ namespace BookShop.Data.Configurations
             builder.Property(b => b.CoverImageUrl)
                 .HasMaxLength(500);
 
+            builder.Property(b => b.TitleTranslations)
+                .HasColumnType("jsonb");
+
+            builder.Property(b => b.DescriptionTranslations)
+                .HasColumnType("jsonb");
+
             // Relationships
             builder.HasOne(b => b.Category)
                 .WithMany(c => c.Books)

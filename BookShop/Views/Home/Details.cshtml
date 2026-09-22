@@ -105,13 +105,13 @@
                         <div class="d-flex align-items-baseline gap-3">
                             @if (Model.Book.DiscountPercentage.HasValue && Model.Book.DiscountPercentage > 0)
                             {
-                                <span class="display-6 font-serif fw-bold" style="color: var(--c-espresso);">${@Model.Book.EffectivePrice.ToString("0.00")}</span>
-                                <span class="fs-5 text-muted text-decoration-line-through">${@Model.Book.Price.ToString("0.00")}</span>
-                                <span class="badge badge-terracotta">@string.Format(Lang["Book_SaveDiscount"], $"${(Model.Book.Price - Model.Book.EffectivePrice):0.00}")</span>
+                                <span class="display-6 font-serif fw-bold" style="color: var(--c-espresso);">@Model.Book.EffectivePrice.ToPrice()</span>
+                                <span class="fs-5 text-muted text-decoration-line-through">@Model.Book.Price.ToPrice()</span>
+                                <span class="badge badge-terracotta">@string.Format(Lang["Book_SaveDiscount"], (Model.Book.Price - Model.Book.EffectivePrice).ToPrice())</span>
                             }
                             else
                             {
-                                <span class="display-6 font-serif fw-bold" style="color: var(--c-espresso);">${@Model.Book.Price.ToString("0.00")}</span>
+                                <span class="display-6 font-serif fw-bold" style="color: var(--c-espresso);">@Model.Book.Price.ToPrice()</span>
                             }
                         </div>
                         <small class="text-muted d-block mt-1">@Lang["Book_ComplimentaryPackaging"]</small>

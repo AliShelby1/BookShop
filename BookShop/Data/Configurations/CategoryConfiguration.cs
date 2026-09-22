@@ -19,6 +19,9 @@ namespace BookShop.Data.Configurations
 
             builder.Property(c => c.DisplayOrder)
                 .IsRequired();
+
+            builder.Property(c => c.Translations)
+                .HasColumnType("jsonb");
         }
     }
 }

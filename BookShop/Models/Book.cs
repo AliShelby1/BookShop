@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -12,15 +13,44 @@ namespace BookShop.Models
         [MaxLength(200)]
         public string Title { get; set; } = string.Empty;
 
-        [MaxLength(200)]
+        // Native PostgreSQL JSONB dictionary for multilingual titles
+        [Column(TypeName = "jsonb")]
+        public Dictionary<string, string> TitleTranslations { get; set; } = new();
+
+        [NotMapped]
         [Display(Name = "Arabic Title")]
-        public string? TitleAr { get; set; }
+        public string? TitleAr
+        {
+            get => TitleTranslations.GetValueOrDefault("ar");
+            set
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                    TitleTranslations["ar"] = value.Trim();
+                else
+                    TitleTranslations.Remove("ar");
+            }
+        }
 
         [Required]
         public string Description { get; set; } = string.Empty;
 
+        // Native PostgreSQL JSONB dictionary for multilingual descriptions
+        [Column(TypeName = "jsonb")]
+        public Dictionary<string, string> DescriptionTranslations { get; set; } = new();
+
+        [NotMapped]
         [Display(Name = "Arabic Description")]
-        public string? DescriptionAr { get; set; }
+        public string? DescriptionAr
+        {
+            get => DescriptionTranslations.GetValueOrDefault("ar");
+            set
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                    DescriptionTranslations["ar"] = value.Trim();
+                else
+                    DescriptionTranslations.Remove("ar");
+            }
+        }
 
         [Required]
         [MaxLength(50)]
@@ -83,8 +113,18 @@ namespace BookShop.Models
             : Price;
 
         // Multilingual display helpers
-        public string GetDisplayTitle(bool isRtl) => (isRtl && !string.IsNullOrWhiteSpace(TitleAr)) ? TitleAr : Title;
-        public string GetDisplayDescription(bool isRtl) => (isRtl && !string.IsNullOrWhiteSpace(DescriptionAr)) ? DescriptionAr : Description;
+        public string GetDisplayTitle(bool isRtl) =>
+            (isRtl && TitleTranslations.TryGetValue("ar", out var ar) && !string.IsNullOrWhiteSpace(ar)) ? ar : Title;
+
+        public string GetDisplayTitle(string culture) =>
+            (TitleTranslations.TryGetValue(culture, out var val) && !string.IsNullOrWhiteSpace(val)) ? val : Title;
+
+        public string GetDisplayDescription(bool isRtl) =>
+            (isRtl && DescriptionTranslations.TryGetValue("ar", out var ar) && !string.IsNullOrWhiteSpace(ar)) ? ar : Description;
+
+        public string GetDisplayDescription(string culture) =>
+            (DescriptionTranslations.TryGetValue(culture, out var val) && !string.IsNullOrWhiteSpace(val)) ? val : Description;
+
         public string GetDisplayLanguage(bool isRtl) => isRtl ? (Language switch
         {
             "English" => "الإنجليزية",

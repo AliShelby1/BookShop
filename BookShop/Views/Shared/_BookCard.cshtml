@@ -61,12 +61,12 @@
                 <div>
                     @if (Model.DiscountPercentage.HasValue && Model.DiscountPercentage > 0)
                     {
-                        <span class="fw-bold font-serif fs-5" style="color: var(--c-espresso);">${@Model.EffectivePrice.ToString("0.00")}</span>
-                        <small class="text-muted text-decoration-line-through @(Lang.IsRtl ? "me-1" : "ms-1")">${@Model.Price.ToString("0.00")}</small>
+                        <span class="fw-bold font-serif fs-5" style="color: var(--c-espresso);">@Model.EffectivePrice.ToPrice()</span>
+                        <small class="text-muted text-decoration-line-through @(Lang.IsRtl ? "me-1" : "ms-1")">@Model.Price.ToPrice()</small>
                     }
                     else
                     {
-                        <span class="fw-bold font-serif fs-5" style="color: var(--c-espresso);">${@Model.Price.ToString("0.00")}</span>
+                        <span class="fw-bold font-serif fs-5" style="color: var(--c-espresso);">@Model.Price.ToPrice()</span>
                     }
                 </div>
                 <div>
