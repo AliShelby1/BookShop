@@ -83,6 +83,7 @@ namespace BookShop.Services
                 ["Nav_ManageUsers"] = "Manage Users",
                 ["Nav_CreateStaff"] = "Create New Staff",
                 ["Nav_ReadingBag"] = "Reading Bag",
+                ["Nav_Wishlist"] = "Reading List",
                 ["Nav_Register"] = "Register",
                 ["Nav_SignIn"] = "Sign In",
                 ["Nav_SignOut"] = "Sign Out",
@@ -163,6 +164,22 @@ namespace BookShop.Services
                 ["Cart_ExploreBtn"] = "Explore Books Catalog",
                 ["Cart_ReturnSanctuary"] = "Return to Sanctuary",
 
+                // Wishlist / Reading List
+                ["Wishlist_Title"] = "Your Reading List",
+                ["Wishlist_Subtitle"] = "Curated literary volumes saved for future exploration and acquisition.",
+                ["Wishlist_VolumesCount"] = "volumes saved",
+                ["Wishlist_VolumeCount"] = "volume saved",
+                ["Wishlist_EmptyTitle"] = "Your Reading List is Empty",
+                ["Wishlist_EmptyDesc"] = "You haven't saved any books yet. Explore our shelves and click the heart icon on any edition to keep it close at hand.",
+                ["Wishlist_ExploreBtn"] = "Explore Books Catalog",
+                ["Wishlist_MoveToBag"] = "Move to Bag",
+                ["Wishlist_Remove"] = "Remove",
+                ["Wishlist_DateAdded"] = "Saved on",
+                ["Wishlist_InStock"] = "In Stock",
+                ["Wishlist_OutOfStock"] = "Sold Out",
+                ["Wishlist_Save"] = "Save to Reading List",
+                ["Wishlist_Saved"] = "In Reading List",
+
                 // Footer
                 ["Footer_Mission"] = "A peaceful sanctuary for readers, researchers, and book collectors. We celebrate the physical form of the printed word, offering curated editions from independent authors, classic literature, and contemporary voices.",
                 ["Footer_Dispatched"] = "Independent Booksellers · Nationwide Shipping",
@@ -227,6 +244,7 @@ namespace BookShop.Services
                 ["Nav_ManageUsers"] = "إدارة المستخدمين",
                 ["Nav_CreateStaff"] = "إضافة موظف جديد",
                 ["Nav_ReadingBag"] = "حقيبة القراءة",
+                ["Nav_Wishlist"] = "قائمة القراءة",
                 ["Nav_Register"] = "إنشاء حساب",
                 ["Nav_SignIn"] = "تسجيل الدخول",
                 ["Nav_SignOut"] = "تسجيل الخروج",
@@ -306,6 +324,22 @@ namespace BookShop.Services
                 ["Cart_EmptyDesc"] = "أرففنا ممتلئة بأندر العناوين والكلاسيكيات الأدبية والمراجع العلمية بانتظار انضمامها لمكتبتك الخاصة.",
                 ["Cart_ExploreBtn"] = "استكشف فهرس الكتب",
                 ["Cart_ReturnSanctuary"] = "العودة للرئيسية",
+
+                // Wishlist / Reading List
+                ["Wishlist_Title"] = "قائمة قراءتك المحفوظة",
+                ["Wishlist_Subtitle"] = "مجلدات وإصدارات أدبية قمت بحفظها للمطالعة واقتنائها لاحقاً.",
+                ["Wishlist_VolumesCount"] = "إصدارات محفوظة",
+                ["Wishlist_VolumeCount"] = "إصدار محفوظ",
+                ["Wishlist_EmptyTitle"] = "قائمة قراءتك فارغة حالياً",
+                ["Wishlist_EmptyDesc"] = "لم تقم بحفظ أي كتب بعد. تجول بين أرففنا واضغط على رمز القلب بجوار أي كتاب لحفظه في قائمتك الخاصة.",
+                ["Wishlist_ExploreBtn"] = "استكشف فهرس الكتب",
+                ["Wishlist_MoveToBag"] = "نقل إلى الحقيبة",
+                ["Wishlist_Remove"] = "حذف من القائمة",
+                ["Wishlist_DateAdded"] = "أضيف في",
+                ["Wishlist_InStock"] = "متوفر في المخزون",
+                ["Wishlist_OutOfStock"] = "نفد من المخزون",
+                ["Wishlist_Save"] = "حفظ في قائمة القراءة",
+                ["Wishlist_Saved"] = "محفوظ في القائمة",
 
                 // Footer
                 ["Footer_Mission"] = "ملاذ هادئ للقراء والباحثين وهواة جمع الكتب. نحتفي بالقيمة الحقيقية للكلمة المطبوعة، ونقدم إصدارات منتقاة بعناية من كبار الأدباء والمفكرين المعاصرين.",

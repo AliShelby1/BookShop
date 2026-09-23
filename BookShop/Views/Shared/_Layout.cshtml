@@ -1,5 +1,6 @@
 @using BookShop.Utility
 @inject BookShop.Services.ICartService CartService
+@inject BookShop.Services.IWishlistService WishlistService
 @inject BookShop.Services.ILanguageService Lang
 <!DOCTYPE html>
 <html lang="@Lang.CurrentCulture" dir="@(Lang.IsRtl ? "rtl" : "ltr")">
@@ -166,6 +167,20 @@
                             }
                         </li>
 
+                        <!-- Reading List / Wishlist -->
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-literary position-relative d-inline-flex align-items-center px-2 py-1" asp-controller="Wishlist" asp-action="Index" title="@Lang["Nav_Wishlist"]">
+                                <i class="bi bi-heart fs-5"></i>
+                                @{
+                                    var wishlistItemCount = await WishlistService.GetWishlistItemCountAsync();
+                                }
+                                <span id="navbarWishlistBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill badge-terracotta shadow-sm @(wishlistItemCount > 0 ? "" : "d-none")" style="font-size: 0.68rem; padding: 0.28em 0.55em;">
+                                    @wishlistItemCount
+                                    <span class="visually-hidden">@Lang["Nav_Wishlist"]</span>
+                                </span>
+                            </a>
+                        </li>
+
                         <!-- Reading Bag -->
                         <li class="nav-item">
                             <a class="nav-link nav-link-literary position-relative d-inline-flex align-items-center px-2 py-1" asp-controller="Cart" asp-action="Index" title="@Lang["Nav_ReadingBag"]">
@@ -173,13 +188,10 @@
                                 @{
                                     var cartItemCount = await CartService.GetCartItemCountAsync();
                                 }
-                                @if (cartItemCount > 0)
-                                {
-                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill badge-terracotta shadow-sm" style="font-size: 0.68rem; padding: 0.28em 0.55em;">
-                                        @cartItemCount
-                                        <span class="visually-hidden">@Lang["Nav_ReadingBag"]</span>
-                                    </span>
-                                }
+                                <span id="navbarCartBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill badge-terracotta shadow-sm @(cartItemCount > 0 ? "" : "d-none")" style="font-size: 0.68rem; padding: 0.28em 0.55em;">
+                                    @cartItemCount
+                                    <span class="visually-hidden">@Lang["Nav_ReadingBag"]</span>
+                                </span>
                             </a>
                         </li>
                     </ul>
@@ -237,6 +249,9 @@
             </div>
         </div>
     </footer>
+
+    <!-- Hidden AntiForgeryToken for asynchronous JavaScript requests (e.g., Wishlist toggle) -->
+    @Html.AntiForgeryToken()
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

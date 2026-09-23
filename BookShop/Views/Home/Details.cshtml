@@ -1,8 +1,11 @@
 @model BookShop.Models.ViewModels.CustomerBookDetailsVM
 @inject BookShop.Services.ILanguageService Lang
+@inject BookShop.Services.IWishlistService WishlistService
 
 @{
     ViewData["Title"] = Model.Book.Title;
+    var wishlistIds = await WishlistService.GetUserWishlistBookIdsAsync();
+    var isWishlisted = wishlistIds.Contains(Model.Book.Id);
 }
 
 <div class="container py-4">
@@ -131,9 +134,12 @@
                                         <button type="submit" class="btn btn-primary btn-lg flex-grow-1 rounded-pill shadow-sm">
                                             <i class="bi bi-bag @(Lang.IsRtl ? "ms-2" : "me-2")"></i>@Lang["Book_AddToBag"]
                                         </button>
-                                        <button type="button" class="btn btn-outline-secondary btn-lg px-3 rounded-pill" title="@Lang["Book_SaveWishlist"]"
-                                                onclick="alert('@(Lang.IsRtl ? "ستتوفر ميزة قائمة القراءة في المرحلة القادمة!" : "Wishlist feature will be active in Phase 5!")');">
-                                            <i class="bi bi-bookmark"></i>
+                                        <button type="button" 
+                                                class="btn btn-outline-secondary btn-lg px-3 rounded-pill btn-wishlist-toggle d-inline-flex align-items-center justify-content-center" 
+                                                title="@(isWishlisted ? Lang["Wishlist_Saved"] : Lang["Wishlist_Save"])"
+                                                data-book-id="@Model.Book.Id"
+                                                onclick="toggleWishlist(event, @Model.Book.Id, this);">
+                                            <i class="bi @(isWishlisted ? "bi-heart-fill text-danger" : "bi-heart") fs-5"></i>
                                         </button>
                                     </div>
                                 </div>
@@ -142,8 +148,18 @@
                     }
                     else
                     {
-                        <div class="alert alert-secondary mb-4 rounded-3" role="alert">
+                        <div class="alert alert-secondary mb-3 rounded-3" role="alert">
                             <i class="bi bi-info-circle @(Lang.IsRtl ? "ms-2" : "me-2")"></i>@Lang["Book_OutOfStockAlert"]
+                        </div>
+                        <div class="mb-4">
+                            <button type="button" 
+                                    class="btn btn-outline-secondary rounded-pill px-4 py-2 btn-wishlist-toggle d-inline-flex align-items-center gap-2" 
+                                    data-book-id="@Model.Book.Id"
+                                    onclick="toggleWishlist(event, @Model.Book.Id, this);"
+                                    title="@(isWishlisted ? Lang["Wishlist_Saved"] : Lang["Wishlist_Save"])">
+                                <i class="bi @(isWishlisted ? "bi-heart-fill text-danger" : "bi-heart")"></i>
+                                <span class="btn-wishlist-text">@(isWishlisted ? Lang["Wishlist_Saved"] : Lang["Wishlist_Save"])</span>
+                            </button>
                         </div>
                     }
 

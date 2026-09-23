@@ -233,3 +233,142 @@ function initNavbarFastSearch() {
         }
     });
 }
+
+// 5. Asynchronous Wishlist Toggle Function (Real-time heart click without page reload)
+async function toggleWishlist(event, bookId, buttonEl) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    if (!bookId || !buttonEl) return;
+
+    // Retrieve CSRF Anti-Forgery Token
+    const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+    const token = tokenInput ? tokenInput.value : '';
+
+    const formData = new FormData();
+    formData.append('bookId', bookId);
+    if (token) {
+        formData.append('__RequestVerificationToken', token);
+    }
+
+    // Disable button temporarily to prevent duplicate rapid clicks
+    buttonEl.disabled = true;
+
+    try {
+        const response = await fetch('/Wishlist/Toggle', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+            const isRtl = document.documentElement.dir === 'rtl';
+
+            // Synchronize all buttons for this bookId on the page
+            const matchingButtons = document.querySelectorAll(`[data-book-id="${bookId}"]`);
+            matchingButtons.forEach(btn => {
+                const icon = btn.querySelector('i');
+                const textSpan = btn.querySelector('.btn-wishlist-text');
+
+                if (data.inWishlist) {
+                    if (icon) {
+                        icon.className = 'bi bi-heart-fill text-danger' + (icon.classList.contains('fs-5') ? ' fs-5' : '');
+                        icon.style.transform = 'scale(1.25)';
+                        setTimeout(() => icon.style.transform = 'scale(1)', 200);
+                    }
+                    if (textSpan) {
+                        textSpan.textContent = isRtl ? 'محفوظ في القائمة' : 'In Reading List';
+                    }
+                    btn.title = isRtl ? 'محفوظ في القائمة' : 'In Reading List';
+                } else {
+                    if (icon) {
+                        icon.className = 'bi bi-heart text-secondary' + (icon.classList.contains('fs-5') ? ' fs-5' : '');
+                    }
+                    if (textSpan) {
+                        textSpan.textContent = isRtl ? 'حفظ في قائمة القراءة' : 'Save to Reading List';
+                    }
+                    btn.title = isRtl ? 'حفظ في قائمة القراءة' : 'Save to Reading List';
+                }
+            });
+
+            // Update navbar wishlist badge with smooth bounce animation
+            updateWishlistBadge(data.wishlistCount);
+
+            // Show subtle editorial toast feedback
+            showToastFeedback(data.message, 'success');
+        } else {
+            showToastFeedback(data.message || 'Operation failed', 'warning');
+        }
+    } catch (err) {
+        console.error('Wishlist toggle error:', err);
+        showToastFeedback('An unexpected error occurred. Please try again.', 'danger');
+    } finally {
+        buttonEl.disabled = false;
+    }
+}
+
+function updateWishlistBadge(count) {
+    const badge = document.getElementById('navbarWishlistBadge');
+    if (badge) {
+        badge.textContent = count;
+        if (count > 0) {
+            badge.classList.remove('d-none');
+            badge.style.transform = 'translate(-50%, -50%) scale(1.25)';
+            setTimeout(() => {
+                badge.style.transform = 'translate(-50%, -50%) scale(1)';
+            }, 200);
+        } else {
+            badge.classList.add('d-none');
+        }
+    }
+}
+
+function showToastFeedback(message, type) {
+    let toastContainer = document.getElementById('bookshopToastContainer');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'bookshopToastContainer';
+        const isRtl = document.documentElement.dir === 'rtl';
+        toastContainer.className = `toast-container position-fixed bottom-0 ${isRtl ? 'start-0' : 'end-0'} p-3`;
+        toastContainer.style.zIndex = '1100';
+        document.body.appendChild(toastContainer);
+    }
+
+    const toastEl = document.createElement('div');
+    toastEl.className = 'toast align-items-center text-bg-dark border-0 shadow-lg';
+    toastEl.setAttribute('role', 'alert');
+    toastEl.setAttribute('aria-live', 'assertive');
+    toastEl.setAttribute('aria-atomic', 'true');
+    toastEl.style.borderRadius = '12px';
+
+    const iconClass = type === 'danger' ? 'bi-x-circle text-danger' : type === 'warning' ? 'bi-exclamation-triangle text-warning' : 'bi-check-circle-fill text-success';
+
+    toastEl.innerHTML = `
+        <div class="d-flex align-items-center py-1">
+            <div class="toast-body d-flex align-items-center gap-2 small">
+                <i class="bi ${iconClass} fs-6"></i>
+                <span class="font-serif">${message}</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close" style="font-size: 0.75rem;"></button>
+        </div>
+    `;
+
+    toastContainer.appendChild(toastEl);
+    if (window.bootstrap && window.bootstrap.Toast) {
+        const bsToast = new bootstrap.Toast(toastEl, { delay: 3000 });
+        bsToast.show();
+        toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+    } else {
+        setTimeout(() => toastEl.remove(), 3200);
+    }
+}

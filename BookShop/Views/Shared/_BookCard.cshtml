@@ -1,11 +1,27 @@
 @model BookShop.Models.Book
 @inject BookShop.Services.ILanguageService Lang
+@inject BookShop.Services.IWishlistService WishlistService
+
+@{
+    var wishlistIds = await WishlistService.GetUserWishlistBookIdsAsync();
+    var isWishlisted = wishlistIds.Contains(Model.Id);
+}
 
 <div class="card h-100 book-card position-relative overflow-hidden">
+    <!-- Floating Wishlist (Reading List) Button -->
+    <button type="button" 
+            class="btn btn-sm rounded-circle shadow-sm position-absolute top-0 @(Lang.IsRtl ? "start-0" : "end-0") m-2 p-0 d-flex align-items-center justify-content-center btn-wishlist-toggle" 
+            style="width: 34px; height: 34px; z-index: 3; background-color: rgba(255, 255, 255, 0.92); backdrop-filter: blur(4px); border: 1px solid rgba(0, 0, 0, 0.08); transition: transform 0.2s ease;"
+            data-book-id="@Model.Id" 
+            onclick="toggleWishlist(event, @Model.Id, this);"
+            title="@(isWishlisted ? Lang["Wishlist_Saved"] : Lang["Wishlist_Save"])">
+        <i class="bi @(isWishlisted ? "bi-heart-fill text-danger" : "bi-heart text-secondary")" style="font-size: 0.95rem;"></i>
+    </button>
+
     <!-- Quiet Terracotta Discount Pill -->
     @if (Model.DiscountPercentage.HasValue && Model.DiscountPercentage > 0)
     {
-        <span class="position-absolute top-0 @(Lang.IsRtl ? "end-0" : "start-0") m-3 badge badge-terracotta rounded-pill px-2 py-1 shadow-sm" style="z-index: 2; font-size: 0.75rem;">
+        <span class="position-absolute top-0 @(Lang.IsRtl ? "end-0" : "start-0") m-2 badge badge-terracotta rounded-pill px-2 py-1 shadow-sm" style="z-index: 2; font-size: 0.75rem;">
             -@Model.DiscountPercentage%
         </span>
     }

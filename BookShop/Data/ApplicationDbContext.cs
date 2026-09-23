@@ -17,6 +17,8 @@ namespace BookShop.Data
         public DbSet<Book> Books { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<Wishlist> Wishlists { get; set; }
+        public DbSet<WishlistItem> WishlistItems { get; set; }
         public DbSet<StoreSetting> StoreSettings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
