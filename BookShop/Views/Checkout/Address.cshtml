@@ -1,0 +1,168 @@
+@model BookShop.Models.ViewModels.CheckoutVM
+@inject BookShop.Services.ILanguageService Lang
+
+@{
+    ViewData["Title"] = Lang["Checkout_AddressTitle"];
+    var isRtl = Lang.IsRtl;
+}
+
+<div class="container py-4" style="max-width: 900px;">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb small text-muted">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">@Lang["Nav_Home"]</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Cart" asp-action="Index" class="text-decoration-none text-muted">@Lang["Cart_Title"]</a></li>
+            <li class="breadcrumb-item active text-dark">@Lang["Checkout_AddressTitle"]</li>
+        </ol>
+    </nav>
+
+    <!-- Checkout Steps Indicator -->
+    <div class="d-flex align-items-center justify-content-center gap-0 mb-4 pb-2">
+        <div class="text-center">
+            <div class="rounded-circle d-inline-flex align-items-center justify-content-center fw-bold text-white" style="width:36px;height:36px;background:var(--c-cafe);">1</div>
+            <div class="small fw-semibold mt-1" style="color:var(--c-cafe);">@Lang["Checkout_StepAddress"]</div>
+        </div>
+        <div class="flex-grow-1 border-top mx-2" style="max-width:80px;"></div>
+        <div class="text-center opacity-40">
+            <div class="rounded-circle d-inline-flex align-items-center justify-content-center fw-bold text-white bg-secondary" style="width:36px;height:36px;">2</div>
+            <div class="small mt-1 text-muted">@Lang["Checkout_StepReview"]</div>
+        </div>
+        <div class="flex-grow-1 border-top mx-2" style="max-width:80px;"></div>
+        <div class="text-center opacity-40">
+            <div class="rounded-circle d-inline-flex align-items-center justify-content-center fw-bold text-white bg-secondary" style="width:36px;height:36px;">3</div>
+            <div class="small mt-1 text-muted">@Lang["Checkout_StepConfirmation"]</div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Address Form (left) -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h2 class="h5 fw-bold font-serif mb-4">
+                    <i class="bi bi-geo-alt @(isRtl ? "ms-2" : "me-2")" style="color:var(--c-cafe);"></i>
+                    @Lang["Checkout_ShippingAddress"]
+                </h2>
+
+                <form asp-controller="Checkout" asp-action="Address" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 small mb-3"></div>
+
+                    <!-- Full Name -->
+                    <div class="mb-3">
+                        <label asp-for="ShippingName" class="form-label fw-semibold small text-muted">@Lang["Checkout_FullName"] *</label>
+                        <input asp-for="ShippingName" class="form-control rounded-3" placeholder="@Lang["Checkout_FullNamePlaceholder"]" />
+                        <span asp-validation-for="ShippingName" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Street Address -->
+                    <div class="mb-3">
+                        <label asp-for="ShippingStreetAddress" class="form-label fw-semibold small text-muted">@Lang["Checkout_StreetAddress"] *</label>
+                        <input asp-for="ShippingStreetAddress" class="form-control rounded-3" placeholder="@Lang["Checkout_StreetAddressPlaceholder"]" />
+                        <span asp-validation-for="ShippingStreetAddress" class="text-danger small"></span>
+                    </div>
+
+                    <!-- City & State -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-7">
+                            <label asp-for="ShippingCity" class="form-label fw-semibold small text-muted">@Lang["Checkout_City"] *</label>
+                            <input asp-for="ShippingCity" class="form-control rounded-3" placeholder="@Lang["Checkout_CityPlaceholder"]" />
+                            <span asp-validation-for="ShippingCity" class="text-danger small"></span>
+                        </div>
+                        <div class="col-sm-5">
+                            <label asp-for="ShippingState" class="form-label fw-semibold small text-muted">@Lang["Checkout_State"]</label>
+                            <input asp-for="ShippingState" class="form-control rounded-3" placeholder="@Lang["Checkout_StatePlaceholder"]" />
+                        </div>
+                    </div>
+
+                    <!-- Postal Code & Country -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-5">
+                            <label asp-for="ShippingPostalCode" class="form-label fw-semibold small text-muted">@Lang["Checkout_PostalCode"] *</label>
+                            <input asp-for="ShippingPostalCode" class="form-control rounded-3" placeholder="@Lang["Checkout_PostalCodePlaceholder"]" />
+                            <span asp-validation-for="ShippingPostalCode" class="text-danger small"></span>
+                        </div>
+                        <div class="col-sm-7">
+                            <label asp-for="ShippingCountry" class="form-label fw-semibold small text-muted">@Lang["Checkout_Country"] *</label>
+                            <input asp-for="ShippingCountry" class="form-control rounded-3" placeholder="@Lang["Checkout_CountryPlaceholder"]" />
+                            <span asp-validation-for="ShippingCountry" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="mb-3">
+                        <label asp-for="ShippingPhoneNumber" class="form-label fw-semibold small text-muted">@Lang["Checkout_Phone"]</label>
+                        <input asp-for="ShippingPhoneNumber" type="tel" class="form-control rounded-3" placeholder="@Lang["Checkout_PhonePlaceholder"]" />
+                        <span asp-validation-for="ShippingPhoneNumber" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Order Notes -->
+                    <div class="mb-4">
+                        <label asp-for="CustomerNote" class="form-label fw-semibold small text-muted">@Lang["Checkout_Notes"]</label>
+                        <textarea asp-for="CustomerNote" class="form-control rounded-3" rows="2" placeholder="@Lang["Checkout_NotesPlaceholder"]"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 w-100 fw-semibold">
+                        @Lang["Checkout_ContinueToReview"] <i class="bi bi-arrow-@(isRtl ? "left" : "right") @(isRtl ? "me-1" : "ms-1")"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Order Summary Sidebar (right) -->
+        @if (Model.Cart != null && Model.Cart.Items.Any())
+        {
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm rounded-4 p-4" style="background:var(--c-parchment);">
+                    <h3 class="h6 fw-bold text-muted text-uppercase letter-spacing-1 mb-3">
+                        @Lang["Checkout_OrderSummary"] (@Model.Cart.TotalItemsCount @Lang["Cart_VolumesCount"])
+                    </h3>
+
+                    @foreach (var item in Model.Cart.Items)
+                    {
+                        <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                            <img src="@(string.IsNullOrWhiteSpace(item.CoverImageUrl) ? "/images/default-book-cover.svg" : item.CoverImageUrl)"
+                                 alt="" class="rounded-2 object-fit-cover flex-shrink-0" width="46" height="62" style="object-fit:cover;" />
+                            <div class="flex-grow-1 min-w-0">
+                                <div class="small fw-semibold text-truncate">@item.GetDisplayTitle(isRtl)</div>
+                                <div class="small text-muted">×@item.Quantity</div>
+                            </div>
+                            <div class="small fw-bold text-nowrap">@item.LineTotal.ToPrice()</div>
+                        </div>
+                    }
+
+                    <div class="d-flex justify-content-between small text-muted mb-1">
+                        <span>@Lang["Cart_Subtotal"]</span>
+                        <span>@Model.Cart.Subtotal.ToPrice()</span>
+                    </div>
+                    @if (Model.Cart.IsFreeShipping)
+                    {
+                        <div class="d-flex justify-content-between small text-success mb-1">
+                            <span>@Lang["Cart_Shipping"]</span>
+                            <span>@Lang["Cart_FreeShipping"]</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="d-flex justify-content-between small text-muted mb-1">
+                            <span>@Lang["Cart_Shipping"]</span>
+                            <span>@Model.Cart.ShippingFee.ToPrice()</span>
+                        </div>
+                    }
+                    <hr class="my-2">
+                    <div class="d-flex justify-content-between fw-bold">
+                        <span>@Lang["Cart_Total"]</span>
+                        <span style="color:var(--c-cafe);">@Model.Cart.Total.ToPrice()</span>
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

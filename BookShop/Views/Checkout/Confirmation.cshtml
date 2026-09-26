@@ -1,0 +1,124 @@
+@model BookShop.Models.ViewModels.OrderConfirmationVM
+@inject BookShop.Services.ILanguageService Lang
+
+@{
+    ViewData["Title"] = Lang["Checkout_ConfirmationTitle"];
+    var isRtl = Lang.IsRtl;
+}
+
+<div class="container py-5" style="max-width: 780px;">
+
+    <!-- Success Banner -->
+    <div class="text-center mb-5">
+        <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+             style="width:80px;height:80px;background:rgba(var(--bs-success-rgb),0.1);">
+            <i class="bi bi-check-circle-fill text-success" style="font-size:2.5rem;"></i>
+        </div>
+        <h1 class="h3 fw-bold font-serif text-dark">@Lang["Checkout_ThankYou"]</h1>
+        <p class="text-muted mb-1">@Lang["Checkout_ConfirmationSubtitle"]</p>
+        <div class="d-inline-block px-4 py-2 rounded-pill fw-bold mt-2"
+             style="background:var(--c-parchment); color:var(--c-cafe); letter-spacing:0.05em;">
+            @Model.OrderNumber
+        </div>
+        <div class="text-muted small mt-2">
+            @Lang["Checkout_OrderDate"]: @Model.OrderDate.ToLocalTime().ToString("dd MMM yyyy, HH:mm")
+        </div>
+    </div>
+
+    <!-- Order Items -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+            <h2 class="h6 fw-bold text-muted text-uppercase mb-3">
+                <i class="bi bi-book @(isRtl ? "ms-2" : "me-2")" style="color:var(--c-cafe);"></i>
+                @Lang["Checkout_ItemsOrdered"]
+            </h2>
+
+            @foreach (var item in Model.Items)
+            {
+                <div class="d-flex gap-3 mb-3 pb-3 border-bottom">
+                    <img src="@item.DisplayCoverImageUrl" alt="@item.BookTitle"
+                         class="rounded-2 flex-shrink-0" width="52" height="70" style="object-fit:cover;" />
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold">@item.GetDisplayTitle(isRtl)</div>
+                        @if (!string.IsNullOrWhiteSpace(item.AuthorName))
+                        {
+                            <div class="small text-muted">@item.AuthorName</div>
+                        }
+                        <div class="small text-muted">@Lang["Cart_Quantity"]: @item.Quantity</div>
+                    </div>
+                    <div class="text-end">
+                        @if (item.OriginalPrice.HasValue && item.OriginalPrice.Value > item.UnitPrice)
+                        {
+                            <div class="small text-muted text-decoration-line-through">@item.OriginalPrice.ToPrice()</div>
+                        }
+                        <div class="fw-bold" style="color:var(--c-cafe);">@item.LineTotal.ToPrice()</div>
+                    </div>
+                </div>
+            }
+
+            <!-- Totals -->
+            <div class="pt-1">
+                <div class="d-flex justify-content-between small text-muted mb-1">
+                    <span>@Lang["Cart_Subtotal"]</span>
+                    <span>@Model.Subtotal.ToPrice()</span>
+                </div>
+                @if (Model.TotalDiscountSaved > 0)
+                {
+                    <div class="d-flex justify-content-between small text-success mb-1">
+                        <span>@Lang["Cart_Savings"]</span>
+                        <span>-@Model.TotalDiscountSaved.ToPrice()</span>
+                    </div>
+                }
+                <div class="d-flex justify-content-between small mb-1">
+                    <span class="text-muted">@Lang["Cart_EstimatedShipping"]</span>
+                    @if (Model.IsFreeShipping)
+                    {
+                        <span class="text-success fw-semibold">@Lang["Cart_Complimentary"]</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">@Model.ShippingFee.ToPrice()</span>
+                    }
+                </div>
+                <hr class="my-2">
+                <div class="d-flex justify-content-between fw-bold fs-5">
+                    <span>@Lang["Cart_TotalDue"]</span>
+                    <span style="color:var(--c-cafe);">@Model.OrderTotal.ToPrice()</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shipping Address -->
+    <div class="card border-0 shadow-sm rounded-4 mb-5">
+        <div class="card-body p-4">
+            <h2 class="h6 fw-bold text-muted text-uppercase mb-3">
+                <i class="bi bi-geo-alt @(isRtl ? "ms-2" : "me-2")" style="color:var(--c-cafe);"></i>
+                @Lang["Checkout_ShippingAddress"]
+            </h2>
+            <div class="small">
+                <div class="fw-semibold">@Model.ShippingName</div>
+                <div class="text-muted">@Model.ShippingStreetAddress</div>
+                <div class="text-muted">
+                    @Model.ShippingCity@(string.IsNullOrWhiteSpace(Model.ShippingState) ? "" : $", {Model.ShippingState}") @Model.ShippingPostalCode
+                </div>
+                <div class="text-muted">@Model.ShippingCountry</div>
+                @if (!string.IsNullOrWhiteSpace(Model.ShippingPhoneNumber))
+                {
+                    <div class="mt-1 text-muted"><i class="bi bi-telephone me-1"></i>@Model.ShippingPhoneNumber</div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Buttons -->
+    <div class="d-flex flex-wrap justify-content-center gap-3">
+        <a asp-controller="Home" asp-action="Shop" class="btn btn-primary rounded-pill px-5 py-2">
+            <i class="bi bi-compass @(isRtl ? "ms-2" : "me-2")"></i>@Lang["Checkout_ContinueBrowsing"]
+        </a>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary rounded-pill px-5 py-2">
+            @Lang["Cart_ReturnSanctuary"]
+        </a>
+    </div>
+
+</div>

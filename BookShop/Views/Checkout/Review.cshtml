@@ -1,0 +1,164 @@
+@model BookShop.Models.ViewModels.CheckoutVM
+@inject BookShop.Services.ILanguageService Lang
+
+@{
+    ViewData["Title"] = Lang["Checkout_ReviewTitle"];
+    var isRtl = Lang.IsRtl;
+}
+
+<div class="container py-4" style="max-width: 900px;">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb small text-muted">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">@Lang["Nav_Home"]</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Cart" asp-action="Index" class="text-decoration-none text-muted">@Lang["Cart_Title"]</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Checkout" asp-action="Address" class="text-decoration-none text-muted">@Lang["Checkout_StepAddress"]</a></li>
+            <li class="breadcrumb-item active text-dark">@Lang["Checkout_ReviewTitle"]</li>
+        </ol>
+    </nav>
+
+    <!-- Step Indicator -->
+    <div class="d-flex align-items-center justify-content-center gap-0 mb-4 pb-2">
+        <div class="text-center">
+            <div class="rounded-circle d-inline-flex align-items-center justify-content-center text-white" style="width:36px;height:36px;background:var(--c-cafe);">
+                <i class="bi bi-check-lg"></i>
+            </div>
+            <div class="small mt-1" style="color:var(--c-cafe);">@Lang["Checkout_StepAddress"]</div>
+        </div>
+        <div class="flex-grow-1 border-top mx-2" style="max-width:80px; border-color:var(--c-cafe)!important;"></div>
+        <div class="text-center">
+            <div class="rounded-circle d-inline-flex align-items-center justify-content-center fw-bold text-white" style="width:36px;height:36px;background:var(--c-cafe);">2</div>
+            <div class="small fw-semibold mt-1" style="color:var(--c-cafe);">@Lang["Checkout_StepReview"]</div>
+        </div>
+        <div class="flex-grow-1 border-top mx-2" style="max-width:80px;"></div>
+        <div class="text-center opacity-40">
+            <div class="rounded-circle d-inline-flex align-items-center justify-content-center fw-bold text-white bg-secondary" style="width:36px;height:36px;">3</div>
+            <div class="small mt-1 text-muted">@Lang["Checkout_StepConfirmation"]</div>
+        </div>
+    </div>
+
+    @if (TempData["OrderError"] != null)
+    {
+        <div class="alert alert-danger rounded-3 mb-4">
+            <i class="bi bi-exclamation-triangle me-2"></i> @TempData["OrderError"]
+        </div>
+    }
+
+    <div class="row g-4">
+
+        <!-- Left: Items & Address Summary -->
+        <div class="col-lg-7">
+
+            <!-- Items -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <h2 class="h6 fw-bold text-muted text-uppercase mb-3">
+                    <i class="bi bi-bag @(isRtl ? "ms-2" : "me-2")" style="color:var(--c-cafe);"></i>
+                    @Lang["Checkout_YourOrder"]
+                </h2>
+                @if (Model.Cart != null)
+                {
+                    @foreach (var item in Model.Cart.Items)
+                    {
+                        <div class="d-flex gap-3 mb-3 pb-3 border-bottom">
+                            <img src="@(string.IsNullOrWhiteSpace(item.CoverImageUrl) ? "/images/default-book-cover.svg" : item.CoverImageUrl)"
+                                 alt="@item.Title" class="rounded-2 flex-shrink-0" width="52" height="70" style="object-fit:cover;" />
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold">@item.GetDisplayTitle(isRtl)</div>
+                                <div class="small text-muted">@item.AuthorName</div>
+                                <div class="small text-muted">@Lang["Cart_Quantity"]: @item.Quantity</div>
+                            </div>
+                            <div class="text-end">
+                                @if (item.DiscountPercentage.HasValue && item.DiscountPercentage.Value > 0)
+                                {
+                                    <div class="small text-muted text-decoration-line-through">@item.OriginalPrice.ToPrice()</div>
+                                }
+                                <div class="fw-bold" style="color:var(--c-cafe);">@item.LineTotal.ToPrice()</div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+
+            <!-- Shipping Address Card -->
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h2 class="h6 fw-bold text-muted text-uppercase mb-0">
+                        <i class="bi bi-geo-alt @(isRtl ? "ms-2" : "me-2")" style="color:var(--c-cafe);"></i>
+                        @Lang["Checkout_ShippingAddress"]
+                    </h2>
+                    <a asp-controller="Checkout" asp-action="Address" class="btn btn-link btn-sm p-0 text-decoration-none" style="color:var(--c-cafe);">
+                        <i class="bi bi-pencil me-1"></i>@Lang["Checkout_EditAddress"]
+                    </a>
+                </div>
+                <div class="small">
+                    <div class="fw-semibold">@Model.ShippingName</div>
+                    <div class="text-muted">@Model.ShippingStreetAddress</div>
+                    <div class="text-muted">@Model.ShippingCity@(string.IsNullOrWhiteSpace(Model.ShippingState) ? "" : $", {Model.ShippingState}") @Model.ShippingPostalCode</div>
+                    <div class="text-muted">@Model.ShippingCountry</div>
+                    @if (!string.IsNullOrWhiteSpace(Model.ShippingPhoneNumber))
+                    {
+                        <div class="text-muted mt-1"><i class="bi bi-telephone me-1"></i>@Model.ShippingPhoneNumber</div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.CustomerNote))
+                    {
+                        <div class="mt-2 p-2 rounded-3 bg-light"><i class="bi bi-chat-left-text me-1 text-muted"></i><em class="text-muted">@Model.CustomerNote</em></div>
+                    }
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right: Order Totals + Place Order -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top:80px; background:var(--c-parchment);">
+
+                <h3 class="h6 fw-bold text-muted text-uppercase mb-3">@Lang["Checkout_OrderSummary"]</h3>
+
+                @if (Model.Cart != null)
+                {
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span class="text-muted">@Lang["Cart_Subtotal"]</span>
+                        <span>@Model.Cart.Subtotal.ToPrice()</span>
+                    </div>
+                    @if (Model.Cart.TotalDiscountSaved > 0)
+                    {
+                        <div class="d-flex justify-content-between small text-success mb-1">
+                            <span>@Lang["Cart_Savings"]</span>
+                            <span>-@Model.Cart.TotalDiscountSaved.ToPrice()</span>
+                        </div>
+                    }
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span class="text-muted">@Lang["Cart_EstimatedShipping"]</span>
+                        @if (Model.Cart.IsFreeShipping)
+                        {
+                            <span class="text-success fw-semibold">@Lang["Cart_Complimentary"]</span>
+                        }
+                        else
+                        {
+                            <span>@Model.Cart.ShippingFee.ToPrice()</span>
+                        }
+                    </div>
+                    <hr class="my-2">
+                    <div class="d-flex justify-content-between fw-bold fs-6 mb-4">
+                        <span>@Lang["Cart_TotalDue"]</span>
+                        <span style="color:var(--c-cafe);">@Model.Cart.Total.ToPrice()</span>
+                    </div>
+                }
+
+                <!-- Place Order Form -->
+                <form asp-controller="Checkout" asp-action="PlaceOrder" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-primary rounded-pill w-100 py-3 fw-bold">
+                        <i class="bi bi-lock @(isRtl ? "ms-2" : "me-2")"></i>@Lang["Checkout_PlaceOrder"]
+                    </button>
+                </form>
+
+                <p class="text-muted text-center small mt-3 mb-0">
+                    <i class="bi bi-shield-check me-1 text-success"></i>@Lang["Checkout_SecureCheckout"]
+                </p>
+            </div>
+        </div>
+
+    </div>
+</div>
