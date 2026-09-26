@@ -15,7 +15,16 @@
             <i class="bi bi-check-circle-fill text-success" style="font-size:2.5rem;"></i>
         </div>
         <h1 class="h3 fw-bold font-serif text-dark">@Lang["Checkout_ThankYou"]</h1>
-        <p class="text-muted mb-1">@Lang["Checkout_ConfirmationSubtitle"]</p>
+        <p class="text-muted mb-1">
+            @Lang["Checkout_ConfirmationSubtitle"]
+            @if (!string.IsNullOrWhiteSpace(Model.CustomerEmail))
+            {
+                <span class="d-block small mt-1 text-muted">
+                    <i class="bi bi-envelope @(isRtl ? "ms-1" : "me-1")"></i>
+                    @string.Format(Lang["Checkout_ReceiptDispatchedTo"], Model.CustomerEmail)
+                </span>
+            }
+        </p>
         <div class="d-inline-block px-4 py-2 rounded-pill fw-bold mt-2"
              style="background:var(--c-parchment); color:var(--c-cafe); letter-spacing:0.05em;">
             @Model.OrderNumber
@@ -24,6 +33,24 @@
             @Lang["Checkout_OrderDate"]: @Model.OrderDate.ToLocalTime().ToString("dd MMM yyyy, HH:mm")
         </div>
     </div>
+
+    <!-- Guest Account Creation Prompt (if ordering as guest) -->
+    @if (Model.IsGuestOrder)
+    {
+        <div class="card border-0 shadow-sm rounded-4 mb-4 text-center p-4" style="background: var(--c-parchment);">
+            <div class="card-body py-2">
+                <i class="bi bi-person-check fs-2 mb-2 d-block" style="color: var(--c-cafe);"></i>
+                <h5 class="fw-bold font-serif text-dark mb-1">@Lang["Checkout_CreateAccountHeading"]</h5>
+                <p class="text-muted small mx-auto mb-3" style="max-width: 480px;">
+                    @Lang["Checkout_CreateAccountDesc"]
+                </p>
+                <a asp-area="Identity" asp-page="/Account/Register" asp-route-email="@Model.CustomerEmail"
+                   class="btn btn-outline-dark rounded-pill px-4 btn-sm fw-semibold shadow-none">
+                    <i class="bi bi-person-plus @(isRtl ? "ms-1" : "me-1")"></i>@Lang["Nav_Register"]
+                </a>
+            </div>
+        </div>
+    }
 
     <!-- Order Items -->
     <div class="card border-0 shadow-sm rounded-4 mb-4">
@@ -89,7 +116,7 @@
         </div>
     </div>
 
-    <!-- Shipping Address -->
+    <!-- Shipping Address & Recipient -->
     <div class="card border-0 shadow-sm rounded-4 mb-5">
         <div class="card-body p-4">
             <h2 class="h6 fw-bold text-muted text-uppercase mb-3">
@@ -98,6 +125,7 @@
             </h2>
             <div class="small">
                 <div class="fw-semibold">@Model.ShippingName</div>
+                <div class="text-muted"><i class="bi bi-envelope @(isRtl ? "ms-1" : "me-1")"></i>@Model.CustomerEmail</div>
                 <div class="text-muted">@Model.ShippingStreetAddress</div>
                 <div class="text-muted">
                     @Model.ShippingCity@(string.IsNullOrWhiteSpace(Model.ShippingState) ? "" : $", {Model.ShippingState}") @Model.ShippingPostalCode
@@ -105,7 +133,7 @@
                 <div class="text-muted">@Model.ShippingCountry</div>
                 @if (!string.IsNullOrWhiteSpace(Model.ShippingPhoneNumber))
                 {
-                    <div class="mt-1 text-muted"><i class="bi bi-telephone me-1"></i>@Model.ShippingPhoneNumber</div>
+                    <div class="mt-1 text-muted"><i class="bi bi-telephone @(isRtl ? "ms-1" : "me-1")"></i>@Model.ShippingPhoneNumber</div>
                 }
             </div>
         </div>

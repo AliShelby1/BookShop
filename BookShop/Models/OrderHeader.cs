@@ -8,24 +8,45 @@ namespace BookShop.Models
     /// <summary>
     /// The master record for a placed order.
     /// 
-    /// 📚 LEARNING NOTE — Shipping Address Denormalization:
-    /// We copy the shipping address fields directly onto the OrderHeader instead of
-    /// referencing a separate Address table. This is intentional: if the customer
-    /// later updates their profile address, old order receipts must still show the
-    /// exact address that was used at the time of purchase. This is the same
-    /// "snapshot" principle that applies to price data in OrderDetail.
+    /// 📚 LEARNING NOTE — Supporting Guest Checkout & Immutability:
+    /// 
+    /// 1. Nullable ApplicationUserId:
+    ///    When ApplicationUserId is nullable (string? instead of string),
+    ///    guests can complete a purchase without creating an account first.
+    ///    This drastically reduces shopping cart abandonment.
+    /// 
+    /// 2. CustomerEmail:
+    ///    Mandatory for ALL orders (guests and registered users).
+    ///    For guests, this is the primary identity anchor for dispatching receipts
+    ///    and tracking updates.
+    /// 
+    /// 3. OrderGuid (Secure Token):
+    ///    A unique cryptographically random token assigned to every order.
+    ///    This allows guests to view their order confirmation securely
+    ///    without needing a password-protected account.
     /// </summary>
     public class OrderHeader
     {
         [Key]
         public int Id { get; set; }
 
-        // ── Customer Reference ───────────────────────────────────────────────
-        [Required]
-        public string ApplicationUserId { get; set; } = string.Empty;
+        // ── Customer Reference (Nullable for Guest Checkout) ─────────────────
+        public string? ApplicationUserId { get; set; }
 
         [ForeignKey(nameof(ApplicationUserId))]
         public ApplicationUser? ApplicationUser { get; set; }
+
+        [Required]
+        [EmailAddress]
+        [MaxLength(150)]
+        public string CustomerEmail { get; set; } = string.Empty;
+
+        // Secure access GUID token for guest confirmation lookup
+        public Guid OrderGuid { get; set; } = Guid.NewGuid();
+
+        // Optional snapshot of guest session cart cookie
+        [MaxLength(100)]
+        public string? SessionCartId { get; set; }
 
         // ── Shipping Address Snapshot (copied from form at checkout time) ────
         [Required]

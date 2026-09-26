@@ -17,7 +17,7 @@ namespace BookShop.Services
             _cartService = cartService;
         }
 
-        public async Task<int> PlaceOrderAsync(CheckoutVM checkout, string userId)
+        public async Task<OrderHeader> PlaceOrderAsync(CheckoutVM checkout, string? userId, string? sessionCartId = null)
         {
             // ─────────────────────────────────────────────────────────────────────
             // STEP 1: Load the current cart with all book data
@@ -29,26 +29,20 @@ namespace BookShop.Services
 
             // ─────────────────────────────────────────────────────────────────────
             // STEP 2: Use an EF Core Transaction to ensure atomicity.
-            //
-            // 📚 LEARNING NOTE — Database Transactions:
-            //
-            // A transaction groups multiple database operations into a single
-            // "all-or-nothing" unit. If ANY step fails (e.g., a book goes
-            // out of stock mid-placement), ALL changes are rolled back and
-            // the database is left in a clean, consistent state.
-            //
-            // Without a transaction, a crash between Step 3 and Step 4 could
-            // create an order but leave the cart full and stock un-decremented.
             // ─────────────────────────────────────────────────────────────────────
             await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 // ─────────────────────────────────────────────────────────────────
                 // STEP 3: Create the OrderHeader (master record)
+                // If userId is null, this is saved as a Guest Order.
                 // ─────────────────────────────────────────────────────────────────
                 var orderHeader = new OrderHeader
                 {
-                    ApplicationUserId = userId,
+                    ApplicationUserId = userId, // null for guest, non-null for registered user
+                    CustomerEmail = checkout.CustomerEmail.Trim(),
+                    OrderGuid = Guid.NewGuid(),
+                    SessionCartId = sessionCartId,
                     ShippingName = checkout.ShippingName,
                     ShippingStreetAddress = checkout.ShippingStreetAddress,
                     ShippingCity = checkout.ShippingCity,
@@ -62,20 +56,15 @@ namespace BookShop.Services
                     TotalDiscountSaved = cartVM.TotalDiscountSaved,
                     OrderTotal = cartVM.Total,
                     OrderStatus = OrderStatus.Pending,
-                    PaymentStatus = PaymentStatus.Paid, // Simulated: mark as paid immediately
+                    PaymentStatus = PaymentStatus.Paid, // Simulated payment
                     OrderDate = DateTime.UtcNow
                 };
 
                 _context.OrderHeaders.Add(orderHeader);
-                await _context.SaveChangesAsync(); // Generates the OrderHeader.Id
+                await _context.SaveChangesAsync(); // Generates OrderHeader.Id
 
                 // ─────────────────────────────────────────────────────────────────
                 // STEP 4: Create OrderDetail rows (price + title snapshots)
-                //
-                // This is the CRITICAL price immutability step.
-                // We copy UnitPrice and BookTitle from the CURRENT cart item —
-                // not a reference to Book.Price — so future price changes
-                // CANNOT alter historical order receipts.
                 // ─────────────────────────────────────────────────────────────────
                 foreach (var item in cartVM.Items)
                 {
@@ -86,7 +75,7 @@ namespace BookShop.Services
                         BookTitle = item.Title,           // SNAPSHOT
                         BookTitleAr = item.TitleAr,       // SNAPSHOT
                         AuthorName = item.AuthorName,     // SNAPSHOT
-                        UnitPrice = item.UnitPrice,       // SNAPSHOT (effective price)
+                        UnitPrice = item.UnitPrice,       // SNAPSHOT (effective discounted price)
                         OriginalPrice = item.OriginalPrice, // SNAPSHOT (for discount display)
                         Quantity = item.Quantity
                     };
@@ -113,21 +102,20 @@ namespace BookShop.Services
                 await _cartService.ClearCartAsync();
 
                 // ─────────────────────────────────────────────────────────────────
-                // STEP 7: Commit the entire transaction
+                // STEP 7: Commit transaction
                 // ─────────────────────────────────────────────────────────────────
                 await transaction.CommitAsync();
 
-                return orderHeader.Id;
+                return orderHeader;
             }
             catch
             {
-                // If anything fails, roll back ALL changes — nothing is persisted
                 await transaction.RollbackAsync();
                 throw;
             }
         }
 
-        public async Task<OrderConfirmationVM?> GetOrderConfirmationAsync(int orderId, string userId)
+        public async Task<OrderConfirmationVM?> GetOrderConfirmationAsync(int orderId, string? userId, Guid? orderGuid = null)
         {
             var order = await _context.OrderHeaders
                 .Include(o => o.OrderDetails)
@@ -136,17 +124,31 @@ namespace BookShop.Services
 
             if (order == null) return null;
 
-            // Security: only the owning customer or staff can view the order
-            var user = await _context.Users.FindAsync(userId);
-            bool isStaff = user != null; // In Phase 7 we'll add role checks here
+            // Security authorization check:
+            // 1. Is the current user the logged-in owner of this order?
+            bool isOwner = !string.IsNullOrEmpty(userId) && order.ApplicationUserId == userId;
 
-            if (order.ApplicationUserId != userId && !isStaff)
+            // 2. Is the current user a staff/admin member?
+            bool isStaff = false;
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var user = await _context.Users.FindAsync(userId);
+                isStaff = user != null; // Refined in Phase 7 with role check
+            }
+
+            // 3. For guest orders: does the request provide the matching OrderGuid token?
+            bool isValidGuestAccess = orderGuid.HasValue && order.OrderGuid == orderGuid.Value;
+
+            if (!isOwner && !isStaff && !isValidGuestAccess)
                 return null;
 
             return new OrderConfirmationVM
             {
                 OrderId = order.Id,
                 OrderDate = order.OrderDate,
+                OrderGuid = order.OrderGuid,
+                CustomerEmail = order.CustomerEmail,
+                IsGuestOrder = string.IsNullOrEmpty(order.ApplicationUserId),
                 ShippingName = order.ShippingName,
                 ShippingStreetAddress = order.ShippingStreetAddress,
                 ShippingCity = order.ShippingCity,

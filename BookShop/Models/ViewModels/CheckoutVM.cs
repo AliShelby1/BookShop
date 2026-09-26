@@ -3,20 +3,19 @@ using System.ComponentModel.DataAnnotations;
 namespace BookShop.Models.ViewModels
 {
     /// <summary>
-    /// Carries both the shipping address form fields (validated server-side)
+    /// Carries both the customer email, shipping address form fields (validated server-side)
     /// and the read-only cart summary for display on the Review page.
-    ///
-    /// 📚 LEARNING NOTE — Why a dedicated ViewModel instead of using ApplicationUser?
-    ///
-    /// Although ApplicationUser already has address fields (StreetAddress, City, etc.),
-    /// we do NOT use those directly as the form model. Reasons:
-    ///   1. The user may want to ship to a different address than their profile.
-    ///   2. Validating address fields independently of the Identity model is cleaner.
-    ///   3. We pre-fill these fields FROM the user profile as a convenience,
-    ///      but the customer can override them freely at checkout.
+    /// Supports both authenticated users and guest checkout.
     /// </summary>
     public class CheckoutVM
     {
+        // ── Contact Information (Crucial for guest checkout) ───────────────
+        [Required(ErrorMessage = "Email address is required.")]
+        [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
+        [MaxLength(150)]
+        [Display(Name = "Email Address")]
+        public string CustomerEmail { get; set; } = string.Empty;
+
         // ── Shipping Address (form fields, validated) ──────────────────────
         [Required(ErrorMessage = "Full name is required.")]
         [MaxLength(100)]

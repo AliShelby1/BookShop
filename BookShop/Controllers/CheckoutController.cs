@@ -1,7 +1,6 @@
 using BookShop.Data;
 using BookShop.Models.ViewModels;
 using BookShop.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,17 +8,8 @@ namespace BookShop.Controllers
 {
     /// <summary>
     /// Manages the checkout flow: Address → Review → Place Order → Confirmation.
-    ///
-    /// 📚 LEARNING NOTE — [Authorize]:
-    /// The entire checkout process requires a logged-in user because we need to:
-    ///   1. Associate the order with a real ApplicationUser (for order history)
-    ///   2. Pre-fill the address form from the user's profile
-    ///   3. Send a confirmation email (in a later phase)
-    ///
-    /// Guests must log in or register before placing an order — this is standard
-    /// e-commerce behaviour (Amazon, Waterstones, Booktopia all do this).
+    /// Supports both authenticated users and guests.
     /// </summary>
-    [Authorize]
     public class CheckoutController : Controller
     {
         private readonly ICartService _cartService;
@@ -37,7 +27,7 @@ namespace BookShop.Controllers
         }
 
         // ── GET /Checkout/Address ─────────────────────────────────────────────
-        // Shows the shipping address form, pre-filled from the user's profile
+        // Shows the shipping address form (pre-filled if logged in, blank for guests)
         public async Task<IActionResult> Address()
         {
             var cartVM = await _cartService.GetCartAsync();
@@ -45,12 +35,15 @@ namespace BookShop.Controllers
             if (cartVM.Items.Count == 0)
                 return RedirectToAction("Index", "Cart");
 
-            var user = await _userManager.GetUserAsync(User);
+            var user = User.Identity?.IsAuthenticated == true
+                ? await _userManager.GetUserAsync(User)
+                : null;
 
-            // Pre-fill address from user profile (courtesy, not required)
+            // Pre-fill fields if user is authenticated
             var vm = new CheckoutVM
             {
-                ShippingName = user?.Name ?? user?.UserName ?? string.Empty,
+                CustomerEmail = user?.Email ?? string.Empty,
+                ShippingName = user?.Name ?? string.Empty,
                 ShippingStreetAddress = user?.StreetAddress ?? string.Empty,
                 ShippingCity = user?.City ?? string.Empty,
                 ShippingState = user?.State,
@@ -68,7 +61,7 @@ namespace BookShop.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Address(CheckoutVM vm)
         {
-            // Attach cart data (it's not part of the form POST)
+            // Attach cart data (not bound from form)
             vm.Cart = await _cartService.GetCartAsync();
 
             if (vm.Cart.Items.Count == 0)
@@ -77,8 +70,8 @@ namespace BookShop.Controllers
             if (!ModelState.IsValid)
                 return View(vm);
 
-            // Store the address in TempData so Review page can display it
-            // TempData survives exactly one redirect — perfect for this flow.
+            // Store address & contact info in TempData for the Review step
+            TempData["CustomerEmail"] = vm.CustomerEmail;
             TempData["ShippingName"] = vm.ShippingName;
             TempData["ShippingStreetAddress"] = vm.ShippingStreetAddress;
             TempData["ShippingCity"] = vm.ShippingCity;
@@ -92,10 +85,9 @@ namespace BookShop.Controllers
         }
 
         // ── GET /Checkout/Review ──────────────────────────────────────────────
-        // Shows the full order summary (items + address + totals) for final confirmation
+        // Shows the full order summary (items + contact + address + totals)
         public async Task<IActionResult> Review()
         {
-            // Restore address from TempData
             if (TempData["ShippingName"] == null)
                 return RedirectToAction(nameof(Address));
 
@@ -105,6 +97,7 @@ namespace BookShop.Controllers
 
             var vm = new CheckoutVM
             {
+                CustomerEmail = TempData["CustomerEmail"]?.ToString() ?? string.Empty,
                 ShippingName = TempData["ShippingName"]?.ToString() ?? string.Empty,
                 ShippingStreetAddress = TempData["ShippingStreetAddress"]?.ToString() ?? string.Empty,
                 ShippingCity = TempData["ShippingCity"]?.ToString() ?? string.Empty,
@@ -116,14 +109,13 @@ namespace BookShop.Controllers
                 Cart = cartVM
             };
 
-            // Keep TempData alive for the PlaceOrder POST
             TempData.Keep();
 
             return View(vm);
         }
 
         // ── POST /Checkout/PlaceOrder ──────────────────────────────────────────
-        // Atomically creates the order, decrements stock, and clears the cart
+        // Atomically creates the order (guest or user), decrements stock, and clears the cart
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PlaceOrder()
@@ -133,6 +125,7 @@ namespace BookShop.Controllers
 
             var vm = new CheckoutVM
             {
+                CustomerEmail = TempData["CustomerEmail"]?.ToString() ?? string.Empty,
                 ShippingName = TempData["ShippingName"]?.ToString() ?? string.Empty,
                 ShippingStreetAddress = TempData["ShippingStreetAddress"]?.ToString() ?? string.Empty,
                 ShippingCity = TempData["ShippingCity"]?.ToString() ?? string.Empty,
@@ -143,12 +136,15 @@ namespace BookShop.Controllers
                 CustomerNote = TempData["CustomerNote"]?.ToString()
             };
 
-            var userId = _userManager.GetUserId(User)!;
+            // Get userId if authenticated; null for guest orders
+            var userId = User.Identity?.IsAuthenticated == true
+                ? _userManager.GetUserId(User)
+                : null;
 
             try
             {
-                int orderId = await _orderService.PlaceOrderAsync(vm, userId);
-                return RedirectToAction(nameof(Confirmation), new { id = orderId });
+                var order = await _orderService.PlaceOrderAsync(vm, userId);
+                return RedirectToAction(nameof(Confirmation), new { id = order.Id, token = order.OrderGuid });
             }
             catch (InvalidOperationException ex)
             {
@@ -158,12 +154,15 @@ namespace BookShop.Controllers
             }
         }
 
-        // ── GET /Checkout/Confirmation/{id} ───────────────────────────────────
-        // Displays the receipt after a successful order placement
-        public async Task<IActionResult> Confirmation(int id)
+        // ── GET /Checkout/Confirmation/{id}?token={token} ────────────────────
+        // Displays receipt for customer or guest (verified via token)
+        public async Task<IActionResult> Confirmation(int id, Guid? token)
         {
-            var userId = _userManager.GetUserId(User)!;
-            var vm = await _orderService.GetOrderConfirmationAsync(id, userId);
+            var userId = User.Identity?.IsAuthenticated == true
+                ? _userManager.GetUserId(User)
+                : null;
+
+            var vm = await _orderService.GetOrderConfirmationAsync(id, userId, token);
 
             if (vm == null)
                 return NotFound();

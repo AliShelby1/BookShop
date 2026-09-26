@@ -40,6 +40,21 @@
         <!-- Address Form (left) -->
         <div class="col-lg-7">
             <div class="card border-0 shadow-sm rounded-4 p-4">
+
+                @if (!User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="alert alert-light border rounded-3 p-3 mb-4 d-flex align-items-center justify-content-between small">
+                        <div>
+                            <i class="bi bi-person-circle @(isRtl ? "ms-2" : "me-2") text-muted"></i>
+                            <span>@Lang["Checkout_AlreadyHaveAccount"]</span>
+                        </div>
+                        <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Url.Action("Address", "Checkout")"
+                           class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                            @Lang["Nav_Login"]
+                        </a>
+                    </div>
+                }
+
                 <h2 class="h5 fw-bold font-serif mb-4">
                     <i class="bi bi-geo-alt @(isRtl ? "ms-2" : "me-2")" style="color:var(--c-cafe);"></i>
                     @Lang["Checkout_ShippingAddress"]
@@ -49,6 +64,14 @@
                     @Html.AntiForgeryToken()
 
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 small mb-3"></div>
+
+                    <!-- Email Address (Contact) -->
+                    <div class="mb-3">
+                        <label asp-for="CustomerEmail" class="form-label fw-semibold small text-muted">@Lang["Checkout_Email"] *</label>
+                        <input asp-for="CustomerEmail" type="email" class="form-control rounded-3" placeholder="@Lang["Checkout_EmailPlaceholder"]" />
+                        <span asp-validation-for="CustomerEmail" class="text-danger small"></span>
+                        <div class="form-text small text-muted">@Lang["Checkout_EmailHint"]</div>
+                    </div>
 
                     <!-- Full Name -->
                     <div class="mb-3">
@@ -140,20 +163,20 @@
                     @if (Model.Cart.IsFreeShipping)
                     {
                         <div class="d-flex justify-content-between small text-success mb-1">
-                            <span>@Lang["Cart_Shipping"]</span>
-                            <span>@Lang["Cart_FreeShipping"]</span>
+                            <span>@Lang["Cart_EstimatedShipping"]</span>
+                            <span>@Lang["Cart_Complimentary"]</span>
                         </div>
                     }
                     else
                     {
                         <div class="d-flex justify-content-between small text-muted mb-1">
-                            <span>@Lang["Cart_Shipping"]</span>
+                            <span>@Lang["Cart_EstimatedShipping"]</span>
                             <span>@Model.Cart.ShippingFee.ToPrice()</span>
                         </div>
                     }
                     <hr class="my-2">
                     <div class="d-flex justify-content-between fw-bold">
-                        <span>@Lang["Cart_Total"]</span>
+                        <span>@Lang["Cart_TotalDue"]</span>
                         <span style="color:var(--c-cafe);">@Model.Cart.Total.ToPrice()</span>
                     </div>
                 </div>

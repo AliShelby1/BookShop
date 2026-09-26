@@ -2,13 +2,18 @@ namespace BookShop.Models.ViewModels
 {
     /// <summary>
     /// ViewModel for the Order Confirmation page shown after a successful order placement.
-    /// This is a read-only receipt — no form fields.
+    /// This is a read-only receipt — supports both registered users and guests.
     /// </summary>
     public class OrderConfirmationVM
     {
         public int OrderId { get; set; }
         public string OrderNumber => $"BSH-{OrderId:D6}"; // e.g. BSH-000042
         public DateTime OrderDate { get; set; }
+        public Guid OrderGuid { get; set; }
+
+        // Contact & Ownership
+        public string CustomerEmail { get; set; } = string.Empty;
+        public bool IsGuestOrder { get; set; }
 
         // Shipping Address
         public string ShippingName { get; set; } = string.Empty;
