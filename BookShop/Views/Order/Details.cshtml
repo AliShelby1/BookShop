@@ -1,0 +1,315 @@
+@model BookShop.Models.ViewModels.OrderDetailsVM
+@using BookShop.Models.Enums
+@inject BookShop.Services.ILanguageService Lang
+
+@{
+    var order = Model.Order;
+    var isRtl = Lang.IsRtl;
+    ViewData["Title"] = $"BSH-{order.Id:D6} — {Lang["Order_DetailsTitle"]}";
+
+    var currentStep = order.OrderStatus switch
+    {
+        OrderStatus.Pending => 1,
+        OrderStatus.Confirmed => 2,
+        OrderStatus.Preparing => 3,
+        OrderStatus.Shipped => 4,
+        OrderStatus.Delivered => 5,
+        _ => 0 // Cancelled
+    };
+}
+
+<div class="container py-4" style="max-width: 960px;">
+
+    <!-- Breadcrumb & Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb small text-muted mb-1">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">@Lang["Nav_Home"]</a></li>
+                    <li class="breadcrumb-item"><a asp-controller="Order" asp-action="Index" class="text-decoration-none text-muted">@Lang["Nav_Wishlist"]</a></li>
+                    <li class="breadcrumb-item active text-dark" aria-current="page">BSH-@order.Id.ToString("D6")</li>
+                </ol>
+            </nav>
+            <h1 class="h3 font-serif fw-bold text-dark mb-0 d-flex align-items-center">
+                <i class="bi bi-receipt @(isRtl ? "ms-2" : "me-2")" style="color: var(--c-cafe);"></i>
+                @Lang["Order_DetailsTitle"]: BSH-@order.Id.ToString("D6")
+            </h1>
+        </div>
+
+        <div class="mt-2 mt-md-0">
+            <a asp-controller="Order" asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                <i class="bi bi-arrow-@(isRtl ? "right" : "left") @(isRtl ? "ms-1" : "me-1")"></i>@Lang["Order_BackToList"]
+            </a>
+        </div>
+    </div>
+
+    <!-- Feedback Alerts -->
+    @if (TempData["success"] != null)
+    {
+        <div class="alert alert-success rounded-3 mb-4 d-flex align-items-center">
+            <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+            <div>@TempData["success"]</div>
+        </div>
+    }
+    @if (TempData["error"] != null)
+    {
+        <div class="alert alert-danger rounded-3 mb-4 d-flex align-items-center">
+            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+            <div>@TempData["error"]</div>
+        </div>
+    }
+
+    <!-- Fulfillment Status Timeline -->
+    @if (order.OrderStatus == OrderStatus.Cancelled)
+    {
+        <div class="alert alert-danger rounded-4 p-4 text-center mb-4">
+            <i class="bi bi-x-circle-fill fs-2 mb-2 d-block"></i>
+            <h4 class="h5 fw-bold mb-1">@Lang["Order_StatusCancelled"]</h4>
+            <p class="small text-muted mb-0">@Lang["Order_CancelledDesc"]</p>
+        </div>
+    }
+    else
+    {
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4" style="background:var(--c-parchment);">
+            <div class="d-flex align-items-center justify-content-between position-relative px-md-4 py-2">
+                <!-- Step 1: Placed -->
+                <div class="text-center position-relative z-1">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center text-white fw-bold mb-1"
+                         style="width:36px;height:36px;background:@(currentStep >= 1 ? "var(--c-cafe)" : "var(--bs-secondary)");">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+                    <div class="small fw-semibold text-nowrap" style="font-size:0.78rem;">@Lang["Order_StatusPending"]</div>
+                </div>
+
+                <!-- Line 1-2 -->
+                <div class="flex-grow-1 border-top mx-2" style="border-width:2px!important; border-color:@(currentStep >= 2 ? "var(--c-cafe)" : "#dee2e6")!important;"></div>
+
+                <!-- Step 2: Confirmed -->
+                <div class="text-center position-relative z-1">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center text-white fw-bold mb-1"
+                         style="width:36px;height:36px;background:@(currentStep >= 2 ? "var(--c-cafe)" : "var(--bs-secondary)");">
+                        @(currentStep >= 2 ? Html.Raw("<i class='bi bi-check-lg'></i>") : "2")
+                    </div>
+                    <div class="small fw-semibold text-nowrap" style="font-size:0.78rem;">@Lang["Order_StatusConfirmed"]</div>
+                </div>
+
+                <!-- Line 2-3 -->
+                <div class="flex-grow-1 border-top mx-2" style="border-width:2px!important; border-color:@(currentStep >= 3 ? "var(--c-cafe)" : "#dee2e6")!important;"></div>
+
+                <!-- Step 3: Preparing -->
+                <div class="text-center position-relative z-1">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center text-white fw-bold mb-1"
+                         style="width:36px;height:36px;background:@(currentStep >= 3 ? "var(--c-cafe)" : "var(--bs-secondary)");">
+                        @(currentStep >= 3 ? Html.Raw("<i class='bi bi-check-lg'></i>") : "3")
+                    </div>
+                    <div class="small fw-semibold text-nowrap" style="font-size:0.78rem;">@Lang["Order_StatusPreparing"]</div>
+                </div>
+
+                <!-- Line 3-4 -->
+                <div class="flex-grow-1 border-top mx-2" style="border-width:2px!important; border-color:@(currentStep >= 4 ? "var(--c-cafe)" : "#dee2e6")!important;"></div>
+
+                <!-- Step 4: Shipped -->
+                <div class="text-center position-relative z-1">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center text-white fw-bold mb-1"
+                         style="width:36px;height:36px;background:@(currentStep >= 4 ? "var(--c-cafe)" : "var(--bs-secondary)");">
+                        @(currentStep >= 4 ? Html.Raw("<i class='bi bi-check-lg'></i>") : "4")
+                    </div>
+                    <div class="small fw-semibold text-nowrap" style="font-size:0.78rem;">@Lang["Order_StatusShipped"]</div>
+                </div>
+
+                <!-- Line 4-5 -->
+                <div class="flex-grow-1 border-top mx-2" style="border-width:2px!important; border-color:@(currentStep >= 5 ? "var(--c-cafe)" : "#dee2e6")!important;"></div>
+
+                <!-- Step 5: Delivered -->
+                <div class="text-center position-relative z-1">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center text-white fw-bold mb-1"
+                         style="width:36px;height:36px;background:@(currentStep >= 5 ? "var(--c-cafe)" : "var(--bs-secondary)");">
+                        @(currentStep >= 5 ? Html.Raw("<i class='bi bi-check-lg'></i>") : "5")
+                    </div>
+                    <div class="small fw-semibold text-nowrap" style="font-size:0.78rem;">@Lang["Order_StatusDelivered"]</div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Staff Management Controls Box -->
+    @if (Model.IsAdminOrStaff && order.OrderStatus != OrderStatus.Cancelled && order.OrderStatus != OrderStatus.Delivered)
+    {
+        <div class="card border-primary border-opacity-25 shadow-sm rounded-4 p-4 mb-4 bg-light">
+            <h3 class="h6 fw-bold text-dark text-uppercase letter-spacing-1 mb-3">
+                <i class="bi bi-shield-lock me-1 text-primary"></i>@Lang["Order_StaffControls"]
+            </h3>
+
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                @if (Model.NextStatus.HasValue)
+                {
+                    var nextStatusLabel = Model.NextStatus.Value switch
+                    {
+                        OrderStatus.Confirmed => Lang["Order_ActionConfirm"],
+                        OrderStatus.Preparing => Lang["Order_ActionPrepare"],
+                        OrderStatus.Shipped => Lang["Order_ActionShip"],
+                        OrderStatus.Delivered => Lang["Order_ActionDeliver"],
+                        _ => Model.NextStatus.Value.ToString()
+                    };
+
+                    <form asp-controller="Order" asp-action="UpdateStatus" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="orderId" value="@order.Id" />
+                        <input type="hidden" name="newStatus" value="@Model.NextStatus.Value" />
+                        <button type="submit" class="btn btn-primary rounded-pill btn-sm px-4">
+                            <i class="bi bi-arrow-right-circle me-1"></i>@nextStatusLabel
+                        </button>
+                    </form>
+                }
+
+                @if (Model.CanAdminCancel)
+                {
+                    <form asp-controller="Order" asp-action="Cancel" asp-route-id="@order.Id" method="post" class="d-inline"
+                          onsubmit="return confirm('@Lang["Order_ConfirmCancel"]');">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline-danger rounded-pill btn-sm px-3">
+                            <i class="bi bi-x-circle me-1"></i>@Lang["Order_ActionCancel"]
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    }
+
+    <div class="row g-4">
+
+        <!-- Left: Items Ordered -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <h2 class="h6 fw-bold text-muted text-uppercase mb-3">
+                    <i class="bi bi-book @(isRtl ? "ms-2" : "me-2")" style="color:var(--c-cafe);"></i>
+                    @Lang["Checkout_ItemsOrdered"] (@order.OrderDetails.Sum(d => d.Quantity) @Lang["Cart_VolumesCount"])
+                </h2>
+
+                @foreach (var item in order.OrderDetails)
+                {
+                    <div class="d-flex gap-3 mb-3 pb-3 border-bottom">
+                        <img src="@(item.Book != null && !string.IsNullOrWhiteSpace(item.Book.CoverImageUrl) ? item.Book.CoverImageUrl : "/images/default-book-cover.svg")"
+                             alt="@item.BookTitle" class="rounded-2 flex-shrink-0" width="56" height="76" style="object-fit:cover;" />
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="fw-semibold text-truncate">@item.GetDisplayTitle(isRtl)</div>
+                            @if (!string.IsNullOrWhiteSpace(item.AuthorName))
+                            {
+                                <div class="small text-muted">@item.AuthorName</div>
+                            }
+                            <div class="small text-muted">@Lang["Cart_Quantity"]: @item.Quantity × @item.UnitPrice.ToPrice()</div>
+                        </div>
+                        <div class="text-end">
+                            @if (item.OriginalPrice.HasValue && item.OriginalPrice.Value > item.UnitPrice)
+                            {
+                                <div class="small text-muted text-decoration-line-through">@item.OriginalPrice.ToPrice()</div>
+                            }
+                            <div class="fw-bold" style="color:var(--c-cafe);">@item.LineTotal.ToPrice()</div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Customer Cancel Button (if permitted) -->
+                @if (Model.CanCustomerCancel)
+                {
+                    <div class="pt-2">
+                        <form asp-controller="Order" asp-action="Cancel" asp-route-id="@order.Id" method="post"
+                              onsubmit="return confirm('@Lang["Order_ConfirmCancel"]');">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                <i class="bi bi-x-circle @(isRtl ? "ms-1" : "me-1")"></i>@Lang["Order_CustomerCancelBtn"]
+                            </button>
+                        </form>
+                    </div>
+                }
+            </div>
+
+            <!-- Shipping Address & Recipient Card -->
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h2 class="h6 fw-bold text-muted text-uppercase mb-3">
+                    <i class="bi bi-geo-alt @(isRtl ? "ms-2" : "me-2")" style="color:var(--c-cafe);"></i>
+                    @Lang["Checkout_ShippingAddress"]
+                </h2>
+                <div class="small">
+                    <div class="fw-semibold">@order.ShippingName</div>
+                    <div class="text-muted"><i class="bi bi-envelope @(isRtl ? "ms-1" : "me-1")"></i>@order.CustomerEmail</div>
+                    <div class="text-muted">@order.ShippingStreetAddress</div>
+                    <div class="text-muted">
+                        @order.ShippingCity@(string.IsNullOrWhiteSpace(order.ShippingState) ? "" : $", {order.ShippingState}") @order.ShippingPostalCode
+                    </div>
+                    <div class="text-muted">@order.ShippingCountry</div>
+                    @if (!string.IsNullOrWhiteSpace(order.ShippingPhoneNumber))
+                    {
+                        <div class="mt-1 text-muted"><i class="bi bi-telephone @(isRtl ? "ms-1" : "me-1")"></i>@order.ShippingPhoneNumber</div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(order.CustomerNote))
+                    {
+                        <div class="mt-2 p-2 rounded-3 bg-light"><i class="bi bi-chat-left-text me-1 text-muted"></i><em class="text-muted">@order.CustomerNote</em></div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Financial Summary -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top:80px; background:var(--c-parchment);">
+                <h3 class="h6 fw-bold text-muted text-uppercase mb-3">@Lang["Checkout_OrderSummary"]</h3>
+
+                <div class="d-flex justify-content-between small text-muted mb-1">
+                    <span>@Lang["Cart_Subtotal"]</span>
+                    <span>@order.Subtotal.ToPrice()</span>
+                </div>
+                @if (order.TotalDiscountSaved > 0)
+                {
+                    <div class="d-flex justify-content-between small text-success mb-1">
+                        <span>@Lang["Cart_Savings"]</span>
+                        <span>-@order.TotalDiscountSaved.ToPrice()</span>
+                    </div>
+                }
+                <div class="d-flex justify-content-between small mb-1">
+                    <span class="text-muted">@Lang["Cart_EstimatedShipping"]</span>
+                    @if (order.ShippingFee == 0 && order.Subtotal > 0)
+                    {
+                        <span class="text-success fw-semibold">@Lang["Cart_Complimentary"]</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">@order.ShippingFee.ToPrice()</span>
+                    }
+                </div>
+                <hr class="my-2">
+                <div class="d-flex justify-content-between fw-bold fs-5 mb-3">
+                    <span>@Lang["Cart_TotalDue"]</span>
+                    <span style="color:var(--c-cafe);">@order.OrderTotal.ToPrice()</span>
+                </div>
+
+                <div class="small border-top pt-3 text-muted">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>@Lang["Checkout_OrderDate"]:</span>
+                        <span class="text-dark">@order.OrderDate.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</span>
+                    </div>
+                    @if (order.ShippedDate.HasValue)
+                    {
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>@Lang["Order_DispatchedOn"]:</span>
+                            <span class="text-dark">@order.ShippedDate.Value.ToLocalTime().ToString("dd MMM yyyy")</span>
+                        </div>
+                    }
+                    @if (order.DeliveredDate.HasValue)
+                    {
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>@Lang["Order_DeliveredOn"]:</span>
+                            <span class="text-dark">@order.DeliveredDate.Value.ToLocalTime().ToString("dd MMM yyyy")</span>
+                        </div>
+                    }
+                    <div class="d-flex justify-content-between">
+                        <span>@Lang["Order_PaymentStatus"]:</span>
+                        <span class="fw-semibold text-dark">@order.PaymentStatus</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

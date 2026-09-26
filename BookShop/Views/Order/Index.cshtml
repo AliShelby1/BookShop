@@ -1,0 +1,179 @@
+@model BookShop.Models.ViewModels.OrderListVM
+@using BookShop.Models.Enums
+@inject BookShop.Services.ILanguageService Lang
+
+@{
+    var isRtl = Lang.IsRtl;
+    ViewData["Title"] = Model.IsAdminOrStaff ? Lang["Order_ManageAllTitle"] : Lang["Order_MyOrdersTitle"];
+}
+
+<div class="container py-4">
+
+    <!-- Breadcrumb & Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb small text-muted mb-1">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">@Lang["Nav_Home"]</a></li>
+                    <li class="breadcrumb-item active text-dark" aria-current="page">@ViewData["Title"]</li>
+                </ol>
+            </nav>
+            <h1 class="h3 font-serif fw-bold text-dark mb-0 d-flex align-items-center">
+                <i class="bi bi-box-seam @(isRtl ? "ms-2" : "me-2")" style="color: var(--c-cafe);"></i>
+                @ViewData["Title"]
+            </h1>
+        </div>
+
+        @if (Model.IsAdminOrStaff)
+        {
+            <div class="mt-3 mt-md-0">
+                <form method="get" asp-controller="Order" asp-action="Index" class="d-flex gap-2">
+                    <input type="hidden" name="status" value="@Model.StatusFilter" />
+                    <div class="input-group input-group-sm">
+                        <input type="search" name="search" value="@Model.SearchString" class="form-control rounded-start-pill ps-3" 
+                               placeholder="@Lang["Order_SearchPlaceholder"]" />
+                        <button type="submit" class="btn btn-outline-secondary rounded-end-pill px-3">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(Model.SearchString))
+                    {
+                        <a asp-controller="Order" asp-action="Index" asp-route-status="@Model.StatusFilter" class="btn btn-sm btn-link text-muted">
+                            @Lang["Catalog_Reset"]
+                        </a>
+                    }
+                </form>
+            </div>
+        }
+    </div>
+
+    <!-- Status Tabs -->
+    <div class="d-flex flex-nowrap overflow-auto gap-2 mb-4 pb-2 border-bottom">
+        <a asp-action="Index" asp-route-search="@Model.SearchString"
+           class="btn btn-sm rounded-pill text-nowrap @(!Model.StatusFilter.HasValue ? "btn-primary" : "btn-outline-secondary")">
+            @Lang["Order_TabAll"] (@Model.TotalCount)
+        </a>
+        <a asp-action="Index" asp-route-status="@OrderStatus.Pending" asp-route-search="@Model.SearchString"
+           class="btn btn-sm rounded-pill text-nowrap @(Model.StatusFilter == OrderStatus.Pending ? "btn-primary" : "btn-outline-secondary")">
+            @Lang["Order_StatusPending"] (@Model.PendingCount)
+        </a>
+        <a asp-action="Index" asp-route-status="@OrderStatus.Confirmed" asp-route-search="@Model.SearchString"
+           class="btn btn-sm rounded-pill text-nowrap @(Model.StatusFilter == OrderStatus.Confirmed ? "btn-primary" : "btn-outline-secondary")">
+            @Lang["Order_StatusConfirmed"] (@Model.ConfirmedCount)
+        </a>
+        <a asp-action="Index" asp-route-status="@OrderStatus.Preparing" asp-route-search="@Model.SearchString"
+           class="btn btn-sm rounded-pill text-nowrap @(Model.StatusFilter == OrderStatus.Preparing ? "btn-primary" : "btn-outline-secondary")">
+            @Lang["Order_StatusPreparing"] (@Model.PreparingCount)
+        </a>
+        <a asp-action="Index" asp-route-status="@OrderStatus.Shipped" asp-route-search="@Model.SearchString"
+           class="btn btn-sm rounded-pill text-nowrap @(Model.StatusFilter == OrderStatus.Shipped ? "btn-primary" : "btn-outline-secondary")">
+            @Lang["Order_StatusShipped"] (@Model.ShippedCount)
+        </a>
+        <a asp-action="Index" asp-route-status="@OrderStatus.Delivered" asp-route-search="@Model.SearchString"
+           class="btn btn-sm rounded-pill text-nowrap @(Model.StatusFilter == OrderStatus.Delivered ? "btn-primary" : "btn-outline-secondary")">
+            @Lang["Order_StatusDelivered"] (@Model.DeliveredCount)
+        </a>
+        <a asp-action="Index" asp-route-status="@OrderStatus.Cancelled" asp-route-search="@Model.SearchString"
+           class="btn btn-sm rounded-pill text-nowrap @(Model.StatusFilter == OrderStatus.Cancelled ? "btn-primary" : "btn-outline-secondary")">
+            @Lang["Order_StatusCancelled"] (@Model.CancelledCount)
+        </a>
+    </div>
+
+    <!-- Orders List -->
+    @if (!Model.Orders.Any())
+    {
+        <div class="card border-0 shadow-sm rounded-4 text-center py-5 px-3 my-4" style="background-color: var(--c-parchment);">
+            <div class="card-body py-5">
+                <i class="bi bi-inbox fs-1 text-muted mb-3 d-block"></i>
+                <h3 class="font-serif fw-bold text-dark mb-2">@Lang["Order_NoOrdersTitle"]</h3>
+                <p class="text-muted mx-auto mb-4" style="max-width: 480px;">
+                    @Lang["Order_NoOrdersDesc"]
+                </p>
+                <a asp-controller="Home" asp-action="Shop" class="btn btn-primary rounded-pill px-4 py-2 shadow-sm">
+                    <i class="bi bi-compass @(isRtl ? "ms-2" : "me-2")"></i>@Lang["Cart_ExploreBtn"]
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive bg-white rounded-4 shadow-sm border overflow-hidden">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small text-uppercase text-muted">
+                    <tr>
+                        <th class="ps-4">@Lang["Order_TableNumber"]</th>
+                        <th>@Lang["Order_TableDate"]</th>
+                        @if (Model.IsAdminOrStaff)
+                        {
+                            <th>@Lang["Order_TableCustomer"]</th>
+                        }
+                        <th>@Lang["Order_TableItems"]</th>
+                        <th>@Lang["Order_TableTotal"]</th>
+                        <th>@Lang["Order_TableStatus"]</th>
+                        <th class="text-end pe-4">@Lang["Order_TableAction"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model.Orders)
+                    {
+                        var statusClass = order.OrderStatus switch
+                        {
+                            OrderStatus.Pending => "bg-warning text-dark",
+                            OrderStatus.Confirmed => "bg-info text-dark",
+                            OrderStatus.Preparing => "bg-primary text-white",
+                            OrderStatus.Shipped => "bg-secondary text-white",
+                            OrderStatus.Delivered => "bg-success text-white",
+                            OrderStatus.Cancelled => "bg-danger text-white",
+                            _ => "bg-light text-dark"
+                        };
+
+                        var statusLabel = order.OrderStatus switch
+                        {
+                            OrderStatus.Pending => Lang["Order_StatusPending"],
+                            OrderStatus.Confirmed => Lang["Order_StatusConfirmed"],
+                            OrderStatus.Preparing => Lang["Order_StatusPreparing"],
+                            OrderStatus.Shipped => Lang["Order_StatusShipped"],
+                            OrderStatus.Delivered => Lang["Order_StatusDelivered"],
+                            OrderStatus.Cancelled => Lang["Order_StatusCancelled"],
+                            _ => order.OrderStatus.ToString()
+                        };
+
+                        <tr>
+                            <td class="ps-4 fw-bold font-monospace text-dark">
+                                BSH-@order.Id.ToString("D6")
+                            </td>
+                            <td class="small text-muted text-nowrap">
+                                @order.OrderDate.ToLocalTime().ToString("dd MMM yyyy, HH:mm")
+                            </td>
+                            @if (Model.IsAdminOrStaff)
+                            {
+                                <td>
+                                    <div class="fw-semibold small">@order.ShippingName</div>
+                                    <div class="text-muted small">@order.CustomerEmail</div>
+                                </td>
+                            }
+                            <td class="small">
+                                @order.OrderDetails.Sum(d => d.Quantity) @Lang["Cart_VolumesCount"]
+                            </td>
+                            <td class="fw-bold" style="color:var(--c-cafe);">
+                                @order.OrderTotal.ToPrice()
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill @statusClass px-3 py-1 fw-normal" style="font-size:0.75rem;">
+                                    @statusLabel
+                                </span>
+                            </td>
+                            <td class="text-end pe-4 text-nowrap">
+                                <a asp-controller="Order" asp-action="Details" asp-route-id="@order.Id"
+                                   class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                    <i class="bi bi-eye @(isRtl ? "ms-1" : "me-1")"></i>@Lang["Order_ViewDetails"]
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+</div>
