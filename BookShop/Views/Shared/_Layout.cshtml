@@ -96,10 +96,22 @@
                                         </a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li class="dropdown-header text-uppercase small text-muted">@Lang["Nav_BooksInventory"]</li>
+                                    <li class="dropdown-header text-uppercase small text-muted">@Lang["Nav_InventoryDashboard"]</li>
+                                    <li>
+                                        <a class="dropdown-item py-2" asp-controller="Inventory" asp-action="Index">
+                                            <i class="bi bi-boxes me-2" style="color: var(--c-cafe);"></i>@Lang["Nav_InventoryDashboard"]
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2" asp-controller="Inventory" asp-action="History">
+                                            <i class="bi bi-journal-text me-2" style="color: var(--c-cafe);"></i>@Lang["Nav_InventoryLedger"]
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li class="dropdown-header text-uppercase small text-muted">@Lang["Nav_BooksCatalog"]</li>
                                     <li>
                                         <a class="dropdown-item py-2" asp-controller="Book" asp-action="Index">
-                                            <i class="bi bi-book me-2" style="color: var(--c-cafe);"></i>@Lang["Nav_BooksInventory"]
+                                            <i class="bi bi-book me-2" style="color: var(--c-cafe);"></i>@Lang["Nav_BooksCatalog"]
                                         </a>
                                     </li>
                                     <li>

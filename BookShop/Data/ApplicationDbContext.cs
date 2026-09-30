@@ -22,6 +22,7 @@ namespace BookShop.Data
         public DbSet<StoreSetting> StoreSettings { get; set; }
         public DbSet<OrderHeader> OrderHeaders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
+        public DbSet<InventoryTransaction> InventoryTransactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

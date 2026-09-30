@@ -74,8 +74,21 @@ namespace BookShop.Services
                     if (book.StockQuantity < item.Quantity)
                         throw new InvalidOperationException($"Insufficient stock for '{item.Title}'. Only {book.StockQuantity} left.");
 
+                    int quantityBefore = book.StockQuantity;
                     book.StockQuantity -= item.Quantity;
                     _context.Books.Update(book);
+
+                    _context.InventoryTransactions.Add(new InventoryTransaction
+                    {
+                        BookId = book.Id,
+                        QuantityChange = -item.Quantity,
+                        QuantityBefore = quantityBefore,
+                        QuantityAfter = book.StockQuantity,
+                        TransactionType = InventoryTransactionType.Sale,
+                        Reason = $"Customer Checkout (Order BSH-{orderHeader.Id:D6})",
+                        CreatedBy = userId ?? checkout.CustomerEmail,
+                        CreatedAt = DateTime.UtcNow
+                    });
                 }
 
                 await _context.SaveChangesAsync();
@@ -287,8 +300,21 @@ namespace BookShop.Services
                     var book = await _context.Books.FindAsync(item.BookId);
                     if (book != null)
                     {
+                        int quantityBefore = book.StockQuantity;
                         book.StockQuantity += item.Quantity;
                         _context.Books.Update(book);
+
+                        _context.InventoryTransactions.Add(new InventoryTransaction
+                        {
+                            BookId = book.Id,
+                            QuantityChange = item.Quantity,
+                            QuantityBefore = quantityBefore,
+                            QuantityAfter = book.StockQuantity,
+                            TransactionType = InventoryTransactionType.Return,
+                            Reason = $"Restock from Cancelled Order BSH-{order.Id:D6}",
+                            CreatedBy = userId ?? (isStaff ? "Staff" : "Customer"),
+                            CreatedAt = DateTime.UtcNow
+                        });
                     }
                 }
 

@@ -1,0 +1,230 @@
+@model BookShop.Models.ViewModels.InventoryHistoryVM
+@using BookShop.Models.Enums
+@inject BookShop.Services.ILanguageService Lang
+
+@{
+    var isRtl = Lang.IsRtl;
+    ViewData["Title"] = Lang["Inventory_HistoryTitle"];
+}
+
+<div class="container py-4">
+
+    <!-- Breadcrumb & Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb small text-muted mb-1">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">@Lang["Nav_Home"]</a></li>
+                    <li class="breadcrumb-item"><a asp-controller="Inventory" asp-action="Index" class="text-decoration-none text-muted">@Lang["Inventory_DashboardTitle"]</a></li>
+                    <li class="breadcrumb-item active text-dark" aria-current="page">@Lang["Inventory_HistoryTitle"]</li>
+                </ol>
+            </nav>
+            <h1 class="h3 font-serif fw-bold text-dark mb-1 d-flex align-items-center">
+                <i class="bi bi-journal-text @(isRtl ? "ms-2" : "me-2")" style="color: var(--c-cafe);"></i>
+                @Lang["Inventory_HistoryTitle"]
+            </h1>
+            <p class="text-muted small mb-0">@Lang["Inventory_HistorySubtitle"]</p>
+        </div>
+
+        <div class="mt-3 mt-md-0 d-flex gap-2">
+            <a asp-action="Index" class="btn btn-outline-primary rounded-pill px-3 py-2 btn-sm d-flex align-items-center shadow-sm">
+                <i class="bi bi-boxes @(isRtl ? "ms-2" : "me-2")"></i>
+                @Lang["Inventory_DashboardTitle"]
+            </a>
+        </div>
+    </div>
+
+    <!-- Active Book Filter Alert (if filtered to single book) -->
+    @if (Model.SelectedBookId.HasValue && !string.IsNullOrWhiteSpace(Model.SelectedBookTitle))
+    {
+        <div class="alert alert-secondary border-0 rounded-4 py-2 px-3 mb-4 d-flex justify-content-between align-items-center" style="background-color: var(--c-parchment);">
+            <div class="d-flex align-items-center small">
+                <i class="bi bi-funnel-fill @(isRtl ? "ms-2" : "me-2") text-muted"></i>
+                <span>Showing history for: <strong class="font-serif">@Model.SelectedBookTitle</strong> (ID: #@Model.SelectedBookId)</span>
+            </div>
+            <a asp-action="History" asp-route-type="@Model.SelectedType" asp-route-search="@Model.SearchQuery" class="btn btn-sm btn-link text-decoration-none text-muted">
+                <i class="bi bi-x-circle me-1"></i> Clear Book Filter
+            </a>
+        </div>
+    }
+
+    <!-- Filter Form -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 p-3 bg-white">
+        <form method="get" asp-action="History" class="row g-2 align-items-center">
+            @if (Model.SelectedBookId.HasValue)
+            {
+                <input type="hidden" name="bookId" value="@Model.SelectedBookId" />
+            }
+
+            <!-- Type Filter Dropdown -->
+            <div class="col-12 col-md-3">
+                <select name="type" class="form-select form-select-sm rounded-pill">
+                    <option value="">@Lang["Inventory_FilterByType"]</option>
+                    <option value="@InventoryTransactionType.Purchase" selected="@(Model.SelectedType == InventoryTransactionType.Purchase)">
+                        @Lang["Inventory_TypePurchase"]
+                    </option>
+                    <option value="@InventoryTransactionType.Sale" selected="@(Model.SelectedType == InventoryTransactionType.Sale)">
+                        @Lang["Inventory_TypeSale"]
+                    </option>
+                    <option value="@InventoryTransactionType.Return" selected="@(Model.SelectedType == InventoryTransactionType.Return)">
+                        @Lang["Inventory_TypeReturn"]
+                    </option>
+                    <option value="@InventoryTransactionType.Adjustment" selected="@(Model.SelectedType == InventoryTransactionType.Adjustment)">
+                        @Lang["Inventory_TypeAdjustment"]
+                    </option>
+                    <option value="@InventoryTransactionType.Damage" selected="@(Model.SelectedType == InventoryTransactionType.Damage)">
+                        @Lang["Inventory_TypeDamage"]
+                    </option>
+                </select>
+            </div>
+
+            <!-- Search Field -->
+            <div class="col-12 col-md-6">
+                <div class="input-group input-group-sm">
+                    <input type="search" name="search" value="@Model.SearchQuery" class="form-control rounded-start-pill ps-3"
+                           placeholder="@Lang["Inventory_SearchPlaceholder"]" />
+                    <button type="submit" class="btn btn-primary rounded-end-pill px-3">
+                        <i class="bi bi-search @(isRtl ? "ms-1" : "me-1")"></i> @Lang["Inventory_FilterBtn"]
+                    </button>
+                </div>
+            </div>
+
+            <!-- Reset Filter Button -->
+            <div class="col-12 col-md-3 text-md-end">
+                @if (Model.SelectedType.HasValue || !string.IsNullOrWhiteSpace(Model.SearchQuery) || Model.SelectedBookId.HasValue)
+                {
+                    <a asp-action="History" class="btn btn-sm btn-link text-muted">
+                        @Lang["Inventory_ResetFilter"]
+                    </a>
+                }
+                <span class="small text-muted">(@Model.Transactions.Count of @Model.TotalTransactionsCount entries)</span>
+            </div>
+        </form>
+    </div>
+
+    <!-- Ledger Table -->
+    @if (!Model.Transactions.Any())
+    {
+        <div class="card border-0 shadow-sm rounded-4 text-center py-5 px-3 my-4" style="background-color: var(--c-parchment);">
+            <div class="card-body py-5">
+                <i class="bi bi-journal-x fs-1 text-muted mb-3 d-block"></i>
+                <h3 class="font-serif fw-bold text-dark mb-2">@Lang["Inventory_NoLedgerEntries"]</h3>
+                <p class="text-muted mx-auto mb-4" style="max-width: 480px;">
+                    @Lang["Catalog_NoResultsDesc"]
+                </p>
+                <a asp-action="History" class="btn btn-primary rounded-pill px-4 py-2 shadow-sm">
+                    @Lang["Inventory_ResetFilter"]
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive bg-white rounded-4 shadow-sm border overflow-hidden">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small text-uppercase text-muted">
+                    <tr>
+                        <th class="ps-4">@Lang["Inventory_LedgerDate"]</th>
+                        <th>@Lang["Inventory_LedgerBook"]</th>
+                        <th class="text-center">@Lang["Inventory_LedgerType"]</th>
+                        <th class="text-center">@Lang["Inventory_LedgerChange"]</th>
+                        <th class="text-center">@Lang["Inventory_LedgerBalance"]</th>
+                        <th>@Lang["Inventory_LedgerReason"]</th>
+                        <th class="pe-4 text-end">@Lang["Inventory_LedgerStaff"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var entry in Model.Transactions)
+                    {
+                        var isPositive = entry.QuantityChange > 0;
+                        var isNegative = entry.QuantityChange < 0;
+
+                        var typeBadgeClass = entry.TransactionType switch
+                        {
+                            InventoryTransactionType.Purchase => "bg-success-subtle text-success border-success-subtle",
+                            InventoryTransactionType.Sale => "bg-info-subtle text-primary border-info-subtle",
+                            InventoryTransactionType.Return => "bg-primary-subtle text-primary border-primary-subtle",
+                            InventoryTransactionType.Adjustment => "bg-warning-subtle text-dark border-warning-subtle",
+                            InventoryTransactionType.Damage => "bg-danger-subtle text-danger border-danger-subtle",
+                            _ => "bg-secondary-subtle text-secondary"
+                        };
+
+                        var typeLabel = entry.TransactionType switch
+                        {
+                            InventoryTransactionType.Purchase => Lang["Inventory_TypePurchase"],
+                            InventoryTransactionType.Sale => Lang["Inventory_TypeSale"],
+                            InventoryTransactionType.Return => Lang["Inventory_TypeReturn"],
+                            InventoryTransactionType.Adjustment => Lang["Inventory_TypeAdjustment"],
+                            InventoryTransactionType.Damage => Lang["Inventory_TypeDamage"],
+                            _ => entry.TransactionType.ToString()
+                        };
+
+                        <tr>
+                            <!-- Timestamp -->
+                            <td class="ps-4 text-nowrap small text-muted font-monospace">
+                                @entry.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")
+                            </td>
+
+                            <!-- Book Title -->
+                            <td>
+                                <a asp-action="History" asp-route-bookId="@entry.BookId" class="text-decoration-none fw-bold text-dark font-serif" style="font-size: 0.95rem;">
+                                    @entry.GetDisplayTitle(isRtl)
+                                </a>
+                                <div class="small text-muted font-monospace">ID: #@entry.BookId</div>
+                            </td>
+
+                            <!-- Transaction Type Badge -->
+                            <td class="text-center">
+                                <span class="badge rounded-pill border px-3 py-1 @typeBadgeClass small">
+                                    @typeLabel
+                                </span>
+                            </td>
+
+                            <!-- Movement Delta (+ / -) -->
+                            <td class="text-center font-monospace fw-bold">
+                                @if (isPositive)
+                                {
+                                    <span class="text-success">
+                                        <i class="bi bi-arrow-up-right"></i> +@entry.QuantityChange
+                                    </span>
+                                }
+                                else if (isNegative)
+                                {
+                                    <span class="text-danger">
+                                        <i class="bi bi-arrow-down-right"></i> @entry.QuantityChange
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">0</span>
+                                }
+                            </td>
+
+                            <!-- Balance Snapshot (Before -> After) -->
+                            <td class="text-center font-monospace small">
+                                <span class="text-muted">@entry.QuantityBefore</span>
+                                <i class="bi @(isRtl ? "bi-arrow-left" : "bi-arrow-right") mx-1 text-muted"></i>
+                                <span class="fw-bold text-dark">@entry.QuantityAfter</span>
+                            </td>
+
+                            <!-- Reason / Audit Note -->
+                            <td class="small" style="max-width: 280px;">
+                                <div class="text-truncate" title="@entry.Reason">
+                                    @entry.Reason
+                                </div>
+                            </td>
+
+                            <!-- Created By (Actor) -->
+                            <td class="pe-4 text-end small text-muted text-nowrap">
+                                <span class="badge bg-light text-secondary border">
+                                    <i class="bi bi-person-fill @(isRtl ? "ms-1" : "me-1")"></i>@entry.CreatedBy
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+</div>

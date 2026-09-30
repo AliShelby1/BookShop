@@ -1,0 +1,245 @@
+@model BookShop.Models.ViewModels.InventoryDashboardVM
+@using BookShop.Utility
+@inject BookShop.Services.ILanguageService Lang
+
+@{
+    var isRtl = Lang.IsRtl;
+    ViewData["Title"] = Lang["Inventory_DashboardTitle"];
+}
+
+<div class="container py-4">
+
+    <!-- Breadcrumb & Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb small text-muted mb-1">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">@Lang["Nav_Home"]</a></li>
+                    <li class="breadcrumb-item active text-dark" aria-current="page">@Lang["Inventory_DashboardTitle"]</li>
+                </ol>
+            </nav>
+            <h1 class="h3 font-serif fw-bold text-dark mb-1 d-flex align-items-center">
+                <i class="bi bi-boxes @(isRtl ? "ms-2" : "me-2")" style="color: var(--c-cafe);"></i>
+                @Lang["Inventory_DashboardTitle"]
+            </h1>
+            <p class="text-muted small mb-0">@Lang["Inventory_DashboardSubtitle"]</p>
+        </div>
+
+        <div class="mt-3 mt-md-0 d-flex gap-2">
+            <a asp-controller="Inventory" asp-action="History" class="btn btn-outline-secondary rounded-pill px-3 py-2 btn-sm d-flex align-items-center shadow-sm">
+                <i class="bi bi-journal-text @(isRtl ? "ms-2" : "me-2")"></i>
+                @Lang["Inventory_HistoryBtn"]
+            </a>
+            <a asp-controller="Book" asp-action="Index" class="btn btn-outline-primary rounded-pill px-3 py-2 btn-sm d-flex align-items-center shadow-sm">
+                <i class="bi bi-book @(isRtl ? "ms-2" : "me-2")"></i>
+                @Lang["Nav_BooksCatalog"]
+            </a>
+        </div>
+    </div>
+
+    <!-- Inventory Metric Summary Cards -->
+    <div class="row g-3 mb-4">
+        <!-- Total Titles -->
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-3" style="background-color: var(--c-parchment);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small text-uppercase fw-semibold mb-1">@Lang["Inventory_MetricTotalTitles"]</div>
+                        <div class="h3 font-serif fw-bold text-dark mb-0">@Model.TotalTitlesCount</div>
+                    </div>
+                    <div class="rounded-circle p-3 d-flex align-items-center justify-content-center bg-white shadow-sm" style="width: 52px; height: 52px;">
+                        <i class="bi bi-collection fs-4" style="color: var(--c-cafe);"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Stock Units -->
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-3" style="background-color: var(--c-parchment);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small text-uppercase fw-semibold mb-1">@Lang["Inventory_MetricTotalUnits"]</div>
+                        <div class="h3 font-serif fw-bold text-dark mb-0">@Model.TotalUnitsInStock.ToString("N0")</div>
+                    </div>
+                    <div class="rounded-circle p-3 d-flex align-items-center justify-content-center bg-white shadow-sm" style="width: 52px; height: 52px;">
+                        <i class="bi bi-layers fs-4" style="color: var(--c-sage);"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Low Stock Alert -->
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-3 @(Model.LowStockCount > 0 ? "border border-warning bg-warning bg-opacity-10" : "")" style="background-color: var(--c-parchment);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small text-uppercase fw-semibold mb-1">@Lang["Inventory_MetricLowStock"]</div>
+                        <div class="h3 font-serif fw-bold text-warning mb-0">@Model.LowStockCount</div>
+                    </div>
+                    <div class="rounded-circle p-3 d-flex align-items-center justify-content-center bg-white shadow-sm" style="width: 52px; height: 52px;">
+                        <i class="bi bi-exclamation-triangle fs-4 text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Out of Stock Alert -->
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-3 @(Model.OutOfStockCount > 0 ? "border border-danger bg-danger bg-opacity-10" : "")" style="background-color: var(--c-parchment);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small text-uppercase fw-semibold mb-1">@Lang["Inventory_MetricOutOfStock"]</div>
+                        <div class="h3 font-serif fw-bold text-danger mb-0">@Model.OutOfStockCount</div>
+                    </div>
+                    <div class="rounded-circle p-3 d-flex align-items-center justify-content-center bg-white shadow-sm" style="width: 52px; height: 52px;">
+                        <i class="bi bi-x-octagon fs-4 text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Tabs & Search Bar -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <!-- Quick Filter Buttons -->
+        <div class="btn-group shadow-sm rounded-pill overflow-hidden border bg-white p-1" role="group">
+            <a asp-action="Index" asp-route-search="@Model.SearchString"
+               class="btn btn-sm rounded-pill px-3 py-1 @(string.IsNullOrEmpty(Model.Filter) || Model.Filter == "all" ? "btn-primary shadow-none" : "btn-light text-muted border-0")">
+                @Lang["Inventory_FilterAll"] (@Model.TotalTitlesCount)
+            </a>
+            <a asp-action="Index" asp-route-filter="low" asp-route-search="@Model.SearchString"
+               class="btn btn-sm rounded-pill px-3 py-1 @(Model.Filter == "low" ? "btn-warning text-dark shadow-none" : "btn-light text-muted border-0")">
+                <i class="bi bi-exclamation-circle @(isRtl ? "ms-1" : "me-1")"></i>
+                @Lang["Inventory_FilterLowStock"] (@Model.LowStockCount)
+            </a>
+            <a asp-action="Index" asp-route-filter="out" asp-route-search="@Model.SearchString"
+               class="btn btn-sm rounded-pill px-3 py-1 @(Model.Filter == "out" ? "btn-danger text-white shadow-none" : "btn-light text-muted border-0")">
+                <i class="bi bi-x-circle @(isRtl ? "ms-1" : "me-1")"></i>
+                @Lang["Inventory_FilterOutOfStock"] (@Model.OutOfStockCount)
+            </a>
+        </div>
+
+        <!-- Search Bar -->
+        <form method="get" asp-action="Index" class="d-flex gap-2">
+            <input type="hidden" name="filter" value="@Model.Filter" />
+            <div class="input-group input-group-sm">
+                <input type="search" name="search" value="@Model.SearchString" class="form-control rounded-start-pill ps-3"
+                       placeholder="@Lang["Inventory_SearchPlaceholder"]" style="min-width: 240px;" />
+                <button type="submit" class="btn btn-outline-secondary rounded-end-pill px-3">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(Model.SearchString) || !string.IsNullOrWhiteSpace(Model.Filter))
+            {
+                <a asp-action="Index" class="btn btn-sm btn-link text-muted align-self-center">
+                    @Lang["Inventory_ResetFilter"]
+                </a>
+            }
+        </form>
+    </div>
+
+    <!-- Inventory Table -->
+    @if (!Model.Books.Any())
+    {
+        <div class="card border-0 shadow-sm rounded-4 text-center py-5 px-3 my-4" style="background-color: var(--c-parchment);">
+            <div class="card-body py-5">
+                <i class="bi bi-boxes fs-1 text-muted mb-3 d-block"></i>
+                <h3 class="font-serif fw-bold text-dark mb-2">@Lang["Inventory_NoBooksFound"]</h3>
+                <p class="text-muted mx-auto mb-4" style="max-width: 480px;">
+                    @Lang["Catalog_NoResultsDesc"]
+                </p>
+                <a asp-action="Index" class="btn btn-primary rounded-pill px-4 py-2 shadow-sm">
+                    @Lang["Inventory_ResetFilter"]
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive bg-white rounded-4 shadow-sm border overflow-hidden">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small text-uppercase text-muted">
+                    <tr>
+                        <th class="ps-4">@Lang["Inventory_ColBook"]</th>
+                        <th>@Lang["Inventory_ColCategory"]</th>
+                        <th>@Lang["Inventory_ColPrice"]</th>
+                        <th class="text-center">@Lang["Inventory_ColStock"]</th>
+                        <th>@Lang["Inventory_ColStatus"]</th>
+                        <th class="text-end pe-4">@Lang["Inventory_ColActions"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var book in Model.Books)
+                    {
+                        var rowClass = book.IsOutOfStock ? "table-danger bg-opacity-25" : (book.IsLowStock ? "table-warning bg-opacity-25" : "");
+                        <tr class="@rowClass">
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center">
+                                    <img src="@book.DisplayCoverImageUrl" alt="@book.GetDisplayTitle(isRtl)"
+                                         class="rounded shadow-xs @(isRtl ? "ms-3" : "me-3")" style="width: 44px; height: 60px; object-fit: cover;" />
+                                    <div>
+                                        <div class="fw-bold text-dark font-serif" style="font-size: 0.95rem;">
+                                            @book.GetDisplayTitle(isRtl)
+                                        </div>
+                                        <div class="small text-muted">
+                                            @book.AuthorName
+                                            @if (!string.IsNullOrWhiteSpace(book.ISBN))
+                                            {
+                                                <span class="text-secondary opacity-75 ms-1 font-monospace">· @book.ISBN</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="small text-muted">
+                                <span class="badge bg-light text-dark border">
+                                    @book.GetDisplayCategory(isRtl)
+                                </span>
+                            </td>
+                            <td class="fw-bold" style="color: var(--c-cafe);">
+                                @book.Price.ToPrice()
+                            </td>
+                            <td class="text-center">
+                                <span class="badge @(book.IsOutOfStock ? "bg-danger" : (book.IsLowStock ? "bg-warning text-dark" : "bg-success")) rounded-pill px-3 py-2 fw-bold" style="font-size: 0.9rem;">
+                                    @book.StockQuantity
+                                </span>
+                            </td>
+                            <td>
+                                @if (book.IsOutOfStock)
+                                {
+                                    <span class="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle px-3 py-1">
+                                        <i class="bi bi-x-circle-fill @(isRtl ? "ms-1" : "me-1")"></i>@Lang["Inventory_StatusOutOfStock"]
+                                    </span>
+                                }
+                                else if (book.IsLowStock)
+                                {
+                                    <span class="badge rounded-pill bg-warning-subtle text-dark border border-warning-subtle px-3 py-1">
+                                        <i class="bi bi-exclamation-triangle-fill @(isRtl ? "ms-1" : "me-1") text-warning"></i>@Lang["Inventory_StatusLowStock"]
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-3 py-1">
+                                        <i class="bi bi-check-circle-fill @(isRtl ? "ms-1" : "me-1")"></i>@Lang["Inventory_StatusInStock"]
+                                    </span>
+                                }
+                            </td>
+                            <td class="text-end pe-4 text-nowrap">
+                                <a asp-action="Adjust" asp-route-id="@book.BookId"
+                                   class="btn btn-sm btn-primary rounded-pill px-3 shadow-xs @(isRtl ? "ms-1" : "me-1")">
+                                    <i class="bi bi-pencil-square @(isRtl ? "ms-1" : "me-1")"></i>@Lang["Inventory_AdjustBtn"]
+                                </a>
+                                <a asp-action="History" asp-route-bookId="@book.BookId"
+                                   class="btn btn-sm btn-outline-secondary rounded-pill px-3 shadow-xs" title="@Lang["Inventory_HistoryBtn"]">
+                                    <i class="bi bi-clock-history"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+</div>
