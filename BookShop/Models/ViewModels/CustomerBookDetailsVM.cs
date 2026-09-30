@@ -8,5 +8,6 @@ namespace BookShop.Models.ViewModels
         public Book Book { get; set; } = null!;
         public IEnumerable<Book> RelatedBooks { get; set; } = new List<Book>();
         public int DefaultQuantity { get; set; } = 1;
+        public BookReviewsSummaryVM ReviewsSummary { get; set; } = new();
     }
 }

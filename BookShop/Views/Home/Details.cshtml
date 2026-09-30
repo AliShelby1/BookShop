@@ -86,6 +86,39 @@
                         @Model.Book.GetDisplayTitle(Lang.IsRtl)
                     </h1>
 
+                    <!-- Rating & Reviews Snapshot -->
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div class="text-warning small d-flex align-items-center">
+                            @for (int s = 1; s <= 5; s++)
+                            {
+                                if (s <= Math.Floor(Model.ReviewsSummary.AverageRating))
+                                {
+                                    <i class="bi bi-star-fill"></i>
+                                }
+                                else if (s - 0.5 <= Model.ReviewsSummary.AverageRating)
+                                {
+                                    <i class="bi bi-star-half"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-star text-muted opacity-25"></i>
+                                }
+                            }
+                        </div>
+                        @if (Model.ReviewsSummary.TotalReviews > 0)
+                        {
+                            <span class="fw-bold text-dark small">@Model.ReviewsSummary.AverageRating.ToString("F1")</span>
+                            <span class="text-muted small">&middot;</span>
+                            <a href="#reviewsSection" class="text-muted small text-decoration-none" onclick="var t = document.getElementById('reviews-tab'); if(t) { var tab = new bootstrap.Tab(t); tab.show(); }">
+                                @Model.ReviewsSummary.TotalReviews @(Lang.IsRtl ? "مراجعة" : "reviews")
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="text-muted small">@Lang["Review_NoReviewsYet"]</span>
+                        }
+                    </div>
+
                     <!-- Author & Publisher -->
                     <p class="text-muted mb-4 fs-6">
                         @Lang["Book_By"] <a asp-action="Shop" asp-route-authorId="@Model.Book.AuthorId" class="fw-semibold text-decoration-none" style="color: var(--c-cafe);">
@@ -205,6 +238,12 @@
                         @(Lang.IsRtl ? "بيانات الإصدار" : "Edition Details")
                     </button>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link font-serif fw-semibold" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab">
+                        <i class="bi bi-star-fill text-warning me-1"></i>
+                        @Lang["Review_SectionTitle"] (@Model.ReviewsSummary.TotalReviews)
+                    </button>
+                </li>
             </ul>
         </div>
         <div class="card-body p-4 p-md-5">
@@ -270,6 +309,244 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Reviews Tab Pane -->
+                <div class="tab-pane fade" id="reviews" role="tabpanel">
+                    <div id="reviewsSection" class="row g-4 g-lg-5">
+                        <!-- Left: Rating Overview & Star Breakdown -->
+                        <div class="col-lg-4">
+                            <div class="p-4 rounded-4 text-center border mb-4" style="background-color: var(--c-parchment);">
+                                <div class="text-uppercase small text-muted fw-bold mb-1">@Lang["Review_OverallRating"]</div>
+                                <div class="display-4 font-serif fw-bold text-dark mb-1">@Model.ReviewsSummary.AverageRating.ToString("F1")</div>
+                                <div class="text-warning fs-5 mb-2">
+                                    @for (int s = 1; s <= 5; s++)
+                                    {
+                                        if (s <= Math.Floor(Model.ReviewsSummary.AverageRating))
+                                        {
+                                            <i class="bi bi-star-fill"></i>
+                                        }
+                                        else if (s - 0.5 <= Model.ReviewsSummary.AverageRating)
+                                        {
+                                            <i class="bi bi-star-half"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-star text-muted opacity-25"></i>
+                                        }
+                                    }
+                                </div>
+                                <div class="small text-muted">@string.Format(Lang["Review_BasedOn"], Model.ReviewsSummary.TotalReviews)</div>
+                            </div>
+
+                            <!-- Rating Distribution Bars -->
+                            <div class="d-flex flex-column gap-2 mb-4">
+                                @for (int star = 5; star >= 1; star--)
+                                {
+                                    var count = Model.ReviewsSummary.RatingDistribution.GetValueOrDefault(star, 0);
+                                    var pct = Model.ReviewsSummary.GetRatingPercentage(star);
+                                    <div class="d-flex align-items-center gap-2 small">
+                                        <span class="text-nowrap" style="width: 50px;">
+                                            @star <i class="bi bi-star-fill text-warning ms-1"></i>
+                                        </span>
+                                        <div class="progress flex-grow-1" style="height: 8px;">
+                                            <div class="progress-bar bg-warning" role="progressbar" style="width: @pct%;" aria-valuenow="@pct" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <span class="text-muted text-nowrap" style="width: 32px; text-align: end;">@pct%</span>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Verified Reader Guarantee Badge -->
+                            <div class="p-3 rounded-3 border bg-light small text-muted">
+                                <div class="d-flex align-items-center mb-1 text-dark fw-bold">
+                                    <i class="bi bi-patch-check-fill text-success @(Lang.IsRtl ? "ms-2" : "me-2") fs-5"></i>
+                                    <span>@Lang["Review_VerifiedPurchase"]</span>
+                                </div>
+                                <p class="mb-0 small">@Lang["Review_VerifiedPurchaseDesc"]</p>
+                            </div>
+                        </div>
+
+                        <!-- Right: Review Submission Form & Customer Reviews List -->
+                        <div class="col-lg-8">
+                            <!-- Review Write / Edit Box -->
+                            @if (Model.ReviewsSummary.CanUserReview)
+                            {
+                                <div class="card border rounded-4 shadow-xs p-4 mb-4" style="background-color: var(--c-parchment);">
+                                    <h5 class="font-serif fw-bold text-dark mb-1">@Lang["Review_WriteTitle"]</h5>
+                                    <p class="small text-muted mb-3">@Lang["Review_WriteDesc"]</p>
+
+                                    <form method="post" asp-controller="Review" asp-action="Create">
+                                        <input type="hidden" name="BookId" value="@Model.Book.Id" />
+                                        <input type="hidden" name="BookTitle" value="@Model.Book.Title" />
+                                        <input type="hidden" name="BookTitleAr" value="@Model.Book.TitleAr" />
+
+                                        <!-- Rating Picker -->
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold small text-dark d-block">
+                                                @Lang["Review_RatingLabel"] <span class="text-danger">*</span>
+                                            </label>
+                                            <div class="d-flex align-items-center gap-2" id="detailStarPicker">
+                                                @for (int i = 1; i <= 5; i++)
+                                                {
+                                                    <button type="button" class="btn btn-link p-0 text-decoration-none detail-star-btn text-warning"
+                                                            data-rating="@i" style="font-size: 1.5rem;">
+                                                        <i class="bi bi-star-fill"></i>
+                                                    </button>
+                                                }
+                                                <input type="hidden" name="Rating" id="detailRatingInput" value="5" />
+                                                <span class="ms-2 fw-bold text-dark small" id="detailRatingText">5 / 5</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Headline -->
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold small text-dark">@Lang["Review_HeadlineLabel"]</label>
+                                            <input type="text" name="Headline" class="form-control form-control-sm" placeholder="@Lang["Review_HeadlinePlaceholder"]" />
+                                        </div>
+
+                                        <!-- Comment -->
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold small text-dark">
+                                                @Lang["Review_CommentLabel"] <span class="text-danger">*</span>
+                                            </label>
+                                            <textarea name="Comment" class="form-control form-control-sm" rows="3" placeholder="@Lang["Review_CommentPlaceholder"]" required></textarea>
+                                        </div>
+
+                                        <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 btn-sm shadow-sm">
+                                            <i class="bi bi-send @(Lang.IsRtl ? "ms-1" : "me-1")"></i>@Lang["Review_SubmitBtn"]
+                                        </button>
+                                    </form>
+                                </div>
+                            }
+                            else if (Model.ReviewsSummary.CurrentUserReview != null)
+                            {
+                                <div class="alert alert-secondary border rounded-4 p-3 mb-4 d-flex justify-content-between align-items-center" style="background-color: var(--c-parchment);">
+                                    <div class="d-flex align-items-center small">
+                                        <i class="bi bi-check-circle-fill text-success @(Lang.IsRtl ? "ms-2" : "me-2") fs-5"></i>
+                                        <div>
+                                            <span class="fw-bold text-dark d-block">@Lang["Review_YouReviewed"]</span>
+                                            <span class="text-muted">@Model.ReviewsSummary.CurrentUserReview.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <a asp-controller="Review" asp-action="Edit" asp-route-id="@Model.ReviewsSummary.CurrentUserReview.Id"
+                                           class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                            <i class="bi bi-pencil @(Lang.IsRtl ? "ms-1" : "me-1")"></i>@Lang["Review_EditBtn"]
+                                        </a>
+                                        <form method="post" asp-controller="Review" asp-action="Delete" asp-route-id="@Model.ReviewsSummary.CurrentUserReview.Id"
+                                              onsubmit="return confirm('@Lang["Review_ConfirmDelete"]');">
+                                            <input type="hidden" name="bookId" value="@Model.Book.Id" />
+                                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                                <i class="bi bi-trash3"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            }
+                            else if (User.Identity != null && User.Identity.IsAuthenticated && !Model.ReviewsSummary.IsVerifiedPurchaser)
+                            {
+                                <div class="alert alert-light border rounded-3 p-3 mb-4 d-flex align-items-start small text-muted">
+                                    <i class="bi bi-shield-lock fs-5 text-muted @(Lang.IsRtl ? "ms-2" : "me-2")"></i>
+                                    <div>
+                                        <strong class="d-block text-dark mb-1">Verified Readers Policy</strong>
+                                        <span>@Lang["Review_VerifiedOnlyNotice"]</span>
+                                    </div>
+                                </div>
+                            }
+                            else if (User.Identity == null || !User.Identity.IsAuthenticated)
+                            {
+                                <div class="alert alert-light border rounded-3 p-3 mb-4 d-flex justify-content-between align-items-center small">
+                                    <span class="text-muted">@Lang["Review_SignInToReview"]</span>
+                                    <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Context.Request.Path"
+                                       class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                        @Lang["Nav_SignIn"]
+                                    </a>
+                                </div>
+                            }
+
+                            <!-- Reviews List -->
+                            @if (!Model.ReviewsSummary.Reviews.Any())
+                            {
+                                <div class="text-center py-5 text-muted">
+                                    <i class="bi bi-chat-heart fs-1 text-secondary opacity-50 mb-2 d-block"></i>
+                                    <p class="mb-0">@Lang["Review_NoReviewsYet"]</p>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="d-flex flex-column gap-3">
+                                    @foreach (var review in Model.ReviewsSummary.Reviews)
+                                    {
+                                        <div class="card border rounded-3 p-3 shadow-xs bg-white">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <div>
+                                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                                        <div class="text-warning small">
+                                                            @for (int s = 1; s <= 5; s++)
+                                                            {
+                                                                if (s <= review.Rating)
+                                                                {
+                                                                    <i class="bi bi-star-fill"></i>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <i class="bi bi-star text-muted opacity-25"></i>
+                                                                }
+                                                            }
+                                                        </div>
+                                                        @if (review.IsVerifiedPurchase)
+                                                        {
+                                                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill py-0 px-2 small" style="font-size: 0.68rem;">
+                                                                <i class="bi bi-patch-check-fill @(Lang.IsRtl ? "ms-1" : "me-1")"></i>@Lang["Review_VerifiedPurchase"]
+                                                            </span>
+                                                        }
+                                                    </div>
+
+                                                    @if (!string.IsNullOrWhiteSpace(review.Headline))
+                                                    {
+                                                        <h6 class="font-serif fw-bold text-dark mb-1">@review.Headline</h6>
+                                                    }
+                                                </div>
+
+                                                <div class="small text-muted font-monospace" style="font-size: 0.75rem;">
+                                                    @review.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")
+                                                </div>
+                                            </div>
+
+                                            <p class="small text-secondary mb-2 lh-base" style="white-space: pre-line;">@review.Comment</p>
+
+                                            <div class="d-flex justify-content-between align-items-center pt-2 border-top small text-muted">
+                                                <span class="fw-semibold text-dark">
+                                                    <i class="bi bi-person @(Lang.IsRtl ? "ms-1" : "me-1")"></i>@review.ReviewerName
+                                                </span>
+
+                                                @if (review.IsCurrentUser || User.IsInRole(BookShop.Utility.SD.Role_Admin) || User.IsInRole(BookShop.Utility.SD.Role_Employee))
+                                                {
+                                                    <div class="d-flex gap-2">
+                                                        @if (review.IsCurrentUser)
+                                                        {
+                                                            <a asp-controller="Review" asp-action="Edit" asp-route-id="@review.Id"
+                                                               class="btn btn-link btn-sm text-decoration-none text-muted p-0">
+                                                                <i class="bi bi-pencil me-1"></i>@Lang["Review_EditBtn"]
+                                                            </a>
+                                                        }
+                                                        <form method="post" asp-controller="Review" asp-action="Delete" asp-route-id="@review.Id"
+                                                              onsubmit="return confirm('@Lang["Review_ConfirmDelete"]');">
+                                                            <input type="hidden" name="bookId" value="@Model.Book.Id" />
+                                                            <button type="submit" class="btn btn-link btn-sm text-danger text-decoration-none p-0">
+                                                                <i class="bi bi-trash3 me-1"></i>@Lang["Review_DeleteBtn"]
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -299,3 +576,46 @@
         </div>
     }
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Auto open reviews tab if URL has #reviews or #reviewsSection
+            if (window.location.hash === '#reviews' || window.location.hash === '#reviewsSection') {
+                const reviewsTab = document.getElementById('reviews-tab');
+                if (reviewsTab) {
+                    const tab = new bootstrap.Tab(reviewsTab);
+                    tab.show();
+                    setTimeout(() => {
+                        const el = document.getElementById('reviewsSection');
+                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    }, 150);
+                }
+            }
+
+            // Star Rating Picker
+            const stars = document.querySelectorAll('.detail-star-btn');
+            const ratingInput = document.getElementById('detailRatingInput');
+            const ratingText = document.getElementById('detailRatingText');
+
+            if (stars.length > 0 && ratingInput && ratingText) {
+                stars.forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const val = parseInt(this.getAttribute('data-rating'));
+                        ratingInput.value = val;
+                        ratingText.innerText = val + ' / 5';
+
+                        stars.forEach((s, idx) => {
+                            if (idx < val) {
+                                s.className = 'btn btn-link p-0 text-decoration-none detail-star-btn text-warning';
+                            } else {
+                                s.className = 'btn btn-link p-0 text-decoration-none detail-star-btn text-muted opacity-50';
+                            }
+                        });
+                    });
+                });
+            }
+        });
+    </script>
+}

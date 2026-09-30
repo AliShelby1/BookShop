@@ -1,0 +1,136 @@
+@model BookShop.Models.ViewModels.ReviewFormVM
+@inject BookShop.Services.ILanguageService Lang
+
+@{
+    var isRtl = Lang.IsRtl;
+    ViewData["Title"] = Lang["Review_EditTitle"];
+    var displayCover = !string.IsNullOrWhiteSpace(Model.CoverImageUrl) ? Model.CoverImageUrl : "/images/default-book-cover.svg";
+}
+
+<div class="container py-4" style="max-width: 680px;">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb small text-muted mb-1">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">@Lang["Nav_Home"]</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Details" asp-route-id="@Model.BookId" class="text-decoration-none text-muted">@Model.GetDisplayTitle(isRtl)</a></li>
+            <li class="breadcrumb-item active text-dark" aria-current="page">@Lang["Review_EditTitle"]</li>
+        </ol>
+    </nav>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <!-- Header -->
+        <div class="p-4 border-bottom text-white" style="background-color: var(--c-espresso);">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle p-3 d-flex align-items-center justify-content-center bg-white bg-opacity-10 @(isRtl ? "ms-3" : "me-3")" style="width: 52px; height: 52px;">
+                    <i class="bi bi-pencil-square fs-4 text-white"></i>
+                </div>
+                <div>
+                    <h2 class="h4 font-serif fw-bold text-white mb-1">@Lang["Review_EditTitle"]</h2>
+                    <p class="small text-white-50 mb-0">@Model.GetDisplayTitle(isRtl)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-4">
+            <!-- Book Snapshot -->
+            <div class="d-flex align-items-center p-3 rounded-3 mb-4 border" style="background-color: var(--c-parchment);">
+                <img src="@displayCover" alt="@Model.GetDisplayTitle(isRtl)"
+                     class="rounded shadow-xs @(isRtl ? "ms-3" : "me-3")" style="width: 48px; height: 68px; object-fit: cover;" />
+                <div>
+                    <h3 class="h6 font-serif fw-bold text-dark mb-1">@Model.GetDisplayTitle(isRtl)</h3>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1 small">
+                        <i class="bi bi-patch-check-fill @(isRtl ? "ms-1" : "me-1")"></i>@Lang["Review_VerifiedPurchase"]
+                    </span>
+                </div>
+            </div>
+
+            <form method="post" asp-action="Edit" asp-route-id="@Model.Id">
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="BookId" />
+                <input type="hidden" asp-for="BookTitle" />
+                <input type="hidden" asp-for="BookTitleAr" />
+                <input type="hidden" asp-for="CoverImageUrl" />
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 small py-2 mb-3"></div>
+
+                <!-- Star Rating Picker -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-dark d-block">
+                        @Lang["Review_RatingLabel"] <span class="text-danger">*</span>
+                    </label>
+                    <div class="d-flex align-items-center gap-2 star-rating-picker" id="starPicker">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <button type="button" class="btn btn-link p-0 text-decoration-none star-btn @(i <= Model.Rating ? "text-warning" : "text-muted opacity-50")"
+                                    data-rating="@i" style="font-size: 1.8rem;">
+                                <i class="bi bi-star-fill"></i>
+                            </button>
+                        }
+                        <input type="hidden" asp-for="Rating" id="ratingInput" />
+                        <span class="ms-2 fw-bold text-dark small" id="ratingText">@Model.Rating / 5</span>
+                    </div>
+                    <span asp-validation-for="Rating" class="text-danger small"></span>
+                </div>
+
+                <!-- Headline -->
+                <div class="mb-3">
+                    <label asp-for="Headline" class="form-label fw-bold text-dark">
+                        @Lang["Review_HeadlineLabel"]
+                    </label>
+                    <input asp-for="Headline" class="form-control" placeholder="@Lang["Review_HeadlinePlaceholder"]" />
+                    <span asp-validation-for="Headline" class="text-danger small"></span>
+                </div>
+
+                <!-- Comment -->
+                <div class="mb-4">
+                    <label asp-for="Comment" class="form-label fw-bold text-dark">
+                        @Lang["Review_CommentLabel"] <span class="text-danger">*</span>
+                    </label>
+                    <textarea asp-for="Comment" class="form-control" rows="5"
+                              placeholder="@Lang["Review_CommentPlaceholder"]" required></textarea>
+                    <span asp-validation-for="Comment" class="text-danger small"></span>
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                    <a href="/Home/Details/@Model.BookId#reviewsSection" class="btn btn-outline-secondary rounded-pill px-4 py-2">
+                        <i class="bi bi-arrow-left @(isRtl ? "bi-arrow-right" : "") @(isRtl ? "ms-1" : "me-1")"></i>
+                        @Lang["Inventory_CancelAdjustment"]
+                    </a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 shadow-sm">
+                        <i class="bi bi-check-lg @(isRtl ? "ms-1" : "me-1")"></i>
+                        @Lang["Review_UpdateBtn"]
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const stars = document.querySelectorAll('.star-btn');
+            const ratingInput = document.getElementById('ratingInput');
+            const ratingText = document.getElementById('ratingText');
+
+            stars.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const val = parseInt(this.getAttribute('data-rating'));
+                    ratingInput.value = val;
+                    ratingText.innerText = val + ' / 5';
+
+                    stars.forEach((s, idx) => {
+                        if (idx < val) {
+                            s.className = 'btn btn-link p-0 text-decoration-none star-btn text-warning';
+                        } else {
+                            s.className = 'btn btn-link p-0 text-decoration-none star-btn text-muted opacity-50';
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+}

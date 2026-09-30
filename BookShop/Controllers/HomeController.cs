@@ -16,11 +16,13 @@ namespace BookShop.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _db;
+        private readonly Services.IReviewService _reviewService;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext db)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext db, Services.IReviewService reviewService)
         {
             _logger = logger;
             _db = db;
+            _reviewService = reviewService;
         }
 
         // GET: /
@@ -190,11 +192,15 @@ namespace BookShop.Controllers
                 .Take(4)
                 .ToListAsync();
 
+            var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var reviewsSummary = await _reviewService.GetBookReviewsSummaryAsync(book.Id, currentUserId);
+
             var vm = new CustomerBookDetailsVM
             {
                 Book = book,
                 RelatedBooks = relatedBooks,
-                DefaultQuantity = 1
+                DefaultQuantity = 1,
+                ReviewsSummary = reviewsSummary
             };
 
             return View(vm);
