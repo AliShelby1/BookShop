@@ -254,19 +254,50 @@ h1, h2, h3, h4, h5, h6,
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--c-sand) !important;
   transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.navbar-bookshop .navbar-brand {
+  white-space: nowrap !important;
+  flex-shrink: 0;
+}
+
+.navbar-bookshop .navbar-nav .nav-link,
+.navbar-bookshop .navbar-nav .btn {
+  white-space: nowrap !important;
 }
 
 .nav-link-literary {
   color: var(--c-roast) !important;
   font-weight: 500;
-  font-size: 0.95rem;
-  padding: 0.5rem 0.9rem !important;
+  font-size: 0.9rem;
+  padding: 0.45rem 0.65rem !important;
   position: relative;
   transition: color 0.2s ease;
+  white-space: nowrap !important;
+}
+
+@media (min-width: 1400px) {
+  .nav-link-literary {
+    font-size: 0.95rem;
+    padding: 0.45rem 0.85rem !important;
+  }
 }
 
 .nav-link-literary:hover,
 .nav-link-literary.active {
+  color: var(--c-cafe) !important;
+}
+
+.nav-link-icon {
+  width: 36px;
+  height: 36px;
+  color: var(--c-roast) !important;
+  transition: all 0.2s ease;
+}
+
+.nav-link-icon:hover {
+  background-color: var(--c-sand-light);
   color: var(--c-cafe) !important;
 }
 
@@ -577,6 +608,29 @@ h1, h2, h3, h4, h5, h6,
 /* Navbar Fast Search */
 .navbar-search-container {
   position: relative;
+  min-width: 140px;
+  max-width: 220px;
+  transition: max-width 0.25s ease;
+}
+
+@media (min-width: 1200px) {
+  .navbar-search-container {
+    max-width: 260px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .navbar-search-container {
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .navbar-search-container {
+    max-width: 100% !important;
+    width: 100%;
+    margin: 0.5rem 0;
+  }
 }
 .navbar-search-bar {
   transition: all 0.2s ease-in-out;

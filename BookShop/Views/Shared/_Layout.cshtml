@@ -52,8 +52,8 @@
                     <i class="bi bi-list fs-2" style="color: var(--c-espresso);"></i>
                 </button>
 
-                <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
-                    <ul class="navbar-nav me-auto ps-lg-3 gap-1">
+                <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between align-items-center">
+                    <ul class="navbar-nav me-auto ps-lg-2 gap-0 gap-xl-1 align-items-center">
                         <li class="nav-item">
                             <a class="nav-link nav-link-literary" asp-area="" asp-controller="Home" asp-action="Index">
                                 <i class="bi bi-house me-1"></i>@Lang["Nav_Home"]
@@ -147,15 +147,15 @@
                     </ul>
                     
                     <!-- Fast Catalog Search Bar -->
-                    <form asp-controller="Home" asp-action="Shop" method="get" class="d-flex align-items-center position-relative my-2 my-lg-0 navbar-search-container flex-grow-1 mx-lg-3" style="max-width: 320px;" role="search" id="navbarSearchForm">
+                    <form asp-controller="Home" asp-action="Shop" method="get" class="d-flex align-items-center position-relative my-2 my-lg-0 navbar-search-container flex-grow-1 mx-lg-2 mx-xl-3" role="search" id="navbarSearchForm">
                         <div class="input-group input-group-sm rounded-pill overflow-hidden border border-secondary-subtle bg-white shadow-none w-100">
                             <span class="input-group-text bg-white border-0 text-muted ps-3 pe-1">
                                 <i class="bi bi-search"></i>
                             </span>
                             <input type="search" name="searchString" id="navbarSearchInput" class="form-control border-0 bg-white shadow-none ps-2" 
-                                   placeholder="@(Lang.IsRtl ? "ابحث عن كتاب، مؤلف، أو ردمك..." : "Search title, author, or ISBN...")" 
+                                   placeholder="@(Lang.IsRtl ? "ابحث عن كتاب، مؤلف..." : "Search catalog, author...")" 
                                    autocomplete="off" aria-label="Search" />
-                            <button class="btn btn-sm btn-link text-muted border-0 px-3 text-decoration-none" type="submit" title="@(Lang.IsRtl ? "بحث" : "Search")">
+                            <button class="btn btn-sm btn-link text-muted border-0 px-2 px-md-3 text-decoration-none" type="submit" title="@(Lang.IsRtl ? "بحث" : "Search")">
                                 <i class="bi bi-arrow-right @(Lang.IsRtl ? "bi-arrow-left" : "")"></i>
                             </button>
                         </div>
@@ -165,35 +165,36 @@
                         </div>
                     </form>
 
-                    <ul class="navbar-nav align-items-center @(Lang.IsRtl ? "ms-3" : "me-3") gap-2">
+                    <!-- Right Unified Action Cluster -->
+                    <ul class="navbar-nav align-items-center @(Lang.IsRtl ? "ms-auto ps-lg-2" : "ms-auto pe-lg-2") gap-1 gap-xl-2">
                         <!-- Language Switcher Toggle Button -->
                         <li class="nav-item">
                             @if (Lang.CurrentCulture == "ar")
                             {
                                 <a asp-controller="Home" asp-action="SetLanguage" asp-route-culture="en" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" 
-                                   class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1 d-inline-flex align-items-center shadow-none" 
-                                   title="Switch to English" style="font-size: 0.8rem;">
-                                    <i class="bi bi-globe2 me-1"></i>English
+                                   class="btn btn-outline-secondary btn-sm rounded-pill px-2 py-1 d-inline-flex align-items-center shadow-none text-nowrap" 
+                                   title="Switch to English" style="font-size: 0.78rem;">
+                                    <i class="bi bi-globe2 me-1"></i>EN
                                 </a>
                             }
                             else
                             {
                                 <a asp-controller="Home" asp-action="SetLanguage" asp-route-culture="ar" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" 
-                                   class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1 d-inline-flex align-items-center shadow-none font-serif" 
-                                   title="التحويل إلى اللغة العربية" style="font-size: 0.85rem;">
-                                    <i class="bi bi-globe2 me-1"></i>العربية
+                                   class="btn btn-outline-secondary btn-sm rounded-pill px-2 py-1 d-inline-flex align-items-center shadow-none font-serif text-nowrap" 
+                                   title="التحويل إلى اللغة العربية" style="font-size: 0.82rem;">
+                                    <i class="bi bi-globe2 me-1"></i>عربي
                                 </a>
                             }
                         </li>
 
                         <!-- Reading List / Wishlist -->
                         <li class="nav-item">
-                            <a class="nav-link nav-link-literary position-relative d-inline-flex align-items-center px-2 py-1" asp-controller="Wishlist" asp-action="Index" title="@Lang["Nav_Wishlist"]">
+                            <a class="nav-link nav-link-icon position-relative d-inline-flex align-items-center justify-content-center p-2 rounded-circle" asp-controller="Wishlist" asp-action="Index" title="@Lang["Nav_Wishlist"]">
                                 <i class="bi bi-heart fs-5"></i>
                                 @{
                                     var wishlistItemCount = await WishlistService.GetWishlistItemCountAsync();
                                 }
-                                <span id="navbarWishlistBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill badge-terracotta shadow-sm @(wishlistItemCount > 0 ? "" : "d-none")" style="font-size: 0.68rem; padding: 0.28em 0.55em;">
+                                <span id="navbarWishlistBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill badge-terracotta shadow-sm @(wishlistItemCount > 0 ? "" : "d-none")" style="font-size: 0.65rem; padding: 0.25em 0.5em;">
                                     @wishlistItemCount
                                     <span class="visually-hidden">@Lang["Nav_Wishlist"]</span>
                                 </span>
@@ -202,20 +203,21 @@
 
                         <!-- Reading Bag -->
                         <li class="nav-item">
-                            <a class="nav-link nav-link-literary position-relative d-inline-flex align-items-center px-2 py-1" asp-controller="Cart" asp-action="Index" title="@Lang["Nav_ReadingBag"]">
+                            <a class="nav-link nav-link-icon position-relative d-inline-flex align-items-center justify-content-center p-2 rounded-circle" asp-controller="Cart" asp-action="Index" title="@Lang["Nav_ReadingBag"]">
                                 <i class="bi bi-bag fs-5"></i>
                                 @{
                                     var cartItemCount = await CartService.GetCartItemCountAsync();
                                 }
-                                <span id="navbarCartBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill badge-terracotta shadow-sm @(cartItemCount > 0 ? "" : "d-none")" style="font-size: 0.68rem; padding: 0.28em 0.55em;">
+                                <span id="navbarCartBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill badge-terracotta shadow-sm @(cartItemCount > 0 ? "" : "d-none")" style="font-size: 0.65rem; padding: 0.25em 0.5em;">
                                     @cartItemCount
                                     <span class="visually-hidden">@Lang["Nav_ReadingBag"]</span>
                                 </span>
                             </a>
                         </li>
-                    </ul>
 
-                    <partial name="_LoginPartial" />
+                        <!-- User Profile or Guest Auth -->
+                        <partial name="_LoginPartial" />
+                    </ul>
                 </div>
             </div>
         </nav>

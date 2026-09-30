@@ -5,55 +5,98 @@
 @inject UserManager<ApplicationUser> UserManager
 @inject BookShop.Services.ILanguageService Lang
 
-<ul class="navbar-nav align-items-center gap-2">
+@{
+    var isRtl = Lang.IsRtl;
+}
+
 @if (SignInManager.IsSignedIn(User))
 {
     var currentUser = await UserManager.GetUserAsync(User);
     var displayName = !string.IsNullOrWhiteSpace(currentUser?.Name) ? currentUser.Name : User.Identity?.Name;
+    var userEmail = currentUser?.Email ?? User.Identity?.Name;
 
-    <li class="nav-item">
-        <a class="nav-link nav-link-literary d-flex align-items-center" asp-area="Identity" asp-page="/Account/Manage/Index" title="@(Lang.IsRtl ? "إدارة الحساب" : "Manage Account")">
-            <i class="bi bi-person @(Lang.IsRtl ? "ms-1" : "me-1")"></i>
-            <span>@displayName</span>
+    <li class="nav-item dropdown">
+        <a class="nav-link nav-link-literary dropdown-toggle d-flex align-items-center gap-1 py-1 px-2 rounded-pill text-nowrap" 
+           href="#" id="userProfileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+           style="background-color: var(--c-sand-light);">
+            <div class="rounded-circle d-flex align-items-center justify-content-center text-white shadow-xs" 
+                 style="width: 24px; height: 24px; background-color: var(--c-cafe); font-size: 0.75rem;">
+                <i class="bi bi-person-fill"></i>
+            </div>
+            <span class="d-none d-sm-inline-block fw-semibold text-truncate text-dark" style="max-width: 105px; font-size: 0.85rem;">
+                @displayName
+            </span>
             @if (User.IsInRole(SD.Role_Admin))
             {
-                <span class="badge badge-cafe @(Lang.IsRtl ? "me-2" : "ms-2")">@(Lang.IsRtl ? "مسؤول" : "Admin")</span>
+                <span class="badge badge-cafe py-0 px-1" style="font-size: 0.65rem;">@(isRtl ? "مسؤول" : "Admin")</span>
             }
             else if (User.IsInRole(SD.Role_Employee))
             {
-                <span class="badge badge-earth @(Lang.IsRtl ? "me-2" : "ms-2")">@(Lang.IsRtl ? "فريق العمل" : "Staff")</span>
+                <span class="badge badge-earth py-0 px-1" style="font-size: 0.65rem;">@(isRtl ? "طاقم" : "Staff")</span>
             }
-            else
+        </a>
+
+        <ul class="dropdown-menu dropdown-menu-end shadow border py-2" aria-labelledby="userProfileDropdown" style="min-width: 220px;">
+            <!-- User Header -->
+            <li class="px-3 py-2 border-bottom mb-1 bg-light bg-opacity-50">
+                <div class="fw-bold text-dark font-serif text-truncate" style="font-size: 0.9rem;">@displayName</div>
+                <div class="small text-muted text-truncate" style="font-size: 0.75rem;">@userEmail</div>
+            </li>
+
+            <!-- My Orders -->
+            <li>
+                <a class="dropdown-item py-2 d-flex align-items-center text-nowrap" asp-controller="Order" asp-action="Index">
+                    <i class="bi bi-box-seam @(isRtl ? "ms-2" : "me-2")" style="color: var(--c-cafe);"></i>
+                    <span>@Lang["Nav_MyOrders"]</span>
+                </a>
+            </li>
+
+            <!-- Account Settings -->
+            <li>
+                <a class="dropdown-item py-2 d-flex align-items-center text-nowrap" asp-area="Identity" asp-page="/Account/Manage/Index">
+                    <i class="bi bi-person-gear @(isRtl ? "ms-2" : "me-2")" style="color: var(--c-cafe);"></i>
+                    <span>@(isRtl ? "إعدادات الحساب" : "Account Settings")</span>
+                </a>
+            </li>
+
+            @if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Employee))
             {
-                <span class="badge badge-earth @(Lang.IsRtl ? "me-2" : "ms-2")">@(Lang.IsRtl ? "عضو" : "Member")</span>
+                <li><hr class="dropdown-divider my-1"></li>
+                <li class="dropdown-header text-uppercase small text-muted py-1" style="font-size: 0.7rem;">
+                    @(isRtl ? "الإدارة والمخزون" : "Staff Portals")
+                </li>
+                <li>
+                    <a class="dropdown-item py-2 d-flex align-items-center text-nowrap" asp-controller="Inventory" asp-action="Index">
+                        <i class="bi bi-boxes @(isRtl ? "ms-2" : "me-2")" style="color: var(--c-cafe);"></i>
+                        <span>@Lang["Nav_InventoryDashboard"]</span>
+                    </a>
+                </li>
             }
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link nav-link-literary d-flex align-items-center" asp-controller="Order" asp-action="Index" title="@Lang["Nav_MyOrders"]">
-            <i class="bi bi-box-seam @(Lang.IsRtl ? "ms-1" : "me-1")"></i>
-            <span>@Lang["Nav_MyOrders"]</span>
-        </a>
-    </li>
-    <li class="nav-item">
-        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button type="submit" class="btn btn-outline-secondary btn-sm px-3 rounded-pill">
-                <i class="bi bi-box-arrow-right @(Lang.IsRtl ? "ms-1" : "me-1")"></i>@Lang["Nav_SignOut"]
-            </button>
-        </form>
+
+            <li><hr class="dropdown-divider my-1"></li>
+
+            <!-- Sign Out -->
+            <li>
+                <form class="w-100" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
+                    <button type="submit" class="dropdown-item py-2 text-danger d-flex align-items-center w-100 border-0 bg-transparent text-nowrap">
+                        <i class="bi bi-box-arrow-right @(isRtl ? "ms-2" : "me-2")"></i>
+                        <span>@Lang["Nav_SignOut"]</span>
+                    </button>
+                </form>
+            </li>
+        </ul>
     </li>
 }
 else
 {
     <li class="nav-item">
-        <a class="nav-link nav-link-literary" asp-area="Identity" asp-page="/Account/Register">
-            <i class="bi bi-feather @(Lang.IsRtl ? "ms-1" : "me-1")"></i>@Lang["Nav_Register"]
+        <a class="nav-link nav-link-literary px-2 py-1 text-nowrap" asp-area="Identity" asp-page="/Account/Register">
+            <i class="bi bi-feather @(isRtl ? "ms-1" : "me-1")"></i>@Lang["Nav_Register"]
         </a>
     </li>
     <li class="nav-item">
-        <a class="btn btn-outline-primary btn-sm px-3 rounded-pill" asp-area="Identity" asp-page="/Account/Login">
-            <i class="bi bi-person @(Lang.IsRtl ? "ms-1" : "me-1")"></i>@Lang["Nav_SignIn"]
+        <a class="btn btn-outline-primary btn-sm px-3 py-1 rounded-pill text-nowrap" asp-area="Identity" asp-page="/Account/Login">
+            <i class="bi bi-person @(isRtl ? "ms-1" : "me-1")"></i>@Lang["Nav_SignIn"]
         </a>
     </li>
 }
-</ul>
