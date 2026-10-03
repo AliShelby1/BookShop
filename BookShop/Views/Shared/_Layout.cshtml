@@ -7,7 +7,36 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - @(Lang.IsRtl ? "بوك شوب" : "BookShop")</title>
+    @{
+        var brandName = Lang.IsRtl ? "بوك شوب" : "BookShop";
+        var defaultTagline = Lang.IsRtl ? "مكتبة ومطبوعات أدبية مستقلة" : "Curated Editions & Independent Booksellers";
+        var pageTitle = ViewData["Title"]?.ToString()?.Trim();
+        var isHome = string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Home", StringComparison.OrdinalIgnoreCase) 
+                     && string.Equals(ViewContext.RouteData.Values["action"]?.ToString(), "Index", StringComparison.OrdinalIgnoreCase);
+
+        string browserTabTitle;
+        if (isHome)
+        {
+            browserTabTitle = $"{brandName} — {defaultTagline}";
+        }
+        else if (!string.IsNullOrEmpty(pageTitle) && !pageTitle.Equals(defaultTagline, StringComparison.OrdinalIgnoreCase))
+        {
+            browserTabTitle = $"{pageTitle} · {brandName}";
+        }
+        else
+        {
+            browserTabTitle = $"{brandName} — {defaultTagline}";
+        }
+    }
+    <title>@browserTabTitle</title>
+    
+    <!-- Browser Tab Favicon & Brand Icons -->
+    <link rel="icon" type="image/svg+xml" href="~/favicon.svg" asp-append-version="true" />
+    <link rel="icon" type="image/png" sizes="32x32" href="~/favicon-32x32.png" asp-append-version="true" />
+    <link rel="icon" type="image/png" sizes="16x16" href="~/favicon-16x16.png" asp-append-version="true" />
+    <link rel="alternate icon" type="image/x-icon" href="~/favicon.ico" asp-append-version="true" />
+    <link rel="apple-touch-icon" sizes="180x180" href="~/apple-touch-icon.png" />
+    <meta name="theme-color" content="#7D573F" />
     
     <!-- Google Fonts Preconnect & Styles (Classical Serif Lora/Amiri & Modern Sans Plus Jakarta Sans/Cairo) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

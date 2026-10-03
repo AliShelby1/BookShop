@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <!-- Warm Cafe Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8C6239" />
+      <stop offset="100%" stop-color="#4E3321" />
+    </linearGradient>
+    <!-- Warm Caramel Gold Gradient -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F2D1A0" />
+      <stop offset="100%" stop-color="#B88559" />
+    </linearGradient>
+    <!-- Terracotta Bookmark Ribbon Gradient -->
+    <linearGradient id="ribbonGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#C06449" />
+      <stop offset="100%" stop-color="#8B3A23" />
+    </linearGradient>
+    <!-- Soft Page Drop Shadow -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <!-- Squircle Base (Signature Warm Café) -->
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#bgGrad)" />
+  <rect x="3.5" y="3.5" width="57" height="57" rx="14.5" fill="none" stroke="url(#goldGrad)" stroke-width="1.5" stroke-opacity="0.4" />
+
+  <!-- Book Hardcover Base Curve (Caramel Gold) -->
+  <path d="M 11 44.5 C 19 41.5 28 42 32 46 C 36 42 45 41.5 53 44.5 C 53.5 45.5 52.5 46.5 51.5 47 C 44 44 36 45 32 49 C 28 45 20 44 12.5 47 C 11.5 46.5 10.5 45.5 11 44.5 Z" 
+        fill="url(#goldGrad)" opacity="0.9" />
+
+  <!-- Open Book Pages (Warm Parchment/Cream) -->
+  <g filter="url(#shadow)">
+    <!-- Left Page Wing -->
+    <path d="M 32 44.5 C 27.5 40.5 19 40 12 43 C 11.5 43.2 11 42.8 11 42.2 L 11 20.8 C 11 20.2 11.5 19.8 12.1 19.6 C 19.5 17.5 27.5 18.5 32 23.5 Z" 
+          fill="#FAF7F2" />
+    <!-- Right Page Wing -->
+    <path d="M 32 44.5 C 36.5 40.5 45 40 52 43 C 52.5 43.2 53 42.8 53 42.2 L 53 20.8 C 53 20.2 52.5 19.8 51.9 19.6 C 44.5 17.5 36.5 18.5 32 23.5 Z" 
+          fill="#F4EFE6" />
+  </g>
+
+  <!-- Spine Centerfold Shading -->
+  <path d="M 31 23.5 L 33 23.5 L 32.5 45 L 31.5 45 Z" fill="#4A3A31" opacity="0.25" />
+
+  <!-- Page Text Emboss Lines (Left Page) -->
+  <line x1="16" y1="25" x2="27" y2="26.5" stroke="#D8CDBC" stroke-width="1.75" stroke-linecap="round" />
+  <line x1="16" y1="30" x2="27" y2="31.5" stroke="#D8CDBC" stroke-width="1.75" stroke-linecap="round" />
+  <line x1="16" y1="35" x2="25" y2="36.5" stroke="#D8CDBC" stroke-width="1.75" stroke-linecap="round" />
+
+  <!-- Page Text Emboss Lines (Right Page) -->
+  <line x1="37" y1="26.5" x2="48" y2="25" stroke="#CEBFAB" stroke-width="1.75" stroke-linecap="round" />
+  <line x1="37" y1="31.5" x2="48" y2="30" stroke="#CEBFAB" stroke-width="1.75" stroke-linecap="round" />
+  <line x1="39" y1="36.5" x2="48" y2="35" stroke="#CEBFAB" stroke-width="1.75" stroke-linecap="round" />
+
+  <!-- Elegant Terracotta Ribbon Bookmark Hanging from Spine -->
+  <path d="M 30.5 22 L 33.5 22 L 33.5 39 L 32 37.5 L 30.5 39 Z" 
+        fill="url(#ribbonGrad)" filter="url(#shadow)" />
+
+  <!-- Delicate Accent Motif above Spine -->
+  <circle cx="32" cy="12" r="1.5" fill="#F2D1A0" opacity="0.85" />
+</svg>
